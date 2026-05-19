@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sprout ✿ growth gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { padding-bottom: 60px; }
+
+  .gallery-header {
+    text-align: center;
+    padding: 40px 20px 10px;
+  }
+  .gallery-header h1 { margin: 0; }
+  .gallery-header .tagline { margin-top: 8px; }
+  .gallery-back {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--pink-500);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 2px dotted var(--pink-200);
+  }
+  .gallery-back:hover { color: var(--pink-700); }
+
+  .slider-card {
+    max-width: 700px;
+    margin: 24px auto;
+    text-align: center;
+  }
+  .slider-card .big-plant {
+    height: 380px;
+    background: linear-gradient(180deg, #eaf7ff 0%, #fef1f6 55%, #fff5f8 100%);
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .slider-card .big-plant svg { width: 100%; height: 100%; }
+  .slider-card .big-plant .ground {
+    position: absolute; bottom: 38px; left: 18%; right: 18%; height: 14px;
+    background: linear-gradient(180deg, #f6c9b8, #e89878);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 1;
+  }
+  .slider-card .big-plant .pot-base {
+    position: absolute; bottom: 0; left: 14%; right: 14%; height: 50px;
+    background: linear-gradient(180deg, #ffb89c 0%, #ff9377 100%);
+    border-radius: 0 0 20px 20px;
+  }
+  .slider-card .big-plant .pot-base::before {
+    content: ''; position: absolute; top: -8px; left: -6px; right: -6px; height: 16px;
+    background: linear-gradient(180deg, #ffcdb8, #ff9d7e); border-radius: 8px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 22px 8px 8px;
+  }
+  .slider-row input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: linear-gradient(90deg, var(--pink-200), var(--green-200));
+    border-radius: 999px;
+    outline: none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px; height: 22px;
+    background: white;
+    border: 3px solid var(--pink-500);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+  }
+  .slider-row input[type=range]::-moz-range-thumb {
+    width: 22px; height: 22px;
+    background: white;
+    border: 3px solid var(--pink-500);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .slider-readout {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--green-700);
+    min-width: 70px;
+  }
+  .slider-stage {
+    font-family: 'Fredoka', sans-serif;
+    color: var(--pink-700);
+    font-size: 16px;
+  }
+
+  .grid-title {
+    text-align: center;
+    margin: 50px 0 18px;
+    font-family: 'Fredoka', sans-serif;
+    color: var(--ink-soft);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .mini {
+    background: rgba(255, 255, 255, 0.85);
+    border: 2px solid white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    padding: 12px;
+    text-align: center;
+  }
+  .mini .frame {
+    position: relative;
+    height: 240px;
+    background: linear-gradient(180deg, #eaf7ff 0%, #fef1f6 55%, #fff5f8 100%);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .mini .frame svg { width: 100%; height: 100%; }
+  .mini .frame .ground {
+    position: absolute; bottom: 20px; left: 18%; right: 18%; height: 8px;
+    background: linear-gradient(180deg, #f6c9b8, #e89878);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 1;
+  }
+  .mini .frame .pot-base {
+    position: absolute; bottom: 0; left: 18%; right: 18%; height: 28px;
+    background: linear-gradient(180deg, #ffb89c 0%, #ff9377 100%);
+    border-radius: 0 0 12px 12px;
+  }
+  .mini .frame .pot-base::before {
+    content: ''; position: absolute; top: -5px; left: -4px; right: -4px; height: 10px;
+    background: linear-gradient(180deg, #ffcdb8, #ff9d7e); border-radius: 5px;
+  }
+  .mini .count {
+    margin-top: 10px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    color: var(--green-700);
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  .mini .stage {
+    font-family: 'Fredoka', sans-serif;
+    color: var(--pink-700);
+    font-size: 14px;
+  }
+  .mini .small-label {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="floaties" aria-hidden="true">
+  <span class="floaty">✿</span><span class="floaty">❀</span><span class="floaty">✾</span>
+  <span class="floaty">🌱</span><span class="floaty">♡</span><span class="floaty">✿</span><span class="floaty">❀</span>
+</div>
+
+<div class="gallery-header">
+  <h1 class="logo">growth gallery</h1>
+  <p class="tagline">drag the slider — every message grows a new leaf ✿</p>
+  <a class="gallery-back" href="index.html">← back to sprout</a>
+</div>
+
+<!-- big interactive slider -->
+<div class="card slider-card">
+  <div class="big-plant">
+    <svg id="bigSvg" viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+    <div class="ground"></div>
+    <div class="pot-base"></div>
+  </div>
+  <div class="slider-row">
+    <span class="slider-readout"><span id="bigCount">0</span> 🍃</span>
+    <input id="bigSlider" type="range" min="0" max="25" step="1" value="0"/>
+  </div>
+  <p class="slider-stage" id="bigStage">a tiny seed sleeps 💤</p>
+</div>
+
+<h2 class="grid-title">— every stage at a glance —</h2>
+
+<div class="grid" id="grid"></div>
+
+<script src="plant.js"></script>
+<script>
+  // fake leaves: drawPlant only reads .length (and per-leaf properties for click handlers,
+  // which we skip here since openLeaf isn't defined on this page)
+  const fakeLeaves = n => Array.from({ length: n }, (_, i) => ({
+    msg: '', fromName: 'preview', fromId: 'preview', anon: false, at: Date.now() - i * 1000,
+  }));
+
+  // ---------- interactive slider ----------
+  const slider = document.getElementById('bigSlider');
+  const bigSvg = document.getElementById('bigSvg');
+  const countLabel = document.getElementById('bigCount');
+  const stageLabel = document.getElementById('bigStage');
+
+  function renderBig(n) {
+    countLabel.textContent = n;
+    const info = stageInfo(n);
+    stageLabel.textContent = `${info.name} — ${info.banner}`;
+    drawPlant(fakeLeaves(n), bigSvg);
+  }
+  slider.addEventListener('input', e => renderBig(+e.target.value));
+  renderBig(0);
+
+  // ---------- mini grid ----------
+  const stops = [0, 1, 2, 3, 5, 7, 9, 12, 16, 22];
+  const grid = document.getElementById('grid');
+  stops.forEach(n => {
+    const info = stageInfo(n);
+    const card = document.createElement('div');
+    card.className = 'mini';
+    card.innerHTML = `
+      <div class="frame">
+        <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+        <div class="ground"></div>
+        <div class="pot-base"></div>
+      </div>
+      <div class="count">${n} 🍃</div>
+      <div class="stage">${info.name}</div>
+      <div class="small-label">${n === 0 ? 'no messages yet' : `${n} kind message${n > 1 ? 's' : ''} received`}</div>
+    `;
+    grid.appendChild(card);
+    const svg = card.querySelector('svg');
+    drawPlant(fakeLeaves(n), svg);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# editor / OS junk
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# oh-my-claudecode local state
+.omc/
+
+# logs
+*.log

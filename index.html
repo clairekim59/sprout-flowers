@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sprout ✿ grow with kindness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- floating decoration -->
+<div class="floaties" aria-hidden="true">
+  <span class="floaty">✿</span>
+  <span class="floaty">❀</span>
+  <span class="floaty">✾</span>
+  <span class="floaty">🌱</span>
+  <span class="floaty">♡</span>
+  <span class="floaty">✿</span>
+  <span class="floaty">❀</span>
+</div>
+
+<!-- ========= LOGIN ========= -->
+<section class="view" id="view-login">
+  <div class="card auth-card">
+    <h1 class="logo">Sprout</h1>
+    <p class="tagline">grow a plant with kind words ♡</p>
+
+    <form id="loginForm" class="form">
+      <label>
+        <span>email</span>
+        <input type="email" id="loginIdent" required placeholder="hello@sprout.cute" autocomplete="username"/>
+      </label>
+      <label>
+        <span>password</span>
+        <input type="password" id="loginPass" required placeholder="••••••••" autocomplete="current-password"/>
+      </label>
+      <button class="btn btn-pink" type="submit">log in ✿</button>
+      <p class="error" id="loginError"></p>
+    </form>
+
+    <p class="swap">no account yet? <a href="#" data-go="signup">sign up here</a></p>
+  </div>
+</section>
+
+<!-- ========= SIGNUP ========= -->
+<section class="view" id="view-signup" hidden>
+  <div class="card auth-card">
+    <h1 class="logo">Sprout</h1>
+    <p class="tagline">plant your seed ✿</p>
+
+    <form id="signupForm" class="form">
+      <label>
+        <span>display name <span class="hint-inline">(leave blank to use the suggestion)</span></span>
+        <input type="text" id="suName" maxlength="30" placeholder="leafy"/>
+      </label>
+      <label>
+        <span>email</span>
+        <input type="email" id="suEmail" required placeholder="hello@sprout.cute"/>
+      </label>
+      <label>
+        <span>password</span>
+        <input type="password" id="suPass" required minlength="6" placeholder="at least 6 chars"/>
+      </label>
+      <button class="btn btn-green" type="submit">create my sprout 🌱</button>
+      <p class="error" id="signupError"></p>
+    </form>
+
+    <p class="swap">already growing? <a href="#" data-go="login">log in here</a></p>
+  </div>
+</section>
+
+<!-- ========= MAIN ========= -->
+<section class="view" id="view-main" hidden>
+  <header class="topbar">
+    <div class="brand" data-go="main"><span class="logo small">Sprout</span></div>
+    <nav class="nav">
+      <button class="navbtn" data-open="send">send a note ✉</button>
+      <button class="navbtn" data-open="sent">my sent ♡</button>
+      <button class="navbtn ghost" id="logoutBtn">log out</button>
+    </nav>
+  </header>
+
+  <div class="main-wrap">
+    <!-- profile -->
+    <aside class="card profile-card">
+      <div class="avatar" id="profAvatar">✿</div>
+      <h2 id="profName">your name</h2>
+      <p class="muted">your sprout id</p>
+      <div class="id-chip" id="profId" title="click to copy">—</div>
+      <p class="muted small" id="profEmail">—</p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num" id="leafCount">0</div>
+          <div class="stat-label">leaves 🍃</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stageName">seed</div>
+          <div class="stat-label">stage</div>
+        </div>
+      </div>
+
+      <p class="hint">share your id with friends so they can water your plant with kind words ♡</p>
+    </aside>
+
+    <!-- plant -->
+    <section class="card plant-card">
+      <div class="plant-stage-banner" id="plantStageBanner">a tiny seed sleeps 💤</div>
+      <div class="plant-area">
+        <div class="pot">
+          <svg id="plantSvg" viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+        </div>
+        <div class="ground"></div>
+        <div class="pot-base"></div>
+      </div>
+      <p class="hint center">tap a leaf to read the message it grew from ✿</p>
+    </section>
+  </div>
+</section>
+
+<!-- ========= MODAL: send ========= -->
+<div class="modal" id="modal-send" hidden>
+  <div class="modal-card">
+    <button class="x" data-close>✕</button>
+    <h2>send a kind note ✉</h2>
+    <p class="muted">your words will grow a new leaf on their plant ♡</p>
+    <form id="sendForm" class="form">
+      <label>
+        <span>to (email or sprout id)</span>
+        <input type="text" id="sendTo" required placeholder="friend@sprout.cute or plant_a1b2"/>
+      </label>
+      <label>
+        <span>your message <span class="hint-inline">(leave blank to use the suggestion)</span></span>
+        <textarea id="sendMsg" maxlength="240" rows="4" placeholder="you make the world brighter ✿"></textarea>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="sendAnon"/>
+        <span>send anonymously (they won't see who, but your sent box will remember)</span>
+      </label>
+      <button class="btn btn-green" type="submit">send & sprout 🌱</button>
+      <p class="error" id="sendError"></p>
+      <p class="success" id="sendSuccess"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ========= MODAL: sent ========= -->
+<div class="modal" id="modal-sent" hidden>
+  <div class="modal-card wide">
+    <button class="x" data-close>✕</button>
+    <h2>your sent notes ♡</h2>
+    <p class="muted">a little garden of kindness you've planted</p>
+    <ul class="sent-list" id="sentList"></ul>
+  </div>
+</div>
+
+<!-- ========= MODAL: leaf ========= -->
+<div class="modal" id="modal-leaf" hidden>
+  <div class="modal-card small">
+    <button class="x" data-close>✕</button>
+    <div class="leaf-head">
+      <div class="leaf-emoji">🍃</div>
+      <div>
+        <h3 id="leafFrom">from someone</h3>
+        <p class="muted small" id="leafDate"></p>
+      </div>
+    </div>
+    <p class="leaf-msg" id="leafMsg">…</p>
+  </div>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script src="plant.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
