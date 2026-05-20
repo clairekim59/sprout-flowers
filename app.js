@@ -67,6 +67,21 @@ function toast(msg, kind = 'green') {
   }, 2400);
 }
 
+// ---------- auto-fit text ----------
+// Shrink font-size until the element's content fits within its container width.
+function fitText(el, maxPx, minPx) {
+  if (!el) return;
+  maxPx = maxPx || 26;
+  minPx = minPx || 12;
+  let size = maxPx;
+  el.style.fontSize = size + 'px';
+  // shrink one px at a time until the text stops overflowing its own box
+  while (el.scrollWidth > el.clientWidth && size > minPx) {
+    size -= 1;
+    el.style.fontSize = size + 'px';
+  }
+}
+
 // ---------- click-to-copy ----------
 function enableCopyOnClick(el) {
   if (!el) return;
@@ -244,8 +259,16 @@ async function renderMain() {
   document.getElementById('leafCount').textContent = leaves.length;
 
   const stage = stageInfo(leaves.length);
-  document.getElementById('stageName').textContent = stage.name;
+  const stageEl = document.getElementById('stageName');
+  const leafCountEl = document.getElementById('leafCount');
+  stageEl.textContent = stage.name;
   document.getElementById('plantStageBanner').textContent = stage.banner;
+
+  // auto-shrink stat values so long words like "flourishing" still fit fully
+  requestAnimationFrame(() => {
+    fitText(stageEl, 26, 14);
+    fitText(leafCountEl, 26, 14);
+  });
 
   drawPlant(leaves);
   refreshGardenBadge();
