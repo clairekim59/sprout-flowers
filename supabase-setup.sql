@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   email         text not null unique,
   display_name  text not null,
   sprout_id     text not null unique,
+  leaf_count    integer not null default 0,
   created_at    timestamptz not null default now()
 );
 
@@ -79,3 +80,63 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ---------- leaf_count auto-update ----------
+create or replace function public.bump_leaf_count()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if (tg_op = 'INSERT') then
+    update public.profiles
+       set leaf_count = leaf_count + 1
+     where id = new.recipient_id;
+  elsif (tg_op = 'DELETE') then
+    update public.profiles
+       set leaf_count = greatest(leaf_count - 1, 0)
+     where id = old.recipient_id;
+  end if;
+  return null;
+end;
+$$;
+
+drop trigger if exists on_message_insert on public.messages;
+create trigger on_message_insert
+  after insert on public.messages
+  for each row execute function public.bump_leaf_count();
+
+drop trigger if exists on_message_delete on public.messages;
+create trigger on_message_delete
+  after delete on public.messages
+  for each row execute function public.bump_leaf_count();
+
+-- ---------- friends (my garden) ----------
+create table if not exists public.friends (
+  id          uuid primary key default gen_random_uuid(),
+  owner_id    uuid not null references public.profiles(id) on delete cascade,
+  friend_id   uuid not null references public.profiles(id) on delete cascade,
+  created_at  timestamptz not null default now(),
+  unique (owner_id, friend_id),
+  check (owner_id <> friend_id)
+);
+
+create index if not exists friends_owner_idx on public.friends(owner_id);
+
+alter table public.friends enable row level security;
+
+drop policy if exists "friends_select_own" on public.friends;
+create policy "friends_select_own"
+  on public.friends for select to authenticated
+  using (auth.uid() = owner_id);
+
+drop policy if exists "friends_insert_own" on public.friends;
+create policy "friends_insert_own"
+  on public.friends for insert to authenticated
+  with check (auth.uid() = owner_id);
+
+drop policy if exists "friends_delete_own" on public.friends;
+create policy "friends_delete_own"
+  on public.friends for delete to authenticated
+  using (auth.uid() = owner_id);

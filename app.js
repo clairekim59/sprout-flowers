@@ -236,14 +236,18 @@ document.getElementById('profId').addEventListener('click', () => {
 });
 
 // ---------- modals ----------
-function openModal(id) {
+function openModal(id, preset) {
   document.getElementById('modal-' + id).hidden = false;
-  if (id === 'sent') renderSent();
+  if (id === 'sent')   renderSent();
+  if (id === 'garden') renderGarden();
   if (id === 'send') {
     document.getElementById('sendForm').reset();
     document.getElementById('sendError').textContent = '';
     document.getElementById('sendSuccess').textContent = '';
     document.getElementById('sendMsg').placeholder = randomCuteMsg();
+    if (preset && preset.to) {
+      document.getElementById('sendTo').value = preset.to;
+    }
   }
 }
 function closeAllModals() {
@@ -323,6 +327,96 @@ async function renderSent() {
     list.appendChild(li);
   });
 }
+
+// ---------- my garden ----------
+async function renderGarden() {
+  const grid = document.getElementById('friendGrid');
+  document.getElementById('friendError').textContent = '';
+  document.getElementById('friendSuccess').textContent = '';
+  grid.innerHTML = '<div class="friend-empty">loading your garden…</div>';
+
+  const friends = await db.myFriends();
+  grid.innerHTML = '';
+
+  if (!friends.length) {
+    grid.innerHTML = '<div class="friend-empty">your garden is empty — add a sprout above to start growing it ✿</div>';
+    return;
+  }
+
+  friends.forEach(f => {
+    const stage = stageInfo(f.leafCount);
+    const card = document.createElement('div');
+    card.className = 'friend-card';
+    card.innerHTML = `
+      <button class="remove-friend" title="remove from garden" data-row="${escapeHtml(f.rowId)}">✕</button>
+      <div class="mini-plant">
+        <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+        <div class="ground"></div>
+        <div class="pot-base"></div>
+      </div>
+      <div class="f-name">${escapeHtml(f.name)}</div>
+      <div class="f-id">${escapeHtml(f.sproutId)}</div>
+      <div class="f-stat">${f.leafCount} 🍃 · ${escapeHtml(stage.name)}</div>
+      <div>
+        <button class="f-send" data-sprout="${escapeHtml(f.sproutId)}">send a note ✉</button>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    const svg = card.querySelector('svg');
+    const dummyLeaves = Array.from({ length: f.leafCount }, (_, i) => ({
+      msg: '', anon: false, fromName: f.name, fromId: f.sproutId, at: 0,
+    }));
+    drawPlant(dummyLeaves, svg, { interactive: false });
+  });
+}
+
+document.getElementById('addFriendForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const input = document.getElementById('addFriendInput');
+  const ident = input.value.trim();
+  const errEl = document.getElementById('friendError');
+  const okEl  = document.getElementById('friendSuccess');
+  errEl.textContent = ''; okEl.textContent = '';
+  if (!ident) return;
+
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'adding…';
+  try {
+    const target = await db.addFriend(ident);
+    okEl.textContent = `${target.display_name} joined your garden 🌱`;
+    input.value = '';
+    renderGarden();
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = (err && err.message) || 'something went wrong';
+  } finally {
+    btn.disabled = false; btn.textContent = 'add ♡';
+  }
+});
+
+document.getElementById('friendGrid').addEventListener('click', async e => {
+  const sendBtn = e.target.closest('.f-send');
+  if (sendBtn) {
+    const sproutId = sendBtn.dataset.sprout;
+    closeAllModals();
+    openModal('send', { to: sproutId });
+    return;
+  }
+  const removeBtn = e.target.closest('.remove-friend');
+  if (removeBtn) {
+    const rowId = removeBtn.dataset.row;
+    if (!confirm('remove this sprout from your garden? ✿')) return;
+    try {
+      await db.removeFriend(rowId);
+      toast('removed from garden ♡', 'pink');
+      renderGarden();
+    } catch (err) {
+      console.error(err);
+      toast('could not remove', 'pink');
+    }
+  }
+});
 
 // ---------- leaf click ----------
 function openLeaf(leaf) {

@@ -34,7 +34,7 @@
       if (!session) return null;
       const { data, error } = await sb
         .from('profiles')
-        .select('id, email, display_name, sprout_id, created_at')
+        .select('id, email, display_name, sprout_id, leaf_count, created_at')
         .eq('id', session.user.id)
         .maybeSingle();
       if (error) { console.error(error); return null; }
@@ -129,6 +129,49 @@
         toId:   m.recipient ? m.recipient.sprout_id   : '?',
         at: new Date(m.created_at).getTime(),
       }));
+    },
+
+    async myFriends() {
+      const me = await this.currentProfile();
+      if (!me) return [];
+      const { data, error } = await sb
+        .from('friends')
+        .select('id, created_at, friend:profiles!friend_id(id, display_name, sprout_id, leaf_count)')
+        .eq('owner_id', me.id)
+        .order('created_at', { ascending: false });
+      if (error) { console.error(error); return []; }
+      return (data || []).map(row => ({
+        rowId: row.id,
+        addedAt: row.created_at,
+        id: row.friend ? row.friend.id : null,
+        name: row.friend ? row.friend.display_name : '(deleted)',
+        sproutId: row.friend ? row.friend.sprout_id : '?',
+        leafCount: row.friend ? row.friend.leaf_count : 0,
+      }));
+    },
+
+    async addFriend(identifier) {
+      const me = await this.currentProfile();
+      if (!me) throw new Error('not logged in');
+      const target = await this.findProfile(identifier);
+      if (!target) throw new Error('no sprout found with that id or email ✿');
+      if (target.id === me.id) throw new Error('you’re already in your own garden ♡');
+      const { error } = await sb.from('friends').insert({
+        owner_id: me.id,
+        friend_id: target.id,
+      });
+      if (error) {
+        if (/duplicate|unique/i.test(error.message)) {
+          throw new Error('they’re already in your garden ✿');
+        }
+        throw error;
+      }
+      return target;
+    },
+
+    async removeFriend(rowId) {
+      const { error } = await sb.from('friends').delete().eq('id', rowId);
+      if (error) throw error;
     },
 
     onAuth(cb) {

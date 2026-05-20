@@ -18,9 +18,11 @@ function svgEl(tag, attrs = {}, parent) {
   return el;
 }
 
-function drawPlant(leaves, svg) {
+function drawPlant(leaves, svg, opts) {
   svg = svg || document.getElementById('plantSvg');
   if (!svg) return;
+  opts = opts || {};
+  const interactive = opts.interactive !== false;
   svg.innerHTML = '';
 
   // defs: gradients
@@ -100,9 +102,9 @@ function drawPlant(leaves, svg) {
     const isFlower = (n >= 10) && (i % 4 === 3);
 
     if (isFlower) {
-      drawFlower(swayGroup, x, y, side, leaf, i === n - 1);
+      drawFlower(swayGroup, x, y, side, leaf, i === n - 1, interactive);
     } else {
-      drawLeaf(swayGroup, x, y, side, leaf, i === n - 1, i);
+      drawLeaf(swayGroup, x, y, side, leaf, i === n - 1, i, interactive);
     }
   });
 
@@ -111,9 +113,9 @@ function drawPlant(leaves, svg) {
   }
 }
 
-function drawLeaf(parent, x, y, side, leaf, animate, idx) {
+function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive) {
   const g = svgEl('g', {
-    class: 'leaf' + (animate ? ' grow-in' : ''),
+    class: 'leaf' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
     transform: `translate(${x}, ${y}) rotate(${side * 35})`,
   }, parent);
 
@@ -137,15 +139,15 @@ function drawLeaf(parent, x, y, side, leaf, animate, idx) {
     fill: 'white', opacity: 0.7,
   }, g);
 
-  if (typeof openLeaf === 'function') {
+  if (interactive !== false && typeof openLeaf === 'function') {
     g.addEventListener('click', () => openLeaf(leaf));
   }
   g.setAttribute('aria-label', leaf.anon ? 'message from someone anonymous' : `message from ${leaf.fromName}`);
 }
 
-function drawFlower(parent, x, y, side, leaf, animate) {
+function drawFlower(parent, x, y, side, leaf, animate, interactive) {
   const g = svgEl('g', {
-    class: 'flower' + (animate ? ' grow-in' : ''),
+    class: 'flower' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
     transform: `translate(${x}, ${y})`,
   }, parent);
 
@@ -161,7 +163,7 @@ function drawFlower(parent, x, y, side, leaf, animate) {
   }
   svgEl('circle', { cx: 0, cy: 0, r: 5, fill: '#ffe27a', stroke: '#e8a93b', 'stroke-width': 1 }, g);
 
-  if (typeof openLeaf === 'function') {
+  if (interactive !== false && typeof openLeaf === 'function') {
     g.addEventListener('click', () => openLeaf(leaf));
   }
 }
