@@ -447,6 +447,44 @@ h3 {
 
 /* ---------- plant ---------- */
 .plant-card { display: flex; flex-direction: column; }
+.plant-name {
+  font-family: 'Pacifico', 'Nanum Myeongjo', cursive;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--pink-700);
+  text-align: center;
+  margin: 0 0 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.plant-name:hover { background: var(--pink-50); }
+.plant-name.unnamed {
+  font-family: 'Quicksand', 'Poor Story', sans-serif;
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+[lang="ko"] .plant-name {
+  font-family: 'Nanum Myeongjo', serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+[lang="ko"] .plant-name.unnamed {
+  font-family: 'Quicksand', 'Poor Story', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  font-style: normal;
+}
+
+.graduate-btn {
+  display: block;
+  margin: 14px auto 4px;
+  font-size: 14px;
+  padding: 10px 22px;
+}
+
 .plant-stage-banner {
   text-align: center;
   font-family: 'Fredoka', 'Poor Story', sans-serif;

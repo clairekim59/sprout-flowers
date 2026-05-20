@@ -148,6 +148,18 @@
       'copy.title': 'click to copy',
       'copy.success': 'copied to clipboard ♡',
       'copy.fail': 'could not copy ✿',
+
+      'plant.name.fallback': 'name your plant ✿',
+      'plant.name.title': 'click to rename your plant',
+      'plant.rename.prompt': 'what should we call your plant?',
+      'plant.rename.toast': 'plant renamed ♡',
+      'plant.rename.fail': 'could not rename ✿',
+      'plant.graduate.btn': 'graduate & plant a new seed 🌱',
+      'plant.graduate.confirm': 'your plant is flourishing! graduate this plant and start a fresh seed?',
+      'plant.graduate.toast': 'a new seed is sleeping in the soil 🌱',
+      'plant.graduate.fail': 'could not graduate ✿',
+
+      'db.error.noplant': 'no active plant',
     },
 
     ko: {
@@ -291,6 +303,18 @@
       'copy.title': '클릭해서 복사',
       'copy.success': '클립보드에 복사됐어요 ♡',
       'copy.fail': '복사할 수 없어요 ✿',
+
+      'plant.name.fallback': '식물 이름을 지어주세요 ✿',
+      'plant.name.title': '클릭해서 이름 바꾸기',
+      'plant.rename.prompt': '식물에게 어떤 이름을 지어줄까요?',
+      'plant.rename.toast': '이름이 바뀌었어요 ♡',
+      'plant.rename.fail': '이름을 바꿀 수 없어요 ✿',
+      'plant.graduate.btn': '졸업하고 새 씨앗 심기 🌱',
+      'plant.graduate.confirm': '식물이 만개했어요! 졸업하고 새 씨앗을 심을까요?',
+      'plant.graduate.toast': '새 씨앗이 흙 속에서 잠들어 있어요 🌱',
+      'plant.graduate.fail': '졸업할 수 없어요 ✿',
+
+      'db.error.noplant': '활성 식물이 없어요',
     },
   };
 

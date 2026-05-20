@@ -272,7 +272,58 @@ async function renderMain() {
 
   drawPlant(leaves);
   refreshGardenBadge();
+
+  // plant name + graduate button
+  const plant = await db.currentPlant();
+  const nameEl = document.getElementById('plantName');
+  const gradBtn = document.getElementById('graduateBtn');
+  if (plant) {
+    if (plant.name && plant.name.trim()) {
+      nameEl.textContent = plant.name;
+      nameEl.classList.remove('unnamed');
+    } else {
+      nameEl.textContent = t('plant.name.fallback');
+      nameEl.classList.add('unnamed');
+    }
+    nameEl.title = t('plant.name.title');
+  }
+  // graduation only available at flourishing (>= 15 leaves)
+  gradBtn.hidden = leaves.length < 15;
 }
+
+// ---------- plant name + graduate ----------
+document.getElementById('plantName').addEventListener('click', async () => {
+  const plant = await db.currentPlant();
+  if (!plant) return;
+  const suggested = (plant.name || '').trim();
+  const next = window.prompt(t('plant.rename.prompt'), suggested);
+  if (next === null) return; // cancelled
+  const trimmed = next.trim().slice(0, 40);
+  try {
+    await db.renamePlant(trimmed);
+    toast(t('plant.rename.toast'));
+    renderMain();
+  } catch (err) {
+    console.error(err);
+    toast(t('plant.rename.fail'), 'pink');
+  }
+});
+
+document.getElementById('graduateBtn').addEventListener('click', async () => {
+  if (!window.confirm(t('plant.graduate.confirm'))) return;
+  const btn = document.getElementById('graduateBtn');
+  btn.disabled = true;
+  try {
+    await db.graduatePlant();
+    toast(t('plant.graduate.toast'));
+    renderMain();
+  } catch (err) {
+    console.error(err);
+    toast(t('plant.graduate.fail'), 'pink');
+  } finally {
+    btn.disabled = false;
+  }
+});
 
 // ---------- modals ----------
 function openModal(id, preset) {

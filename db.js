@@ -18,6 +18,7 @@
   );
 
   let cachedProfile = null;
+  let cachedPlant = null;
 
   const db = {
     client: sb,
@@ -42,6 +43,55 @@
       return data;
     },
 
+    async currentPlant() {
+      if (cachedPlant) return cachedPlant;
+      const session = await this.session();
+      if (!session) return null;
+      const { data, error } = await sb
+        .from('plants')
+        .select('id, name, created_at')
+        .eq('owner_id', session.user.id)
+        .is('archived_at', null)
+        .maybeSingle();
+      if (error) { console.error(error); return null; }
+      cachedPlant = data;
+      return data;
+    },
+
+    async renamePlant(name) {
+      const plant = await this.currentPlant();
+      if (!plant) throw new Error(window.i18n ? window.i18n.t('db.error.noplant') : 'no active plant');
+      const trimmed = (name || '').trim().slice(0, 40) || null;
+      const { error } = await sb
+        .from('plants')
+        .update({ name: trimmed })
+        .eq('id', plant.id);
+      if (error) throw error;
+      cachedPlant = null;
+      return trimmed;
+    },
+
+    async graduatePlant() {
+      const { data, error } = await sb.rpc('graduate_plant');
+      if (error) throw error;
+      cachedPlant = null;
+      cachedProfile = null; // leaf_count was reset
+      return data;
+    },
+
+    async plantHistory() {
+      const session = await this.session();
+      if (!session) return [];
+      const { data, error } = await sb
+        .from('plants')
+        .select('id, name, created_at, archived_at, final_leaf_count')
+        .eq('owner_id', session.user.id)
+        .not('archived_at', 'is', null)
+        .order('archived_at', { ascending: false });
+      if (error) { console.error(error); return []; }
+      return data || [];
+    },
+
     async signUp({ email, password, displayName, sproutId }) {
       const { data, error } = await sb.auth.signUp({
         email,
@@ -52,6 +102,7 @@
       });
       if (error) throw error;
       cachedProfile = null;
+      cachedPlant = null;
       return data;
     },
 
@@ -59,11 +110,13 @@
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       cachedProfile = null;
+      cachedPlant = null;
       return data;
     },
 
     async signOut() {
       cachedProfile = null;
+      cachedPlant = null;
       await sb.auth.signOut();
     },
 
@@ -119,10 +172,12 @@
     async inbox() {
       const me = await this.currentProfile();
       if (!me) return [];
+      const plant = await this.currentPlant();
+      if (!plant) return [];
       const { data, error } = await sb
         .from('messages')
         .select('id, body, anon, created_at, sender:profiles!sender_id(id, display_name, sprout_id)')
-        .eq('recipient_id', me.id)
+        .eq('plant_id', plant.id)
         .order('created_at', { ascending: true });
       if (error) { console.error(error); return []; }
       return (data || []).map(m => ({
@@ -301,6 +356,7 @@
     onAuth(cb) {
       return sb.auth.onAuthStateChange((event, session) => {
         cachedProfile = null;
+        cachedPlant = null;
         if (cb) cb(event, session);
       });
     },
