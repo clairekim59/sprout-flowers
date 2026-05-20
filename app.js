@@ -21,24 +21,12 @@ const CUTE_NOUN = [
   'moon', 'bee', 'bunny', 'fern', 'daisy', 'mochi', 'puff', 'berry',
   'tofu', 'dewdrop', 'kitten', 'duckling',
 ];
-const CUTE_MSGS = [
-  'you make the world brighter ✿',
-  'thinking of you today ♡',
-  "you're a tiny ray of sunshine 🌞",
-  'sending a little leaf of love 🍃',
-  "you're doing amazing, sweetie ✿",
-  'hope your day is soft and cozy ☁',
-  'you bloom so beautifully ❀',
-  'just because — i appreciate you ♡',
-  'a little hi from a friend ✿',
-  'remember to drink some water today 🌱',
-  'your kindness is contagious ♡',
-];
 const cap  = s => s[0].toUpperCase() + s.slice(1);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 function randomCuteName() { return `${pick(CUTE_ADJ)}${cap(pick(CUTE_NOUN))}`; }
-function randomCuteMsg()  { return pick(CUTE_MSGS); }
+function randomCuteMsg()  { return window.i18n ? window.i18n.randomMsg() : pick(['you make the world brighter ✿']); }
+const t  = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
 
 const emailKey = e => e.trim().toLowerCase();
 
@@ -117,17 +105,17 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
   errEl.textContent = '';
 
   if (pass.length < 6) {
-    errEl.textContent = 'password must be at least 6 characters ♡';
+    errEl.textContent = t('signup.error.shortpass');
     return;
   }
 
   const submitBtn = e.target.querySelector('button[type=submit]');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'planting…';
+  submitBtn.textContent = t('signup.submitting');
 
   try {
     if (await db.nicknameTaken(name)) {
-      errEl.textContent = 'that nickname is already taken — try another ✿';
+      errEl.textContent = t('signup.error.nickname');
       return;
     }
 
@@ -139,11 +127,11 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
         const { session } = await db.signUp({ email, password: pass, displayName: name, sproutId });
         if (!session) {
           // email confirmation required
-          toast('check your email to confirm ✿', 'pink');
+          toast(t('signup.confirm.email'), 'pink');
           go('login');
           return;
         }
-        toast(`welcome, ${name} 🌱`);
+        toast(t('signup.welcome', { name }));
         go('main');
         return;
       } catch (err) {
@@ -157,17 +145,17 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
     throw lastErr;
   } catch (err) {
     console.error(err);
-    const msg = (err && err.message) || 'something went wrong ✿';
+    const msg = (err && err.message) || t('common.error');
     if (/display_name_lower/i.test(msg)) {
-      errEl.textContent = 'that nickname is already taken — try another ✿';
+      errEl.textContent = t('signup.error.nickname');
     } else if (/already.*registered/i.test(msg) || /already.*exists/i.test(msg)) {
-      errEl.textContent = 'this email is already growing a plant ✿';
+      errEl.textContent = t('signup.error.email');
     } else {
       errEl.textContent = msg;
     }
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'create my sprout 🌱';
+    submitBtn.textContent = t('signup.submit');
   }
 });
 
@@ -181,31 +169,31 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
 
   const submitBtn = e.target.querySelector('button[type=submit]');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'logging in…';
+  submitBtn.textContent = t('login.submitting');
 
   try {
     await db.signIn({ email, password: pass });
     const me = await db.currentProfile();
     if (!me) {
       await db.signOut();
-      errEl.textContent = 'your profile row is missing — ask the host to recreate it ✿';
+      errEl.textContent = t('login.error.noprofile');
       return;
     }
-    toast(`welcome back, ${me.display_name} ✿`);
+    toast(t('login.welcome', { name: me.display_name }));
     go('main');
   } catch (err) {
     console.error(err);
     const msg = (err && err.message) || '';
     if (/invalid.*credentials/i.test(msg)) {
-      errEl.textContent = 'email or password doesn’t match ♡';
+      errEl.textContent = t('login.error.creds');
     } else if (/confirm/i.test(msg)) {
-      errEl.textContent = 'please confirm your email first ✿';
+      errEl.textContent = t('login.error.confirm');
     } else {
-      errEl.textContent = msg || 'something went wrong';
+      errEl.textContent = msg || t('common.error.generic');
     }
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'log in ✿';
+    submitBtn.textContent = t('login.submit');
   }
 });
 
@@ -213,7 +201,7 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await db.signOut();
   document.getElementById('loginForm').reset();
-  toast('see you soon ♡', 'pink');
+  toast(t('logout.bye'), 'pink');
   go('login');
 });
 
@@ -275,7 +263,7 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
 
   const to     = document.getElementById('sendTo').value.trim();
   const msgEl  = document.getElementById('sendMsg');
-  const msg    = (msgEl.value.trim() || msgEl.placeholder || 'hi ✿').slice(0, 240);
+  const msg    = (msgEl.value.trim() || msgEl.placeholder || t('send.fallback')).slice(0, 240);
   const anon   = document.getElementById('sendAnon').checked;
   const errEl  = document.getElementById('sendError');
   const okEl   = document.getElementById('sendSuccess');
@@ -283,46 +271,47 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
 
   const submitBtn = e.target.querySelector('button[type=submit]');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'sending…';
+  submitBtn.textContent = t('send.submitting');
 
   try {
     const recipient = await db.findProfile(to);
-    if (!recipient) { errEl.textContent = 'no plant found with that email or nickname ✿'; return; }
-    if (recipient.id === me.id) { errEl.textContent = 'you can’t water your own plant ♡'; return; }
+    if (!recipient) { errEl.textContent = t('send.error.notfound'); return; }
+    if (recipient.id === me.id) { errEl.textContent = t('send.error.self'); return; }
 
     await db.sendMessage({ recipientId: recipient.id, body: msg, anon });
 
-    okEl.textContent = `a new leaf sprouted on ${recipient.display_name}'s plant! 🌱`;
+    okEl.textContent = t('send.success', { name: recipient.display_name });
     document.getElementById('sendForm').reset();
-    toast('message sent ✿');
+    toast(t('send.toast'));
   } catch (err) {
     console.error(err);
-    errEl.textContent = (err && err.message) || 'something went wrong';
+    errEl.textContent = (err && err.message) || t('common.error.generic');
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'send & sprout 🌱';
+    submitBtn.textContent = t('send.submit');
   }
 });
 
 // ---------- sent list ----------
 async function renderSent() {
   const list = document.getElementById('sentList');
-  list.innerHTML = '<li class="empty">loading…</li>';
+  list.innerHTML = `<li class="empty">${escapeHtml(t('sent.loading'))}</li>`;
   const items = await db.sentBox();
   list.innerHTML = '';
   if (!items.length) {
-    list.innerHTML = '<li class="empty">no notes sent yet — go plant some kindness ✿</li>';
+    list.innerHTML = `<li class="empty">${escapeHtml(t('sent.empty'))}</li>`;
     return;
   }
   items.forEach(s => {
     const li = document.createElement('li');
     li.className = 'sent-item';
     const date = new Date(s.at).toLocaleString();
+    const toName = s.toName === '(deleted user)' ? t('sent.deleted') : s.toName;
     li.innerHTML = `
       <div class="row">
-        <div>to <span class="to">${escapeHtml(s.toName)}</span>
+        <div>${escapeHtml(t('sent.to'))}<span class="to">${escapeHtml(toName)}</span>
           <span class="muted small">(${escapeHtml(s.toId)})</span>
-          ${s.anon ? '<span class="anon-tag">sent anonymously</span>' : ''}
+          ${s.anon ? `<span class="anon-tag">${escapeHtml(t('sent.anonTag'))}</span>` : ''}
         </div>
         <div>${escapeHtml(date)}</div>
       </div>
@@ -344,7 +333,7 @@ async function renderGarden() {
   const outSection = document.getElementById('outgoingSection');
   const outList    = document.getElementById('outgoingList');
 
-  grid.innerHTML = '<div class="friend-empty">loading your garden…</div>';
+  grid.innerHTML = `<div class="friend-empty">${escapeHtml(t('garden.loading'))}</div>`;
   reqList.innerHTML = '';
   outList.innerHTML = '';
 
@@ -370,8 +359,8 @@ async function renderGarden() {
           ${r.message ? `<div class="ri-msg">"${escapeHtml(r.message)}"</div>` : ''}
         </div>
         <div class="ri-actions">
-          <button class="btn-mini accept"  data-accept="${escapeHtml(r.id)}">accept ✿</button>
-          <button class="btn-mini decline" data-decline="${escapeHtml(r.id)}">decline</button>
+          <button class="btn-mini accept"  data-accept="${escapeHtml(r.id)}">${escapeHtml(t('garden.accept'))}</button>
+          <button class="btn-mini decline" data-decline="${escapeHtml(r.id)}">${escapeHtml(t('garden.decline'))}</button>
         </div>
       `;
       reqList.appendChild(li);
@@ -399,14 +388,14 @@ async function renderGarden() {
   // friends grid
   grid.innerHTML = '';
   if (!friends.length) {
-    grid.innerHTML = '<div class="friend-empty">no sprouts here yet — invite someone above ✿</div>';
+    grid.innerHTML = `<div class="friend-empty">${escapeHtml(t('garden.empty'))}</div>`;
   } else {
     friends.forEach(f => {
       const stage = stageInfo(f.leafCount);
       const card = document.createElement('div');
       card.className = 'friend-card';
       card.innerHTML = `
-        <button class="remove-friend" title="remove from garden" data-row="${escapeHtml(f.rowId)}">✕</button>
+        <button class="remove-friend" title="${escapeHtml(t('garden.removeTitle'))}" data-row="${escapeHtml(f.rowId)}">✕</button>
         <div class="mini-plant">
           <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
           <div class="ground"></div>
@@ -415,7 +404,7 @@ async function renderGarden() {
         <div class="f-name">${escapeHtml(f.name)}</div>
         <div class="f-stat">${f.leafCount} 🍃 · ${escapeHtml(stage.name)}</div>
         <div>
-          <button class="f-send" data-name="${escapeHtml(f.name)}">send a note ✉</button>
+          <button class="f-send" data-name="${escapeHtml(f.name)}">${escapeHtml(t('garden.send'))}</button>
         </div>
       `;
       grid.appendChild(card);
@@ -462,21 +451,21 @@ document.getElementById('addFriendForm').addEventListener('submit', async e => {
   if (!ident) return;
 
   const btn = e.target.querySelector('button[type=submit]');
-  btn.disabled = true; btn.textContent = 'sending…';
+  btn.disabled = true; btn.textContent = t('garden.invite.sending');
   try {
     const { target, autoAccepted } = await db.sendFriendRequest(ident);
     if (autoAccepted) {
-      okEl.textContent = `${target.display_name} joined your garden 🌱 (they had already invited you!)`;
+      okEl.textContent = t('garden.inviteAuto', { name: target.display_name });
     } else {
-      okEl.textContent = `invitation sent to ${target.display_name} 💌`;
+      okEl.textContent = t('garden.inviteSent', { name: target.display_name });
     }
     input.value = '';
     renderGarden();
   } catch (err) {
     console.error(err);
-    errEl.textContent = (err && err.message) || 'something went wrong';
+    errEl.textContent = (err && err.message) || t('common.error.generic');
   } finally {
-    btn.disabled = false; btn.textContent = 'invite ♡';
+    btn.disabled = false; btn.textContent = t('garden.invite.submit');
   }
 });
 
@@ -491,14 +480,14 @@ document.getElementById('friendGrid').addEventListener('click', async e => {
   const removeBtn = e.target.closest('.remove-friend');
   if (removeBtn) {
     const rowId = removeBtn.dataset.row;
-    if (!confirm('remove this sprout from your garden? ✿')) return;
+    if (!confirm(t('garden.removeConfirm'))) return;
     try {
       await db.removeFriend(rowId);
-      toast('removed from garden ♡', 'pink');
+      toast(t('garden.removedToast'), 'pink');
       renderGarden();
     } catch (err) {
       console.error(err);
-      toast('could not remove', 'pink');
+      toast(t('garden.removeFail'), 'pink');
     }
   }
 });
@@ -508,19 +497,19 @@ document.getElementById('requestList').addEventListener('click', async e => {
   if (accept) {
     try {
       await db.acceptRequest(accept.dataset.accept);
-      toast('a new sprout joined your garden 🌱');
+      toast(t('garden.acceptToast'));
       renderGarden();
       renderMain();
-    } catch (err) { console.error(err); toast('could not accept', 'pink'); }
+    } catch (err) { console.error(err); toast(t('garden.acceptFail'), 'pink'); }
     return;
   }
   const decline = e.target.closest('[data-decline]');
   if (decline) {
     try {
       await db.declineRequest(decline.dataset.decline);
-      toast('invitation declined ♡', 'pink');
+      toast(t('garden.declineToast'), 'pink');
       renderGarden();
-    } catch (err) { console.error(err); toast('could not decline', 'pink'); }
+    } catch (err) { console.error(err); toast(t('garden.declineFail'), 'pink'); }
   }
 });
 
@@ -529,9 +518,9 @@ document.getElementById('outgoingList').addEventListener('click', async e => {
   if (!cancel) return;
   try {
     await db.cancelOutgoingRequest(cancel.dataset.cancel);
-    toast('invitation cancelled ♡', 'pink');
+    toast(t('garden.cancelToast'), 'pink');
     renderGarden();
-  } catch (err) { console.error(err); toast('could not cancel', 'pink'); }
+  } catch (err) { console.error(err); toast(t('garden.cancelFail'), 'pink'); }
 });
 
 // ---------- leaf click ----------
@@ -540,8 +529,8 @@ let currentLeaf = null;
 async function openLeaf(leaf) {
   currentLeaf = leaf;
   document.getElementById('leafFrom').textContent = leaf.anon
-    ? 'from someone anonymous ✿'
-    : `from ${leaf.fromName || 'a friend'}`;
+    ? t('leaf.from.anon')
+    : t('leaf.from.named', { name: leaf.fromName || t('leaf.from.friend') });
   document.getElementById('leafDate').textContent = new Date(leaf.at).toLocaleString();
   document.getElementById('leafMsg').textContent  = leaf.msg;
 
@@ -561,7 +550,7 @@ async function openLeaf(leaf) {
     initial.textContent = (leaf.fromName[0] || '✿').toUpperCase();
     row.hidden = false;
     btn.disabled = true;
-    btn.textContent = 'checking…';
+    btn.textContent = t('leaf.invite.checking');
 
     openModal('leaf');
 
@@ -584,23 +573,23 @@ function applyInviteBtnState(rel) {
   btn.dataset.rel = rel;
   switch (rel) {
     case 'friend':
-      btn.textContent = 'already in your garden ✿';
+      btn.textContent = t('leaf.invite.friend');
       btn.disabled = true;
       break;
     case 'request_sent':
-      btn.textContent = 'invitation pending ⏳';
+      btn.textContent = t('leaf.invite.pending');
       btn.disabled = true;
       break;
     case 'request_received':
-      btn.textContent = 'accept their invitation ♡';
+      btn.textContent = t('leaf.invite.accept');
       btn.disabled = false;
       break;
     case 'self':
-      btn.textContent = 'this is you ✿';
+      btn.textContent = t('leaf.invite.self');
       btn.disabled = true;
       break;
     default:
-      btn.textContent = 'invite to my garden 💌';
+      btn.textContent = t('leaf.invite.default');
       btn.disabled = false;
   }
 }
@@ -611,18 +600,16 @@ document.getElementById('leafInviteBtn').addEventListener('click', async () => {
   const rel = btn.dataset.rel;
   btn.disabled = true;
   const original = btn.textContent;
-  btn.textContent = 'sending…';
+  btn.textContent = t('leaf.invite.sending');
 
   try {
     if (rel === 'request_received') {
       // accept the incoming request
-      const me = await db.currentProfile();
-      // we need the request id — fetch incoming list and find it
       const incoming = await db.incomingRequests();
       const match = incoming.find(r => r.fromId === currentLeaf.fromProfileId);
       if (match) {
         await db.acceptRequest(match.id);
-        toast(`${currentLeaf.fromName} joined your garden 🌱`);
+        toast(t('leaf.joinedToast', { name: currentLeaf.fromName }));
         applyInviteBtnState('friend');
       } else {
         applyInviteBtnState('none');
@@ -630,17 +617,17 @@ document.getElementById('leafInviteBtn').addEventListener('click', async () => {
     } else {
       const { autoAccepted, target } = await db.sendFriendRequest(currentLeaf.fromProfileId);
       if (autoAccepted) {
-        toast(`${target.display_name} joined your garden 🌱`);
+        toast(t('leaf.joinedToast', { name: target.display_name }));
         applyInviteBtnState('friend');
       } else {
-        toast('invitation sent 💌');
+        toast(t('leaf.sentToast'));
         applyInviteBtnState('request_sent');
       }
     }
     refreshGardenBadge();
   } catch (err) {
     console.error(err);
-    toast((err && err.message) || 'could not send', 'pink');
+    toast((err && err.message) || t('leaf.sendFail'), 'pink');
     btn.disabled = false;
     btn.textContent = original;
   }
@@ -664,6 +651,30 @@ window.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals
 
 (async function boot() {
   if (!ensureConfigured()) return;
+
+  // i18n: apply persisted language, then re-render dynamic content on change
+  if (window.i18n) {
+    window.i18n.init();
+    window.i18n.on(() => {
+      if (!views.main.hidden) {
+        renderMain().catch(err => console.error(err));
+      }
+      if (!document.getElementById('modal-sent').hidden)   renderSent();
+      if (!document.getElementById('modal-garden').hidden) renderGarden();
+      // re-pick random cute message placeholder if the send modal is open
+      if (!document.getElementById('modal-send').hidden) {
+        document.getElementById('sendMsg').placeholder = randomCuteMsg();
+      }
+      // refresh leaf modal button state if open
+      if (!document.getElementById('modal-leaf').hidden && currentLeaf) {
+        const btn = document.getElementById('leafInviteBtn');
+        if (btn.dataset.rel) applyInviteBtnState(btn.dataset.rel);
+        document.getElementById('leafFrom').textContent = currentLeaf.anon
+          ? t('leaf.from.anon')
+          : t('leaf.from.named', { name: currentLeaf.fromName || t('leaf.from.friend') });
+      }
+    });
+  }
 
   // react to login / logout events from any tab
   db.onAuth((event) => {

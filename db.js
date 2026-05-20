@@ -106,7 +106,7 @@
 
     async sendMessage({ recipientId, body, anon }) {
       const me = await this.currentProfile();
-      if (!me) throw new Error('not logged in');
+      if (!me) throw new Error(window.i18n ? window.i18n.t('db.error.notlogged') : 'not logged in');
       const { error } = await sb.from('messages').insert({
         sender_id: me.id,
         recipient_id: recipientId,
@@ -177,8 +177,9 @@
     },
 
     async sendFriendRequest(identifier, note) {
+      const t = (k) => (window.i18n ? window.i18n.t(k) : k);
       const me = await this.currentProfile();
-      if (!me) throw new Error('not logged in');
+      if (!me) throw new Error(t('db.error.notlogged'));
 
       let target;
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
@@ -189,13 +190,13 @@
       } else {
         target = await this.findProfile(identifier);
       }
-      if (!target) throw new Error('no sprout found with that email or nickname ✿');
-      if (target.id === me.id) throw new Error('you can’t invite yourself ♡');
+      if (!target) throw new Error(t('db.error.notfound'));
+      if (target.id === me.id) throw new Error(t('db.error.selfinvite'));
 
       // already friends?
       const { data: existing } = await sb.from('friends')
         .select('id').eq('owner_id', me.id).eq('friend_id', target.id).maybeSingle();
-      if (existing) throw new Error('they’re already in your garden ✿');
+      if (existing) throw new Error(t('db.error.alreadyfriend'));
 
       // is there an incoming request from this person? auto-accept it.
       const { data: incoming } = await sb.from('friend_requests')
@@ -212,7 +213,7 @@
       });
       if (error) {
         if (/duplicate|unique/i.test(error.message)) {
-          throw new Error('you’ve already sent them an invitation ✿');
+          throw new Error(t('db.error.alreadyinvited'));
         }
         throw error;
       }

@@ -22,26 +22,32 @@
   <span class="floaty">❀</span>
 </div>
 
+<!-- language toggle (visible on every view) -->
+<div class="lang-toggle" role="group" aria-label="language">
+  <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
+  <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
+</div>
+
 <!-- ========= LOGIN ========= -->
 <section class="view" id="view-login">
   <div class="card auth-card">
     <h1 class="logo">Sprout</h1>
-    <p class="tagline">grow a plant with kind words ♡</p>
+    <p class="tagline" data-i18n="app.tagline.login">grow a plant with kind words ♡</p>
 
     <form id="loginForm" class="form">
       <label>
-        <span>email</span>
-        <input type="email" id="loginIdent" required placeholder="hello@sprout.cute" autocomplete="username"/>
+        <span data-i18n="login.email">email</span>
+        <input type="email" id="loginIdent" required data-i18n-placeholder="login.email.placeholder" placeholder="hello@sprout.cute" autocomplete="username"/>
       </label>
       <label>
-        <span>password</span>
-        <input type="password" id="loginPass" required placeholder="••••••••" autocomplete="current-password"/>
+        <span data-i18n="login.password">password</span>
+        <input type="password" id="loginPass" required data-i18n-placeholder="login.pass.placeholder" placeholder="••••••••" autocomplete="current-password"/>
       </label>
-      <button class="btn btn-pink" type="submit">log in ✿</button>
+      <button class="btn btn-pink" type="submit" data-i18n="login.submit">log in ✿</button>
       <p class="error" id="loginError"></p>
     </form>
 
-    <p class="swap">no account yet? <a href="#" data-go="signup">sign up here</a></p>
+    <p class="swap"><span data-i18n="login.swap">no account yet? </span><a href="#" data-go="signup" data-i18n="login.swap.link">sign up here</a></p>
   </div>
 </section>
 
@@ -49,26 +55,26 @@
 <section class="view" id="view-signup" hidden>
   <div class="card auth-card">
     <h1 class="logo">Sprout</h1>
-    <p class="tagline">plant your seed ✿</p>
+    <p class="tagline" data-i18n="app.tagline.signup">plant your seed ✿</p>
 
     <form id="signupForm" class="form">
       <label>
-        <span>display name <span class="hint-inline">(leave blank to use the suggestion)</span></span>
+        <span><span data-i18n="signup.name">display name </span><span class="hint-inline" data-i18n="signup.name.hint">(leave blank to use the suggestion)</span></span>
         <input type="text" id="suName" maxlength="30" placeholder="leafy"/>
       </label>
       <label>
-        <span>email</span>
-        <input type="email" id="suEmail" required placeholder="hello@sprout.cute"/>
+        <span data-i18n="login.email">email</span>
+        <input type="email" id="suEmail" required data-i18n-placeholder="login.email.placeholder" placeholder="hello@sprout.cute"/>
       </label>
       <label>
-        <span>password</span>
-        <input type="password" id="suPass" required minlength="6" placeholder="at least 6 chars"/>
+        <span data-i18n="login.password">password</span>
+        <input type="password" id="suPass" required minlength="6" data-i18n-placeholder="signup.pass.placeholder" placeholder="at least 6 chars"/>
       </label>
-      <button class="btn btn-green" type="submit">create my sprout 🌱</button>
+      <button class="btn btn-green" type="submit" data-i18n="signup.submit">create my sprout 🌱</button>
       <p class="error" id="signupError"></p>
     </form>
 
-    <p class="swap">already growing? <a href="#" data-go="login">log in here</a></p>
+    <p class="swap"><span data-i18n="signup.swap">already growing? </span><a href="#" data-go="login" data-i18n="signup.swap.link">log in here</a></p>
   </div>
 </section>
 
@@ -77,10 +83,10 @@
   <header class="topbar">
     <div class="brand" data-go="main"><span class="logo small">Sprout</span></div>
     <nav class="nav">
-      <button class="navbtn" data-open="garden">my garden 🌷</button>
-      <button class="navbtn" data-open="send">send a note ✉</button>
-      <button class="navbtn" data-open="sent">my sent ♡</button>
-      <button class="navbtn ghost" id="logoutBtn">log out</button>
+      <button class="navbtn" data-open="garden" data-i18n="nav.garden">my garden 🌷</button>
+      <button class="navbtn" data-open="send" data-i18n="nav.send">send a note ✉</button>
+      <button class="navbtn" data-open="sent" data-i18n="nav.sent">my sent ♡</button>
+      <button class="navbtn ghost" id="logoutBtn" data-i18n="nav.logout">log out</button>
     </nav>
   </header>
 
@@ -88,26 +94,26 @@
     <!-- profile -->
     <aside class="card profile-card">
       <div class="avatar" id="profAvatar">✿</div>
-      <h2 id="profName">your name</h2>
+      <h2 id="profName" data-i18n="profile.fallbackName">your name</h2>
       <p class="muted small" id="profEmail">—</p>
 
       <div class="stats">
         <div class="stat">
           <div class="stat-num" id="leafCount">0</div>
-          <div class="stat-label">leaves 🍃</div>
+          <div class="stat-label" data-i18n="profile.leaves">leaves 🍃</div>
         </div>
         <div class="stat">
-          <div class="stat-num" id="stageName">seed</div>
-          <div class="stat-label">stage</div>
+          <div class="stat-num" id="stageName" data-i18n="stage.seed">seed</div>
+          <div class="stat-label" data-i18n="profile.stage">stage</div>
         </div>
       </div>
 
-      <p class="hint">share your nickname or email so friends can water your plant with kind words ♡</p>
+      <p class="hint" data-i18n="profile.hint">share your nickname or email so friends can water your plant with kind words ♡</p>
     </aside>
 
     <!-- plant -->
     <section class="card plant-card">
-      <div class="plant-stage-banner" id="plantStageBanner">a tiny seed sleeps 💤</div>
+      <div class="plant-stage-banner" id="plantStageBanner" data-i18n="stage.banner.seed">a tiny seed sleeps 💤</div>
       <div class="plant-area">
         <div class="pot">
           <svg id="plantSvg" viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
@@ -115,7 +121,7 @@
         <div class="ground"></div>
         <div class="pot-base"></div>
       </div>
-      <p class="hint center">tap a leaf to read the message it grew from ✿</p>
+      <p class="hint center" data-i18n="plant.hint">tap a leaf to read the message it grew from ✿</p>
     </section>
   </div>
 </section>
@@ -124,22 +130,22 @@
 <div class="modal" id="modal-send" hidden>
   <div class="modal-card">
     <button class="x" data-close>✕</button>
-    <h2>send a kind note ✉</h2>
-    <p class="muted">your words will grow a new leaf on their plant ♡</p>
+    <h2 data-i18n="send.title">send a kind note ✉</h2>
+    <p class="muted" data-i18n="send.subtitle">your words will grow a new leaf on their plant ♡</p>
     <form id="sendForm" class="form">
       <label>
-        <span>to (email or nickname)</span>
-        <input type="text" id="sendTo" required placeholder="friend@sprout.cute or leafyMochi"/>
+        <span data-i18n="send.to">to (email or nickname)</span>
+        <input type="text" id="sendTo" required data-i18n-placeholder="send.to.placeholder" placeholder="friend@sprout.cute or leafyMochi"/>
       </label>
       <label>
-        <span>your message <span class="hint-inline">(leave blank to use the suggestion)</span></span>
+        <span><span data-i18n="send.msg">your message </span><span class="hint-inline" data-i18n="send.msg.hint">(leave blank to use the suggestion)</span></span>
         <textarea id="sendMsg" maxlength="240" rows="4" placeholder="you make the world brighter ✿"></textarea>
       </label>
       <label class="check">
         <input type="checkbox" id="sendAnon"/>
-        <span>send anonymously (they won't see who, but your sent box will remember)</span>
+        <span data-i18n="send.anon">send anonymously (they won't see who, but your sent box will remember)</span>
       </label>
-      <button class="btn btn-green" type="submit">send & sprout 🌱</button>
+      <button class="btn btn-green" type="submit" data-i18n="send.submit">send & sprout 🌱</button>
       <p class="error" id="sendError"></p>
       <p class="success" id="sendSuccess"></p>
     </form>
@@ -150,8 +156,8 @@
 <div class="modal" id="modal-sent" hidden>
   <div class="modal-card wide">
     <button class="x" data-close>✕</button>
-    <h2>your sent notes ♡</h2>
-    <p class="muted">a little garden of kindness you've planted</p>
+    <h2 data-i18n="sent.title">your sent notes ♡</h2>
+    <p class="muted" data-i18n="sent.subtitle">a little garden of kindness you've planted</p>
     <ul class="sent-list" id="sentList"></ul>
   </div>
 </div>
@@ -160,32 +166,32 @@
 <div class="modal" id="modal-garden" hidden>
   <div class="modal-card extra-wide">
     <button class="x" data-close>✕</button>
-    <h2>my garden 🌷</h2>
-    <p class="muted">sprouts you'd like to keep close — peek at their plants & send a note ✿</p>
+    <h2 data-i18n="garden.title">my garden 🌷</h2>
+    <p class="muted" data-i18n="garden.subtitle">sprouts you'd like to keep close — peek at their plants & send a note ✿</p>
 
     <!-- incoming invitations -->
     <div id="requestsSection" class="requests-section" hidden>
-      <h3 class="section-h">🌱 invitations for you <span id="requestsBadge" class="badge"></span></h3>
+      <h3 class="section-h"><span data-i18n="garden.invitations">🌱 invitations for you</span> <span id="requestsBadge" class="badge"></span></h3>
       <ul class="request-list" id="requestList"></ul>
     </div>
 
     <!-- send invitation -->
-    <h3 class="section-h">💌 invite a sprout</h3>
+    <h3 class="section-h" data-i18n="garden.invite.title">💌 invite a sprout</h3>
     <form id="addFriendForm" class="add-friend">
-      <input type="text" id="addFriendInput" placeholder="email or nickname"/>
-      <button class="btn btn-pink" type="submit">invite ♡</button>
+      <input type="text" id="addFriendInput" data-i18n-placeholder="garden.invite.placeholder" placeholder="email or nickname"/>
+      <button class="btn btn-pink" type="submit" data-i18n="garden.invite.submit">invite ♡</button>
     </form>
     <p class="error" id="friendError"></p>
     <p class="success" id="friendSuccess"></p>
 
     <!-- outgoing pending -->
     <div id="outgoingSection" class="outgoing-section" hidden>
-      <h3 class="section-h sub">⏳ waiting for them to accept</h3>
+      <h3 class="section-h sub" data-i18n="garden.pending">⏳ waiting for them to accept</h3>
       <ul class="outgoing-list" id="outgoingList"></ul>
     </div>
 
     <!-- friends -->
-    <h3 class="section-h">🌷 your garden</h3>
+    <h3 class="section-h" data-i18n="garden.your">🌷 your garden</h3>
     <div class="friend-grid" id="friendGrid"></div>
   </div>
 </div>
@@ -195,16 +201,16 @@
   <div class="modal-card small">
     <button class="x" data-close>✕</button>
     <div class="leaf-head">
-      <button class="sender-photo" id="leafSenderPhoto" type="button" title="invite to garden">
+      <button class="sender-photo" id="leafSenderPhoto" type="button" data-i18n-title="leaf.invite.title" title="invite to garden">
         <span id="leafSenderInitial">🍃</span>
       </button>
       <div>
-        <h3 id="leafFrom">from someone</h3>
+        <h3 id="leafFrom" data-i18n="leaf.from.anon">from someone</h3>
         <p class="muted small" id="leafDate"></p>
       </div>
     </div>
     <div id="leafInviteRow" class="leaf-invite-row" hidden>
-      <button class="btn btn-pink leaf-invite-btn" id="leafInviteBtn" type="button">invite to my garden 💌</button>
+      <button class="btn btn-pink leaf-invite-btn" id="leafInviteBtn" type="button" data-i18n="leaf.invite.default">invite to my garden 💌</button>
     </div>
     <p class="leaf-msg" id="leafMsg">…</p>
   </div>
@@ -215,6 +221,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="i18n.js"></script>
 <script src="db.js"></script>
 <script src="plant.js"></script>
 <script src="app.js"></script>

@@ -3,12 +3,13 @@
    ============================================================ */
 
 function stageInfo(n) {
-  if (n === 0)  return { name: 'seed',     banner: 'a tiny seed sleeps 💤  send yourself some friends and watch it grow ✿' };
-  if (n <= 2)   return { name: 'sprout',   banner: 'a sprout pokes through the soil 🌱' };
-  if (n <= 5)   return { name: 'sapling',  banner: 'leaves unfurl, one for each kind word 🍃' };
-  if (n <= 9)   return { name: 'bush',     banner: 'your plant is thriving ♡' };
-  if (n <= 14)  return { name: 'blooming', banner: 'tiny flowers begin to bloom ✿' };
-  return        { name: 'flourishing', banner: 'a whole garden of love grows here ❀✿❀' };
+  const t = (k) => (window.i18n ? window.i18n.t(k) : k);
+  if (n === 0)  return { name: t('stage.seed'),       banner: t('stage.banner.seed') };
+  if (n <= 2)   return { name: t('stage.sprout'),     banner: t('stage.banner.sprout') };
+  if (n <= 5)   return { name: t('stage.sapling'),    banner: t('stage.banner.sapling') };
+  if (n <= 9)   return { name: t('stage.bush'),       banner: t('stage.banner.bush') };
+  if (n <= 14)  return { name: t('stage.blooming'),   banner: t('stage.banner.blooming') };
+  return        { name: t('stage.flourishing'), banner: t('stage.banner.flourishing') };
 }
 
 function svgEl(tag, attrs = {}, parent) {
@@ -146,7 +147,8 @@ function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive) {
   if (interactive !== false && typeof openLeaf === 'function') {
     g.addEventListener('click', () => openLeaf(leaf));
   }
-  g.setAttribute('aria-label', leaf.anon ? 'message from someone anonymous' : `message from ${leaf.fromName}`);
+  const t = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
+  g.setAttribute('aria-label', leaf.anon ? t('leaf.from.anon') : t('leaf.from.named', { name: leaf.fromName }));
 }
 
 function drawFlower(parent, x, y, side, leaf, animate, interactive) {
