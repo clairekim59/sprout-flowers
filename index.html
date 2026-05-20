@@ -89,8 +89,6 @@
     <aside class="card profile-card">
       <div class="avatar" id="profAvatar">✿</div>
       <h2 id="profName">your name</h2>
-      <p class="muted">your sprout id</p>
-      <div class="id-chip" id="profId" title="click to copy">—</div>
       <p class="muted small" id="profEmail">—</p>
 
       <div class="stats">
@@ -104,7 +102,7 @@
         </div>
       </div>
 
-      <p class="hint">share your id with friends so they can water your plant with kind words ♡</p>
+      <p class="hint">share your nickname or email so friends can water your plant with kind words ♡</p>
     </aside>
 
     <!-- plant -->
@@ -130,8 +128,8 @@
     <p class="muted">your words will grow a new leaf on their plant ♡</p>
     <form id="sendForm" class="form">
       <label>
-        <span>to (email or sprout id)</span>
-        <input type="text" id="sendTo" required placeholder="friend@sprout.cute or plant_a1b2"/>
+        <span>to (email or nickname)</span>
+        <input type="text" id="sendTo" required placeholder="friend@sprout.cute or leafyMochi"/>
       </label>
       <label>
         <span>your message <span class="hint-inline">(leave blank to use the suggestion)</span></span>
@@ -174,7 +172,7 @@
     <!-- send invitation -->
     <h3 class="section-h">💌 invite a sprout</h3>
     <form id="addFriendForm" class="add-friend">
-      <input type="text" id="addFriendInput" placeholder="email or sprout id"/>
+      <input type="text" id="addFriendInput" placeholder="email or nickname"/>
       <button class="btn btn-pink" type="submit">invite ♡</button>
     </form>
     <p class="error" id="friendError"></p>

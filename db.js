@@ -68,17 +68,27 @@
     },
 
     async findProfile(identifier) {
-      // identifier may be email or sprout_id
-      const isEmail = identifier.includes('@');
-      const col = isEmail ? 'email' : 'sprout_id';
-      const val = isEmail ? identifier.trim().toLowerCase() : identifier.trim();
+      // identifier may be email or display_name (case-insensitive, first match)
+      const trimmed = identifier.trim();
+      if (!trimmed) return null;
+      if (trimmed.includes('@')) {
+        const { data, error } = await sb
+          .from('profiles')
+          .select('id, email, display_name, sprout_id')
+          .eq('email', trimmed.toLowerCase())
+          .maybeSingle();
+        if (error) { console.error(error); return null; }
+        return data;
+      }
+      // nickname lookup, case-insensitive (escape ilike wildcards)
+      const escaped = trimmed.replace(/[\\%_]/g, '\\$&');
       const { data, error } = await sb
         .from('profiles')
         .select('id, email, display_name, sprout_id')
-        .eq(col, val)
-        .maybeSingle();
+        .ilike('display_name', escaped)
+        .limit(1);
       if (error) { console.error(error); return null; }
-      return data;
+      return (data && data[0]) || null;
     },
 
     async sendMessage({ recipientId, body, anon }) {
@@ -166,7 +176,7 @@
       } else {
         target = await this.findProfile(identifier);
       }
-      if (!target) throw new Error('no sprout found with that id or email ✿');
+      if (!target) throw new Error('no sprout found with that email or nickname ✿');
       if (target.id === me.id) throw new Error('you can’t invite yourself ♡');
 
       // already friends?

@@ -216,7 +216,6 @@ async function renderMain() {
 
   // profile
   document.getElementById('profName').textContent   = me.display_name;
-  document.getElementById('profId').textContent     = me.sprout_id;
   document.getElementById('profEmail').textContent  = me.email;
   document.getElementById('profAvatar').textContent = (me.display_name[0] || '✿').toUpperCase();
 
@@ -231,15 +230,6 @@ async function renderMain() {
   drawPlant(leaves);
   refreshGardenBadge();
 }
-
-// id chip copy
-document.getElementById('profId').addEventListener('click', () => {
-  const id = document.getElementById('profId').textContent;
-  if (id && id !== '—') {
-    navigator.clipboard?.writeText(id);
-    toast('id copied ♡', 'pink');
-  }
-});
 
 // ---------- modals ----------
 function openModal(id, preset) {
@@ -289,7 +279,7 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
 
   try {
     const recipient = await db.findProfile(to);
-    if (!recipient) { errEl.textContent = 'no plant found with that id or email ✿'; return; }
+    if (!recipient) { errEl.textContent = 'no plant found with that email or nickname ✿'; return; }
     if (recipient.id === me.id) { errEl.textContent = 'you can’t water your own plant ♡'; return; }
 
     await db.sendMessage({ recipientId: recipient.id, body: msg, anon });
@@ -368,7 +358,7 @@ async function renderGarden() {
         <div class="ri-avatar">${escapeHtml(initial)}</div>
         <div class="ri-info">
           <div class="ri-name">${escapeHtml(r.fromName)}</div>
-          <div class="ri-id">${escapeHtml(r.fromSproutId)} · ${r.fromLeafCount} 🍃</div>
+          <div class="ri-id">${r.fromLeafCount} 🍃</div>
           ${r.message ? `<div class="ri-msg">"${escapeHtml(r.message)}"</div>` : ''}
         </div>
         <div class="ri-actions">
@@ -390,7 +380,6 @@ async function renderGarden() {
       li.className = 'outgoing-item';
       li.innerHTML = `
         <span class="oi-name">${escapeHtml(o.toName)}</span>
-        <span class="muted small">${escapeHtml(o.toSproutId)}</span>
         <button class="oi-cancel" title="cancel" data-cancel="${escapeHtml(o.id)}">✕</button>
       `;
       outList.appendChild(li);
@@ -416,10 +405,9 @@ async function renderGarden() {
           <div class="pot-base"></div>
         </div>
         <div class="f-name">${escapeHtml(f.name)}</div>
-        <div class="f-id">${escapeHtml(f.sproutId)}</div>
         <div class="f-stat">${f.leafCount} 🍃 · ${escapeHtml(stage.name)}</div>
         <div>
-          <button class="f-send" data-sprout="${escapeHtml(f.sproutId)}">send a note ✉</button>
+          <button class="f-send" data-name="${escapeHtml(f.name)}">send a note ✉</button>
         </div>
       `;
       grid.appendChild(card);
@@ -487,9 +475,9 @@ document.getElementById('addFriendForm').addEventListener('submit', async e => {
 document.getElementById('friendGrid').addEventListener('click', async e => {
   const sendBtn = e.target.closest('.f-send');
   if (sendBtn) {
-    const sproutId = sendBtn.dataset.sprout;
+    const name = sendBtn.dataset.name;
     closeAllModals();
-    openModal('send', { to: sproutId });
+    openModal('send', { to: name });
     return;
   }
   const removeBtn = e.target.closest('.remove-friend');
