@@ -160,6 +160,10 @@
       'plant.graduate.fail': 'could not graduate ✿',
 
       'db.error.noplant': 'no active plant',
+
+      'plant.history.title': '🌿 your past plants',
+      'plant.history.unnamed': 'unnamed plant',
+      'plant.history.leaves': '{count} 🍃 · graduated {date}',
     },
 
     ko: {
@@ -315,6 +319,10 @@
       'plant.graduate.fail': '졸업할 수 없어요 ✿',
 
       'db.error.noplant': '활성 식물이 없어요',
+
+      'plant.history.title': '🌿 지난 식물들',
+      'plant.history.unnamed': '이름 없는 식물',
+      'plant.history.leaves': '🍃 {count}장 · {date} 졸업',
     },
   };
 

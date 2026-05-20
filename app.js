@@ -289,6 +289,44 @@ async function renderMain() {
   }
   // graduation only available at flourishing (>= 15 leaves)
   gradBtn.hidden = leaves.length < 15;
+
+  // past plants (graduated)
+  renderPastPlants().catch(err => console.error('renderPastPlants failed:', err));
+}
+
+async function renderPastPlants() {
+  const section = document.getElementById('pastPlantsSection');
+  const grid    = document.getElementById('pastPlantsGrid');
+  const history = await db.plantHistory();
+  if (!history.length) {
+    section.hidden = true;
+    grid.innerHTML = '';
+    return;
+  }
+  section.hidden = false;
+  grid.innerHTML = '';
+  history.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'past-card';
+    const name = (p.name && p.name.trim()) || t('plant.history.unnamed');
+    const count = p.final_leaf_count || 0;
+    const date = new Date(p.archived_at).toLocaleDateString();
+    card.innerHTML = `
+      <div class="mini-plant">
+        <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+        <div class="ground"></div>
+        <div class="pot-base"></div>
+      </div>
+      <div class="past-name">${escapeHtml(name)}</div>
+      <div class="past-meta">${escapeHtml(t('plant.history.leaves', { count, date }))}</div>
+    `;
+    grid.appendChild(card);
+    const svg = card.querySelector('svg');
+    const dummyLeaves = Array.from({ length: count }, () => ({
+      msg: '', anon: false, fromName: name, fromId: '', at: 0,
+    }));
+    drawPlant(dummyLeaves, svg, { interactive: false });
+  });
 }
 
 // ---------- plant name + graduate ----------
