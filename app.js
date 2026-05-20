@@ -126,6 +126,11 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
   submitBtn.textContent = 'planting…';
 
   try {
+    if (await db.nicknameTaken(name)) {
+      errEl.textContent = 'that nickname is already taken — try another ✿';
+      return;
+    }
+
     // try up to 3 times in case sprout_id collides
     let lastErr;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -144,7 +149,8 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
       } catch (err) {
         lastErr = err;
         const msg = (err && err.message) || '';
-        // collision on unique sprout_id → retry; otherwise bail
+        // collision on unique sprout_id → retry; nickname or other duplicate → bail
+        if (/display_name_lower/i.test(msg)) break;
         if (!/duplicate|unique/i.test(msg)) break;
       }
     }
@@ -152,7 +158,9 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
   } catch (err) {
     console.error(err);
     const msg = (err && err.message) || 'something went wrong ✿';
-    if (/already.*registered/i.test(msg) || /already.*exists/i.test(msg)) {
+    if (/display_name_lower/i.test(msg)) {
+      errEl.textContent = 'that nickname is already taken — try another ✿';
+    } else if (/already.*registered/i.test(msg) || /already.*exists/i.test(msg)) {
       errEl.textContent = 'this email is already growing a plant ✿';
     } else {
       errEl.textContent = msg;

@@ -67,6 +67,19 @@
       await sb.auth.signOut();
     },
 
+    async nicknameTaken(name) {
+      const trimmed = (name || '').trim();
+      if (!trimmed) return false;
+      const escaped = trimmed.replace(/[\\%_]/g, '\\$&');
+      const { data, error } = await sb
+        .from('profiles')
+        .select('id')
+        .ilike('display_name', escaped)
+        .limit(1);
+      if (error) { console.error(error); return false; }
+      return !!(data && data.length);
+    },
+
     async findProfile(identifier) {
       // identifier may be email or display_name (case-insensitive, first match)
       const trimmed = identifier.trim();
