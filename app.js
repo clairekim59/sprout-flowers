@@ -321,7 +321,7 @@ async function renderSent() {
   });
 }
 
-// ---------- my garden ----------
+// ---------- neighbors (friend list) ----------
 async function renderGarden() {
   document.getElementById('friendError').textContent = '';
   document.getElementById('friendSuccess').textContent = '';

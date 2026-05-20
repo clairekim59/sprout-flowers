@@ -10,5 +10,8 @@
 # oh-my-claudecode local state
 .omc/
 
+# Claude Code runtime state (scheduled tasks, etc.)
+.claude/
+
 # logs
 *.log
