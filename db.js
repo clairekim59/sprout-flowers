@@ -174,10 +174,15 @@
       if (!me) return [];
       const plant = await this.currentPlant();
       if (!plant) return [];
+      return this.plantInbox(plant.id);
+    },
+
+    async plantInbox(plantId) {
+      if (!plantId) return [];
       const { data, error } = await sb
         .from('messages')
         .select('id, body, anon, created_at, sender:profiles!sender_id(id, display_name, sprout_id)')
-        .eq('plant_id', plant.id)
+        .eq('plant_id', plantId)
         .order('created_at', { ascending: true });
       if (error) { console.error(error); return []; }
       return (data || []).map(m => ({

@@ -517,7 +517,29 @@ h3 {
   box-shadow: var(--shadow-soft);
   position: relative;
   opacity: 0.92;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
 }
+.past-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--green-300);
+  opacity: 1;
+  box-shadow: 0 6px 18px rgba(143, 211, 160, 0.25);
+}
+
+/* past-plant modal: plant name is read-only (no rename) */
+#modal-past-plant .plant-name {
+  cursor: default;
+  background: linear-gradient(135deg, var(--pink-50) 0%, #fff5f8 100%);
+}
+#modal-past-plant .plant-name:hover {
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+#modal-past-plant .plant-area {
+  margin: 12px auto 0;
+}
+.center { text-align: center; }
 .past-card .mini-plant {
   position: relative;
   width: 100%;

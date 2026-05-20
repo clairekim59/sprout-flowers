@@ -294,6 +294,38 @@ async function renderMain() {
   renderPastPlants().catch(err => console.error('renderPastPlants failed:', err));
 }
 
+// click a past plant card → open modal showing that plant with its real messages
+document.getElementById('pastPlantsGrid').addEventListener('click', async e => {
+  const card = e.target.closest('.past-card');
+  if (!card || !card.dataset.plantId) return;
+  await openPastPlant(card.dataset.plantId);
+});
+
+async function openPastPlant(plantId) {
+  const history = await db.plantHistory();
+  const plant = history.find(p => p.id === plantId);
+  if (!plant) return;
+
+  const nameEl = document.getElementById('pastPlantName');
+  const metaEl = document.getElementById('pastPlantMeta');
+  const svg    = document.getElementById('pastPlantSvg');
+  const named  = !!(plant.name && plant.name.trim());
+
+  nameEl.textContent = named ? plant.name : t('plant.history.unnamed');
+  nameEl.classList.toggle('unnamed', !named);
+  metaEl.textContent = t('plant.history.leaves', {
+    count: plant.final_leaf_count || 0,
+    date: new Date(plant.archived_at).toLocaleDateString(),
+  });
+  svg.innerHTML = '';
+
+  openModal('past-plant');
+
+  // fetch the real leaves for this archived plant
+  const leaves = await db.plantInbox(plantId);
+  drawPlant(leaves, svg, { interactive: true });
+}
+
 async function renderPastPlants() {
   const section = document.getElementById('pastPlantsSection');
   const grid    = document.getElementById('pastPlantsGrid');
@@ -308,6 +340,7 @@ async function renderPastPlants() {
   history.forEach(p => {
     const card = document.createElement('div');
     card.className = 'past-card';
+    card.dataset.plantId = p.id;
     const name = (p.name && p.name.trim()) || t('plant.history.unnamed');
     const count = p.final_leaf_count || 0;
     const date = new Date(p.archived_at).toLocaleDateString();
@@ -385,10 +418,14 @@ document.querySelectorAll('[data-open]').forEach(b => {
   b.addEventListener('click', () => openModal(b.dataset.open));
 });
 document.querySelectorAll('[data-close]').forEach(b => {
-  b.addEventListener('click', closeAllModals);
+  b.addEventListener('click', () => {
+    const modal = b.closest('.modal');
+    if (modal) modal.hidden = true;
+    else closeAllModals();
+  });
 });
 document.querySelectorAll('.modal').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) closeAllModals(); });
+  m.addEventListener('click', e => { if (e.target === m) m.hidden = true; });
 });
 
 // ---------- send ----------
@@ -783,7 +820,13 @@ function escapeHtml(s) {
 }
 
 // ---------- boot ----------
-window.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+window.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  // close just the topmost visible modal so closing a leaf reveals
+  // the past-plant modal beneath, etc.
+  const visible = Array.from(document.querySelectorAll('.modal:not([hidden])'));
+  if (visible.length) visible[visible.length - 1].hidden = true;
+});
 
 (async function boot() {
   if (!ensureConfigured()) return;
