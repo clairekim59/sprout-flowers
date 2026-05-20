@@ -74,7 +74,7 @@ function drawPlant(leaves, svg, opts) {
   const stemPath = `M 200 ${groundY}
     C 210 ${groundY - 60}, 188 ${groundY - 130}, 204 ${groundY - 200}
     S 192 ${groundY - 300}, 200 ${stemTopY}`;
-  svgEl('path', {
+  const stemEl = svgEl('path', {
     d: stemPath,
     stroke: 'url(#stemGrad)',
     'stroke-width': 8,
@@ -90,22 +90,27 @@ function drawPlant(leaves, svg, opts) {
     }, swayGroup);
   }
 
-  const yStart = stemTopY + 20;
-  const yEnd   = groundY - 50;
+  // newest first: index 0 sits at the top of the stem, last index sits at the base.
+  // (inbox returns oldest first, so reverse to put the latest message on top.)
+  const ordered = leaves.slice().reverse();
+  const stemLen = stemEl.getTotalLength();
 
-  leaves.forEach((leaf, i) => {
-    const t = n === 1 ? 0.5 : i / (n - 1);
-    const y = yStart + (yEnd - yStart) * t;
+  ordered.forEach((leaf, i) => {
+    // distribute along the stem path itself so leaves hug the curve
+    const tParam = (i + 1) / (n + 1);
+    const dist = stemLen * (1 - tParam); // 0 = base of path, stemLen = top of path
+    const pt = stemEl.getPointAtLength(dist);
     const side = i % 2 === 0 ? -1 : 1;
-    const wobble = Math.sin(i * 1.7) * 6;
-    const x = 200 + side * 22 + wobble;
+    const x = pt.x + side * 22;
+    const y = pt.y;
 
-    const isFlower = (n >= 10) && (i % 4 === 3);
+    // newest leaves at the top bloom into flowers once the plant is large enough
+    const isFlower = (n >= 10) && (i < Math.floor(n / 4));
 
     if (isFlower) {
-      drawFlower(swayGroup, x, y, side, leaf, i === n - 1, interactive);
+      drawFlower(swayGroup, x, y, side, leaf, i === 0, interactive);
     } else {
-      drawLeaf(swayGroup, x, y, side, leaf, i === n - 1, i, interactive);
+      drawLeaf(swayGroup, x, y, side, leaf, i === 0, i, interactive);
     }
   });
 
