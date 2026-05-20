@@ -400,10 +400,14 @@ h3 {
 }
 
 /* leaves are svg <g> elements, click target */
-#plantSvg g.leaf { cursor: pointer; transition: transform 0.25s; transform-box: fill-box; transform-origin: center; }
-#plantSvg g.leaf:hover { transform: scale(1.12); }
-#plantSvg g.flower { cursor: pointer; transform-box: fill-box; transform-origin: center; }
-#plantSvg g.flower:hover { transform: scale(1.12); }
+#plantSvg g.leaf { cursor: pointer; transition: transform 0.18s ease-out; transform-box: fill-box; transform-origin: center; }
+#plantSvg g.leaf:hover { transform: scale(1.1); }
+#plantSvg g.leaf.static { cursor: default; }
+#plantSvg g.leaf.static:hover { transform: none; }
+#plantSvg g.flower { cursor: pointer; transition: transform 0.18s ease-out; transform-box: fill-box; transform-origin: center; }
+#plantSvg g.flower:hover { transform: scale(1.1); }
+#plantSvg g.flower.static { cursor: default; }
+#plantSvg g.flower.static:hover { transform: none; }
 #plantSvg .grow-in { animation: growIn 0.6s ease-out both; transform-box: fill-box; transform-origin: center; }
 @keyframes growIn {
   0%   { transform: scale(0) rotate(-20deg); opacity: 0; }

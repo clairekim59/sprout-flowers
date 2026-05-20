@@ -114,10 +114,14 @@ function drawPlant(leaves, svg, opts) {
 }
 
 function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive) {
-  const g = svgEl('g', {
-    class: 'leaf' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+  // outer group: SVG transform for positioning (untouched by CSS transforms)
+  const pos = svgEl('g', {
     transform: `translate(${x}, ${y}) rotate(${side * 35})`,
   }, parent);
+  // inner group: receives CSS transforms (hover scale, grow-in animation)
+  const g = svgEl('g', {
+    class: 'leaf' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+  }, pos);
 
   const usePink = idx % 5 === 4;
   svgEl('path', {
@@ -146,10 +150,12 @@ function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive) {
 }
 
 function drawFlower(parent, x, y, side, leaf, animate, interactive) {
-  const g = svgEl('g', {
-    class: 'flower' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+  const pos = svgEl('g', {
     transform: `translate(${x}, ${y})`,
   }, parent);
+  const g = svgEl('g', {
+    class: 'flower' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+  }, pos);
 
   for (let p = 0; p < 5; p++) {
     const angle = (p / 5) * 360;
