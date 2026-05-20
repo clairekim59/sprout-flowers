@@ -98,7 +98,7 @@
       if (!me) return [];
       const { data, error } = await sb
         .from('messages')
-        .select('id, body, anon, created_at, sender:profiles!sender_id(display_name, sprout_id)')
+        .select('id, body, anon, created_at, sender:profiles!sender_id(id, display_name, sprout_id)')
         .eq('recipient_id', me.id)
         .order('created_at', { ascending: true });
       if (error) { console.error(error); return []; }
@@ -106,8 +106,11 @@
         id: m.id,
         msg: m.body,
         anon: m.anon,
-        fromName: m.anon ? null : (m.sender ? m.sender.display_name : null),
-        fromId:   m.anon ? null : (m.sender ? m.sender.sprout_id   : null),
+        fromName:      m.anon ? null : (m.sender ? m.sender.display_name : null),
+        fromSproutId:  m.anon ? null : (m.sender ? m.sender.sprout_id   : null),
+        fromProfileId: m.anon ? null : (m.sender ? m.sender.id          : null),
+        // legacy alias
+        fromId:        m.anon ? null : (m.sender ? m.sender.sprout_id   : null),
         at: new Date(m.created_at).getTime(),
       }));
     },
@@ -150,23 +153,120 @@
       }));
     },
 
-    async addFriend(identifier) {
+    async sendFriendRequest(identifier, note) {
       const me = await this.currentProfile();
       if (!me) throw new Error('not logged in');
-      const target = await this.findProfile(identifier);
+
+      let target;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+      if (isUuid) {
+        const { data } = await sb.from('profiles')
+          .select('id, email, display_name, sprout_id').eq('id', identifier).maybeSingle();
+        target = data;
+      } else {
+        target = await this.findProfile(identifier);
+      }
       if (!target) throw new Error('no sprout found with that id or email ✿');
-      if (target.id === me.id) throw new Error('you’re already in your own garden ♡');
-      const { error } = await sb.from('friends').insert({
-        owner_id: me.id,
-        friend_id: target.id,
+      if (target.id === me.id) throw new Error('you can’t invite yourself ♡');
+
+      // already friends?
+      const { data: existing } = await sb.from('friends')
+        .select('id').eq('owner_id', me.id).eq('friend_id', target.id).maybeSingle();
+      if (existing) throw new Error('they’re already in your garden ✿');
+
+      // is there an incoming request from this person? auto-accept it.
+      const { data: incoming } = await sb.from('friend_requests')
+        .select('id').eq('from_id', target.id).eq('to_id', me.id).maybeSingle();
+      if (incoming) {
+        await sb.rpc('accept_friend_request', { req_id: incoming.id });
+        return { target, autoAccepted: true };
+      }
+
+      const { error } = await sb.from('friend_requests').insert({
+        from_id: me.id,
+        to_id:   target.id,
+        message: note || null,
       });
       if (error) {
         if (/duplicate|unique/i.test(error.message)) {
-          throw new Error('they’re already in your garden ✿');
+          throw new Error('you’ve already sent them an invitation ✿');
         }
         throw error;
       }
-      return target;
+      return { target, autoAccepted: false };
+    },
+
+    async incomingRequests() {
+      const me = await this.currentProfile();
+      if (!me) return [];
+      const { data, error } = await sb
+        .from('friend_requests')
+        .select('id, message, created_at, from:profiles!from_id(id, display_name, sprout_id, leaf_count)')
+        .eq('to_id', me.id)
+        .order('created_at', { ascending: false });
+      if (error) { console.error(error); return []; }
+      return (data || []).map(r => ({
+        id: r.id,
+        message: r.message,
+        createdAt: r.created_at,
+        fromId:        r.from ? r.from.id           : null,
+        fromName:      r.from ? r.from.display_name : '(deleted)',
+        fromSproutId:  r.from ? r.from.sprout_id    : '?',
+        fromLeafCount: r.from ? r.from.leaf_count   : 0,
+      }));
+    },
+
+    async outgoingRequests() {
+      const me = await this.currentProfile();
+      if (!me) return [];
+      const { data, error } = await sb
+        .from('friend_requests')
+        .select('id, created_at, to:profiles!to_id(id, display_name, sprout_id)')
+        .eq('from_id', me.id);
+      if (error) { console.error(error); return []; }
+      return (data || []).map(r => ({
+        id: r.id,
+        createdAt: r.created_at,
+        toId:        r.to ? r.to.id           : null,
+        toName:      r.to ? r.to.display_name : '(deleted)',
+        toSproutId:  r.to ? r.to.sprout_id    : '?',
+      }));
+    },
+
+    async acceptRequest(reqId) {
+      const { error } = await sb.rpc('accept_friend_request', { req_id: reqId });
+      if (error) throw error;
+    },
+
+    async declineRequest(reqId) {
+      const { error } = await sb.from('friend_requests').delete().eq('id', reqId);
+      if (error) throw error;
+    },
+
+    async cancelOutgoingRequest(reqId) {
+      const { error } = await sb.from('friend_requests').delete().eq('id', reqId);
+      if (error) throw error;
+    },
+
+    async relationshipTo(profileId) {
+      // returns one of 'self' | 'friend' | 'request_sent' | 'request_received' | 'none'
+      const me = await this.currentProfile();
+      if (!me) return 'none';
+      if (me.id === profileId) return 'self';
+
+      const { data: friend } = await sb.from('friends')
+        .select('id').eq('owner_id', me.id).eq('friend_id', profileId).maybeSingle();
+      if (friend) return 'friend';
+
+      const { data: out } = await sb.from('friend_requests')
+        .select('id').eq('from_id', me.id).eq('to_id', profileId).maybeSingle();
+      if (out) return 'request_sent';
+
+      const { data: incoming } = await sb.from('friend_requests')
+        .select('id').eq('from_id', profileId).eq('to_id', me.id).maybeSingle();
+      if (incoming) return 'request_received';
+
+      return 'none';
     },
 
     async removeFriend(rowId) {

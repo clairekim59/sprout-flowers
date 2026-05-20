@@ -165,13 +165,29 @@
     <h2>my garden 🌷</h2>
     <p class="muted">sprouts you'd like to keep close — peek at their plants & send a note ✿</p>
 
+    <!-- incoming invitations -->
+    <div id="requestsSection" class="requests-section" hidden>
+      <h3 class="section-h">🌱 invitations for you <span id="requestsBadge" class="badge"></span></h3>
+      <ul class="request-list" id="requestList"></ul>
+    </div>
+
+    <!-- send invitation -->
+    <h3 class="section-h">💌 invite a sprout</h3>
     <form id="addFriendForm" class="add-friend">
-      <input type="text" id="addFriendInput" placeholder="add by email or sprout id"/>
-      <button class="btn btn-pink" type="submit">add ♡</button>
+      <input type="text" id="addFriendInput" placeholder="email or sprout id"/>
+      <button class="btn btn-pink" type="submit">invite ♡</button>
     </form>
     <p class="error" id="friendError"></p>
     <p class="success" id="friendSuccess"></p>
 
+    <!-- outgoing pending -->
+    <div id="outgoingSection" class="outgoing-section" hidden>
+      <h3 class="section-h sub">⏳ waiting for them to accept</h3>
+      <ul class="outgoing-list" id="outgoingList"></ul>
+    </div>
+
+    <!-- friends -->
+    <h3 class="section-h">🌷 your garden</h3>
     <div class="friend-grid" id="friendGrid"></div>
   </div>
 </div>
@@ -181,11 +197,16 @@
   <div class="modal-card small">
     <button class="x" data-close>✕</button>
     <div class="leaf-head">
-      <div class="leaf-emoji">🍃</div>
+      <button class="sender-photo" id="leafSenderPhoto" type="button" title="invite to garden">
+        <span id="leafSenderInitial">🍃</span>
+      </button>
       <div>
         <h3 id="leafFrom">from someone</h3>
         <p class="muted small" id="leafDate"></p>
       </div>
+    </div>
+    <div id="leafInviteRow" class="leaf-invite-row" hidden>
+      <button class="btn btn-pink leaf-invite-btn" id="leafInviteBtn" type="button">invite to my garden 💌</button>
     </div>
     <p class="leaf-msg" id="leafMsg">…</p>
   </div>

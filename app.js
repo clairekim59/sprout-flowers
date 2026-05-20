@@ -229,6 +229,7 @@ async function renderMain() {
   document.getElementById('plantStageBanner').textContent = stage.banner;
 
   drawPlant(leaves);
+  refreshGardenBadge();
 }
 
 // id chip copy
@@ -335,45 +336,124 @@ async function renderSent() {
 
 // ---------- my garden ----------
 async function renderGarden() {
-  const grid = document.getElementById('friendGrid');
   document.getElementById('friendError').textContent = '';
   document.getElementById('friendSuccess').textContent = '';
+
+  const grid = document.getElementById('friendGrid');
+  const reqSection = document.getElementById('requestsSection');
+  const reqList    = document.getElementById('requestList');
+  const reqBadge   = document.getElementById('requestsBadge');
+  const outSection = document.getElementById('outgoingSection');
+  const outList    = document.getElementById('outgoingList');
+
   grid.innerHTML = '<div class="friend-empty">loading your garden…</div>';
+  reqList.innerHTML = '';
+  outList.innerHTML = '';
 
-  const friends = await db.myFriends();
-  grid.innerHTML = '';
+  const [friends, incoming, outgoing] = await Promise.all([
+    db.myFriends(),
+    db.incomingRequests(),
+    db.outgoingRequests(),
+  ]);
 
-  if (!friends.length) {
-    grid.innerHTML = '<div class="friend-empty">your garden is empty — add a sprout above to start growing it ✿</div>';
-    return;
+  // incoming
+  if (incoming.length) {
+    reqSection.hidden = false;
+    reqBadge.textContent = incoming.length;
+    incoming.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'request-item';
+      const initial = (r.fromName[0] || '✿').toUpperCase();
+      li.innerHTML = `
+        <div class="ri-avatar">${escapeHtml(initial)}</div>
+        <div class="ri-info">
+          <div class="ri-name">${escapeHtml(r.fromName)}</div>
+          <div class="ri-id">${escapeHtml(r.fromSproutId)} · ${r.fromLeafCount} 🍃</div>
+          ${r.message ? `<div class="ri-msg">"${escapeHtml(r.message)}"</div>` : ''}
+        </div>
+        <div class="ri-actions">
+          <button class="btn-mini accept"  data-accept="${escapeHtml(r.id)}">accept ✿</button>
+          <button class="btn-mini decline" data-decline="${escapeHtml(r.id)}">decline</button>
+        </div>
+      `;
+      reqList.appendChild(li);
+    });
+  } else {
+    reqSection.hidden = true;
   }
 
-  friends.forEach(f => {
-    const stage = stageInfo(f.leafCount);
-    const card = document.createElement('div');
-    card.className = 'friend-card';
-    card.innerHTML = `
-      <button class="remove-friend" title="remove from garden" data-row="${escapeHtml(f.rowId)}">✕</button>
-      <div class="mini-plant">
-        <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
-        <div class="ground"></div>
-        <div class="pot-base"></div>
-      </div>
-      <div class="f-name">${escapeHtml(f.name)}</div>
-      <div class="f-id">${escapeHtml(f.sproutId)}</div>
-      <div class="f-stat">${f.leafCount} 🍃 · ${escapeHtml(stage.name)}</div>
-      <div>
-        <button class="f-send" data-sprout="${escapeHtml(f.sproutId)}">send a note ✉</button>
-      </div>
-    `;
-    grid.appendChild(card);
+  // outgoing
+  if (outgoing.length) {
+    outSection.hidden = false;
+    outgoing.forEach(o => {
+      const li = document.createElement('li');
+      li.className = 'outgoing-item';
+      li.innerHTML = `
+        <span class="oi-name">${escapeHtml(o.toName)}</span>
+        <span class="muted small">${escapeHtml(o.toSproutId)}</span>
+        <button class="oi-cancel" title="cancel" data-cancel="${escapeHtml(o.id)}">✕</button>
+      `;
+      outList.appendChild(li);
+    });
+  } else {
+    outSection.hidden = true;
+  }
 
-    const svg = card.querySelector('svg');
-    const dummyLeaves = Array.from({ length: f.leafCount }, (_, i) => ({
-      msg: '', anon: false, fromName: f.name, fromId: f.sproutId, at: 0,
-    }));
-    drawPlant(dummyLeaves, svg, { interactive: false });
+  // friends grid
+  grid.innerHTML = '';
+  if (!friends.length) {
+    grid.innerHTML = '<div class="friend-empty">no sprouts here yet — invite someone above ✿</div>';
+  } else {
+    friends.forEach(f => {
+      const stage = stageInfo(f.leafCount);
+      const card = document.createElement('div');
+      card.className = 'friend-card';
+      card.innerHTML = `
+        <button class="remove-friend" title="remove from garden" data-row="${escapeHtml(f.rowId)}">✕</button>
+        <div class="mini-plant">
+          <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+          <div class="ground"></div>
+          <div class="pot-base"></div>
+        </div>
+        <div class="f-name">${escapeHtml(f.name)}</div>
+        <div class="f-id">${escapeHtml(f.sproutId)}</div>
+        <div class="f-stat">${f.leafCount} 🍃 · ${escapeHtml(stage.name)}</div>
+        <div>
+          <button class="f-send" data-sprout="${escapeHtml(f.sproutId)}">send a note ✉</button>
+        </div>
+      `;
+      grid.appendChild(card);
+
+      const svg = card.querySelector('svg');
+      const dummyLeaves = Array.from({ length: f.leafCount }, () => ({
+        msg: '', anon: false, fromName: f.name, fromId: f.sproutId, at: 0,
+      }));
+      drawPlant(dummyLeaves, svg, { interactive: false });
+    });
+  }
+
+  // also refresh the nav badge
+  updateGardenBadge(incoming.length);
+}
+
+function updateGardenBadge(count) {
+  const btns = document.querySelectorAll('.navbtn[data-open="garden"]');
+  btns.forEach(b => {
+    const existing = b.querySelector('.nav-badge');
+    if (count > 0) {
+      if (existing) existing.textContent = count;
+      else b.insertAdjacentHTML('beforeend', ` <span class="nav-badge">${count}</span>`);
+    } else if (existing) {
+      existing.remove();
+    }
   });
+}
+
+async function refreshGardenBadge() {
+  try {
+    const incoming = await db.incomingRequests();
+    updateGardenBadge(incoming.length);
+  } catch (err) { console.error(err); }
 }
 
 document.getElementById('addFriendForm').addEventListener('submit', async e => {
@@ -386,17 +466,21 @@ document.getElementById('addFriendForm').addEventListener('submit', async e => {
   if (!ident) return;
 
   const btn = e.target.querySelector('button[type=submit]');
-  btn.disabled = true; btn.textContent = 'adding…';
+  btn.disabled = true; btn.textContent = 'sending…';
   try {
-    const target = await db.addFriend(ident);
-    okEl.textContent = `${target.display_name} joined your garden 🌱`;
+    const { target, autoAccepted } = await db.sendFriendRequest(ident);
+    if (autoAccepted) {
+      okEl.textContent = `${target.display_name} joined your garden 🌱 (they had already invited you!)`;
+    } else {
+      okEl.textContent = `invitation sent to ${target.display_name} 💌`;
+    }
     input.value = '';
     renderGarden();
   } catch (err) {
     console.error(err);
     errEl.textContent = (err && err.message) || 'something went wrong';
   } finally {
-    btn.disabled = false; btn.textContent = 'add ♡';
+    btn.disabled = false; btn.textContent = 'invite ♡';
   }
 });
 
@@ -423,15 +507,154 @@ document.getElementById('friendGrid').addEventListener('click', async e => {
   }
 });
 
+document.getElementById('requestList').addEventListener('click', async e => {
+  const accept = e.target.closest('[data-accept]');
+  if (accept) {
+    try {
+      await db.acceptRequest(accept.dataset.accept);
+      toast('a new sprout joined your garden 🌱');
+      renderGarden();
+      renderMain();
+    } catch (err) { console.error(err); toast('could not accept', 'pink'); }
+    return;
+  }
+  const decline = e.target.closest('[data-decline]');
+  if (decline) {
+    try {
+      await db.declineRequest(decline.dataset.decline);
+      toast('invitation declined ♡', 'pink');
+      renderGarden();
+    } catch (err) { console.error(err); toast('could not decline', 'pink'); }
+  }
+});
+
+document.getElementById('outgoingList').addEventListener('click', async e => {
+  const cancel = e.target.closest('[data-cancel]');
+  if (!cancel) return;
+  try {
+    await db.cancelOutgoingRequest(cancel.dataset.cancel);
+    toast('invitation cancelled ♡', 'pink');
+    renderGarden();
+  } catch (err) { console.error(err); toast('could not cancel', 'pink'); }
+});
+
 // ---------- leaf click ----------
-function openLeaf(leaf) {
+let currentLeaf = null;
+
+async function openLeaf(leaf) {
+  currentLeaf = leaf;
   document.getElementById('leafFrom').textContent = leaf.anon
     ? 'from someone anonymous ✿'
     : `from ${leaf.fromName || 'a friend'}`;
   document.getElementById('leafDate').textContent = new Date(leaf.at).toLocaleString();
   document.getElementById('leafMsg').textContent  = leaf.msg;
+
+  const photo   = document.getElementById('leafSenderPhoto');
+  const initial = document.getElementById('leafSenderInitial');
+  const row     = document.getElementById('leafInviteRow');
+  const btn     = document.getElementById('leafInviteBtn');
+
+  if (leaf.anon || !leaf.fromProfileId) {
+    photo.classList.add('anon');
+    photo.disabled = true;
+    initial.textContent = '🍃';
+    row.hidden = true;
+  } else {
+    photo.classList.remove('anon');
+    photo.disabled = false;
+    initial.textContent = (leaf.fromName[0] || '✿').toUpperCase();
+    row.hidden = false;
+    btn.disabled = true;
+    btn.textContent = 'checking…';
+
+    openModal('leaf');
+
+    // determine current relationship and set button state
+    try {
+      const rel = await db.relationshipTo(leaf.fromProfileId);
+      applyInviteBtnState(rel);
+    } catch (err) {
+      console.error(err);
+      applyInviteBtnState('none');
+    }
+    return;
+  }
+
   openModal('leaf');
 }
+
+function applyInviteBtnState(rel) {
+  const btn = document.getElementById('leafInviteBtn');
+  btn.dataset.rel = rel;
+  switch (rel) {
+    case 'friend':
+      btn.textContent = 'already in your garden ✿';
+      btn.disabled = true;
+      break;
+    case 'request_sent':
+      btn.textContent = 'invitation pending ⏳';
+      btn.disabled = true;
+      break;
+    case 'request_received':
+      btn.textContent = 'accept their invitation ♡';
+      btn.disabled = false;
+      break;
+    case 'self':
+      btn.textContent = 'this is you ✿';
+      btn.disabled = true;
+      break;
+    default:
+      btn.textContent = 'invite to my garden 💌';
+      btn.disabled = false;
+  }
+}
+
+document.getElementById('leafInviteBtn').addEventListener('click', async () => {
+  if (!currentLeaf || currentLeaf.anon) return;
+  const btn = document.getElementById('leafInviteBtn');
+  const rel = btn.dataset.rel;
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = 'sending…';
+
+  try {
+    if (rel === 'request_received') {
+      // accept the incoming request
+      const me = await db.currentProfile();
+      // we need the request id — fetch incoming list and find it
+      const incoming = await db.incomingRequests();
+      const match = incoming.find(r => r.fromId === currentLeaf.fromProfileId);
+      if (match) {
+        await db.acceptRequest(match.id);
+        toast(`${currentLeaf.fromName} joined your garden 🌱`);
+        applyInviteBtnState('friend');
+      } else {
+        applyInviteBtnState('none');
+      }
+    } else {
+      const { autoAccepted, target } = await db.sendFriendRequest(currentLeaf.fromProfileId);
+      if (autoAccepted) {
+        toast(`${target.display_name} joined your garden 🌱`);
+        applyInviteBtnState('friend');
+      } else {
+        toast('invitation sent 💌');
+        applyInviteBtnState('request_sent');
+      }
+    }
+    refreshGardenBadge();
+  } catch (err) {
+    console.error(err);
+    toast((err && err.message) || 'could not send', 'pink');
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+});
+
+document.getElementById('leafSenderPhoto').addEventListener('click', () => {
+  // tapping the photo triggers the invite button
+  const btn = document.getElementById('leafInviteBtn');
+  if (!btn.disabled) btn.click();
+});
 
 // ---------- util ----------
 function escapeHtml(s) {

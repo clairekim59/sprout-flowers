@@ -695,3 +695,177 @@ h3 {
   border-radius: 14px;
   margin-top: 16px;
 }
+
+/* ---------- section headers in garden modal ---------- */
+.section-h {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin: 18px 0 8px;
+  letter-spacing: 0.3px;
+}
+.section-h.sub { font-size: 13px; }
+.badge {
+  display: inline-block;
+  background: var(--pink-500);
+  color: white;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ---------- request lists ---------- */
+.request-list, .outgoing-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.request-item {
+  background: linear-gradient(135deg, #fff5f8 0%, #f0faf0 100%);
+  border: 2px solid var(--pink-100);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.request-item .ri-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-200), var(--green-200));
+  display: grid; place-items: center;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 2px solid white;
+}
+.request-item .ri-info { flex: 1; min-width: 0; }
+.request-item .ri-name {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  color: var(--pink-700);
+  font-size: 15px;
+}
+.request-item .ri-id {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.request-item .ri-msg {
+  font-size: 12px;
+  color: var(--ink);
+  background: white;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  display: inline-block;
+}
+.request-item .ri-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-mini {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.12s, filter 0.15s;
+}
+.btn-mini:hover { transform: translateY(-1px); filter: brightness(1.04); }
+.btn-mini.accept {
+  background: linear-gradient(135deg, var(--green-200), var(--green-500));
+  color: white;
+}
+.btn-mini.decline {
+  background: white;
+  color: var(--ink-soft);
+  border: 2px solid var(--line);
+  box-shadow: none;
+}
+
+.outgoing-item {
+  background: white;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.outgoing-item .oi-name { font-weight: 600; color: var(--pink-700); flex: 1; }
+.outgoing-item .oi-cancel {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: background 0.18s, color 0.18s;
+}
+.outgoing-item .oi-cancel:hover { background: var(--pink-100); color: var(--pink-700); }
+
+/* ---------- leaf invite ---------- */
+.sender-photo {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 3px solid white;
+  background: linear-gradient(135deg, var(--pink-200), var(--green-200));
+  display: grid;
+  place-items: center;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  padding: 0;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.sender-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255, 143, 174, 0.3);
+}
+.sender-photo.anon {
+  background: linear-gradient(135deg, #e0d4e0, #c8b8c8);
+  cursor: default;
+}
+.sender-photo.anon:hover { transform: none; box-shadow: var(--shadow-soft); }
+
+.leaf-invite-row {
+  text-align: center;
+  margin: 8px 0 4px;
+}
+.leaf-invite-btn {
+  font-size: 13px;
+  padding: 8px 18px;
+}
+.leaf-invite-btn[disabled] {
+  background: var(--green-100);
+  color: var(--green-700);
+  cursor: default;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------- nav badge ---------- */
+.navbtn .nav-badge {
+  display: inline-block;
+  background: var(--pink-500);
+  color: white;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
