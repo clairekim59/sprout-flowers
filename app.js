@@ -50,7 +50,7 @@ const views = {
 };
 function go(name) {
   Object.entries(views).forEach(([k, el]) => el.hidden = (k !== name));
-  if (name === 'main')   renderMain();
+  if (name === 'main')   renderMain().catch(err => console.error('renderMain failed:', err));
   if (name === 'signup') refreshSignupPlaceholder();
 }
 document.querySelectorAll('[data-go]').forEach(el => {
@@ -178,7 +178,12 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
   try {
     await db.signIn({ email, password: pass });
     const me = await db.currentProfile();
-    toast(`welcome back, ${me ? me.display_name : ''} ✿`);
+    if (!me) {
+      await db.signOut();
+      errEl.textContent = 'your profile row is missing — ask the host to recreate it ✿';
+      return;
+    }
+    toast(`welcome back, ${me.display_name} ✿`);
     go('main');
   } catch (err) {
     console.error(err);
