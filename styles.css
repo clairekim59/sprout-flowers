@@ -306,6 +306,43 @@ h3 {
 .navbtn.ghost { background: transparent; box-shadow: none; color: var(--ink-soft); border-color: transparent; }
 .navbtn.ghost:hover { color: var(--pink-500); background: var(--pink-50); }
 
+/* ---------- click-to-copy ---------- */
+.copyable {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 1px 6px;
+  margin: 0 -6px;
+  transition: background 0.15s ease, color 0.15s ease;
+  user-select: all;
+}
+.copyable:hover {
+  background: var(--pink-50);
+  color: var(--pink-700);
+}
+.copyable:active {
+  background: var(--pink-100);
+}
+
+/* ---------- footer ---------- */
+.page-footer {
+  text-align: center;
+  padding: 28px 16px 32px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  opacity: 0.85;
+  letter-spacing: 0.2px;
+}
+.page-footer a {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--pink-200);
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease;
+}
+.page-footer a:hover { color: var(--pink-500); }
+.page-footer .dot { margin: 0 8px; opacity: 0.5; }
+
 /* ---------- main page title ---------- */
 .page-title {
   font-family: 'Pacifico', 'Gaegu', cursive;

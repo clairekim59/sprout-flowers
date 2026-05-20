@@ -140,6 +140,14 @@
 
       'lang.en': 'EN',
       'lang.ko': '한',
+
+      'footer.madeBy': 'made with ♡ by Claire Kim',
+      'footer.license': 'MIT license',
+      'footer.github': 'GitHub',
+
+      'copy.title': 'click to copy',
+      'copy.success': 'copied to clipboard ♡',
+      'copy.fail': 'could not copy ✿',
     },
 
     ko: {
@@ -275,6 +283,14 @@
 
       'lang.en': 'EN',
       'lang.ko': '한',
+
+      'footer.madeBy': 'Claire Kim이 ♡으로 만들었어요',
+      'footer.license': 'MIT 라이선스',
+      'footer.github': 'GitHub',
+
+      'copy.title': '클릭해서 복사',
+      'copy.success': '클립보드에 복사됐어요 ♡',
+      'copy.fail': '복사할 수 없어요 ✿',
     },
   };
 

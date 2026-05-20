@@ -67,6 +67,26 @@ function toast(msg, kind = 'green') {
   }, 2400);
 }
 
+// ---------- click-to-copy ----------
+function enableCopyOnClick(el) {
+  if (!el) return;
+  el.classList.add('copyable');
+  el.title = t('copy.title');
+  if (el.dataset.copyWired) return;
+  el.dataset.copyWired = '1';
+  el.addEventListener('click', async () => {
+    const text = el.textContent.trim();
+    if (!text || text === '—') return;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(t('copy.success'));
+    } catch (err) {
+      console.error(err);
+      toast(t('copy.fail'), 'pink');
+    }
+  });
+}
+
 // ---------- setup check ----------
 function ensureConfigured() {
   if (window.db && window.db.needsSetup) {
@@ -211,9 +231,13 @@ async function renderMain() {
   if (!me) { go('login'); return; }
 
   // profile
-  document.getElementById('profName').textContent   = me.display_name;
-  document.getElementById('profEmail').textContent  = me.email;
+  const profNameEl  = document.getElementById('profName');
+  const profEmailEl = document.getElementById('profEmail');
+  profNameEl.textContent  = me.display_name;
+  profEmailEl.textContent = me.email;
   document.getElementById('profAvatar').textContent = (me.display_name[0] || '✿').toUpperCase();
+  enableCopyOnClick(profNameEl);
+  enableCopyOnClick(profEmailEl);
 
   // leaves
   const leaves = await db.inbox();
