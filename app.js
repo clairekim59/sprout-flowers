@@ -304,10 +304,13 @@ document.getElementById('pastPlantsGrid').addEventListener('click', async e => {
   await openPastPlant(card.dataset.plantId);
 });
 
+let currentPastPlant = null;
+
 async function openPastPlant(plantId) {
   const history = await db.plantHistory();
   const plant = history.find(p => p.id === plantId);
   if (!plant) return;
+  currentPastPlant = plant;
 
   const nameEl = document.getElementById('pastPlantName');
   const metaEl = document.getElementById('pastPlantMeta');
@@ -381,6 +384,48 @@ document.getElementById('plantName').addEventListener('click', async () => {
     console.error(err);
     toast(t('plant.rename.fail'), 'pink');
   }
+});
+
+// build a shareable link for a plant and hand it to the OS share sheet
+// (KakaoTalk / WhatsApp / etc.), falling back to copying the link.
+async function sharePlant(plantId, plantName) {
+  if (!plantId) return;
+  try {
+    const shareId = await db.enablePlantShare(plantId);
+    const url = `${location.origin}${location.pathname}?share=${shareId}`;
+    const shareData = {
+      title: t('share.title'),
+      text: plantName ? `${plantName} ✿ — ${t('share.text')}` : t('share.text'),
+      url,
+    };
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast(t('share.copied'));
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return; // user dismissed the sheet
+    console.error(err);
+    // last-ditch: try clipboard then report
+    try {
+      const shareId = await db.enablePlantShare(plantId);
+      await navigator.clipboard.writeText(`${location.origin}${location.pathname}?share=${shareId}`);
+      toast(t('share.copied'));
+    } catch (e) {
+      toast(t('share.fail'), 'pink');
+    }
+  }
+}
+
+document.getElementById('sharePlantBtn').addEventListener('click', async () => {
+  const plant = await db.currentPlant();
+  if (!plant) return;
+  sharePlant(plant.id, plant.name);
+});
+
+document.getElementById('sharePastPlantBtn').addEventListener('click', () => {
+  if (currentPastPlant) sharePlant(currentPastPlant.id, currentPastPlant.name);
 });
 
 document.getElementById('graduateBtn').addEventListener('click', async () => {
@@ -831,6 +876,52 @@ window.addEventListener('keydown', e => {
   if (visible.length) visible[visible.length - 1].hidden = true;
 });
 
+// ---------- public shared plant view ----------
+let sharedData = null;
+
+async function showSharedPlant(shareId) {
+  // hide the normal views, reveal the public read-only view
+  Object.values(views).forEach(el => { el.hidden = true; });
+  document.getElementById('view-shared').hidden = false;
+  const fixedToggle = document.getElementById('langToggleFixed');
+  if (fixedToggle) fixedToggle.hidden = false; // let guests switch language
+  sharedData = await db.getSharedPlant(shareId);
+  renderSharedPlant();
+}
+
+function renderSharedPlant() {
+  const data   = sharedData;
+  const nameEl = document.getElementById('sharedPlantName');
+  const subEl  = document.getElementById('sharedSubtitle');
+  const metaEl = document.getElementById('sharedPlantMeta');
+  const svg    = document.getElementById('sharedPlantSvg');
+  svg.innerHTML = '';
+
+  if (!data) {
+    nameEl.textContent = '🥀';
+    nameEl.classList.add('unnamed');
+    subEl.textContent = t('shared.notfound');
+    metaEl.textContent = '';
+    return;
+  }
+
+  const named = !!(data.name && data.name.trim());
+  nameEl.textContent = named ? data.name : t('plant.history.unnamed');
+  nameEl.classList.toggle('unnamed', !named);
+  subEl.textContent  = t('shared.subtitle', { name: data.owner_name || '✿' });
+  metaEl.textContent = t('shared.meta', { count: data.leaf_count || 0 });
+
+  const leaves = (data.messages || []).map(m => ({
+    id: m.id,
+    msg: m.body,
+    anon: m.anon,
+    fromName: m.anon ? null : m.from_name,
+    fromProfileId: null, // no invite affordance in the public view
+    at: new Date(m.created_at).getTime(),
+  }));
+  drawPlant(leaves, svg, { interactive: true });
+}
+
 (async function boot() {
   if (!ensureConfigured()) return;
 
@@ -838,6 +929,7 @@ window.addEventListener('keydown', e => {
   if (window.i18n) {
     window.i18n.init();
     window.i18n.on(() => {
+      if (!document.getElementById('view-shared').hidden) renderSharedPlant();
       if (!views.main.hidden) {
         renderMain().catch(err => console.error(err));
       }
@@ -856,6 +948,13 @@ window.addEventListener('keydown', e => {
           : t('leaf.from.named', { name: currentLeaf.fromName || t('leaf.from.friend') });
       }
     });
+  }
+
+  // shared plant link? show the public read-only view and stop here.
+  const shareId = new URLSearchParams(location.search).get('share');
+  if (shareId) {
+    await showSharedPlant(shareId);
+    return;
   }
 
   // react to login / logout events from any tab

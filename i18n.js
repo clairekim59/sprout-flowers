@@ -164,6 +164,16 @@
       'plant.history.title': '🌿 garden memories',
       'plant.history.unnamed': 'unnamed plant',
       'plant.history.leaves': '{count} 🍃 · graduated {date}',
+
+      'share.btn': 'share my plant 🔗',
+      'share.title': 'Sprout ✿',
+      'share.text': 'come see my plant on Sprout ✿',
+      'share.copied': 'link copied — paste it anywhere ♡',
+      'share.fail': 'could not share ✿',
+      'shared.subtitle': '{name}’s plant, grown with kind words ✿',
+      'shared.meta': '{count} 🍃 of kindness',
+      'shared.cta': 'grow your own plant ✿',
+      'shared.notfound': 'this plant could not be found — the link may have expired ✿',
     },
 
     ko: {
@@ -323,6 +333,16 @@
       'plant.history.title': '🌿 정원의 추억',
       'plant.history.unnamed': '이름 없는 식물',
       'plant.history.leaves': '🍃 {count}장 · {date} 졸업',
+
+      'share.btn': '내 식물 공유하기 🔗',
+      'share.title': 'Sprout ✿',
+      'share.text': 'Sprout에서 내 식물을 구경해보세요 ✿',
+      'share.copied': '링크가 복사됐어요 — 어디든 붙여넣으세요 ♡',
+      'share.fail': '공유할 수 없어요 ✿',
+      'shared.subtitle': '{name}님의 식물, 다정한 말로 자랐어요 ✿',
+      'shared.meta': '다정함 🍃 {count}장',
+      'shared.cta': '나도 식물 키우기 ✿',
+      'shared.notfound': '식물을 찾을 수 없어요 — 링크가 만료되었을 수 있어요 ✿',
     },
   };
 

@@ -175,7 +175,7 @@ h3 {
 }
 
 /* ---------- auth ---------- */
-#view-login, #view-signup {
+#view-login, #view-signup, #view-shared {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,6 +184,34 @@ h3 {
 .auth-card {
   width: 100%;
   max-width: 420px;
+}
+
+/* ---------- shared (public read-only) plant ---------- */
+.shared-wrap {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+.shared-wrap .plant-name { cursor: default; }
+.shared-wrap .plant-name:hover { transform: none; box-shadow: var(--shadow-soft); }
+.shared-wrap .plant-area { margin: 14px auto 0; }
+.shared-wrap #sharedCtaBtn {
+  display: inline-block;
+  margin-top: 18px;
+  text-decoration: none;
+}
+
+/* ---------- plant action buttons ---------- */
+.plant-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+.share-btn {
+  font-size: 14px;
+  padding: 10px 22px;
 }
 .form {
   display: flex;
@@ -586,8 +614,6 @@ h3 {
 }
 
 .graduate-btn {
-  display: block;
-  margin: 14px auto 4px;
   font-size: 14px;
   padding: 10px 22px;
 }

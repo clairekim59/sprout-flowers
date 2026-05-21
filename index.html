@@ -129,7 +129,10 @@
         <div class="pot-base"></div>
       </div>
       <p class="hint center" data-i18n="plant.hint">tap a leaf to read the message it grew from ✿</p>
-      <button class="btn btn-pink graduate-btn" id="graduateBtn" hidden data-i18n="plant.graduate.btn">graduate & plant a new seed 🌱</button>
+      <div class="plant-actions">
+        <button class="btn btn-green share-btn" id="sharePlantBtn" data-i18n="share.btn">share my plant 🔗</button>
+        <button class="btn btn-pink graduate-btn" id="graduateBtn" hidden data-i18n="plant.graduate.btn">graduate & plant a new seed 🌱</button>
+      </div>
     </section>
   </div>
 
@@ -138,6 +141,25 @@
     <h3 class="section-h" data-i18n="plant.history.title">🌿 your past plants</h3>
     <div class="past-grid" id="pastPlantsGrid"></div>
   </section>
+</section>
+
+<!-- ========= SHARED (public read-only plant) ========= -->
+<section class="view" id="view-shared" hidden>
+  <div class="shared-wrap card">
+    <h1 class="logo">Sprout</h1>
+    <p class="tagline" id="sharedSubtitle" data-i18n="app.tagline.login">grow a plant with kind words ♡</p>
+    <h2 class="plant-name" id="sharedPlantName">a plant</h2>
+    <p class="muted small center" id="sharedPlantMeta">—</p>
+    <div class="plant-area">
+      <div class="pot">
+        <svg id="sharedPlantSvg" viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+      </div>
+      <div class="ground"></div>
+      <div class="pot-base"></div>
+    </div>
+    <p class="hint center" data-i18n="plant.hint">tap a leaf to read the message it grew from ✿</p>
+    <a class="btn btn-green" id="sharedCtaBtn" href="./" data-i18n="shared.cta">grow your own plant ✿</a>
+  </div>
 </section>
 
 <!-- ========= MODAL: send ========= -->
@@ -224,6 +246,9 @@
       <div class="pot-base"></div>
     </div>
     <p class="hint center" data-i18n="plant.hint">tap a leaf to read the message it grew from ✿</p>
+    <div class="plant-actions">
+      <button class="btn btn-green share-btn" id="sharePastPlantBtn" data-i18n="share.btn">share my plant 🔗</button>
+    </div>
   </div>
 </div>
 

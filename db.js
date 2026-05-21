@@ -79,6 +79,18 @@
       return data;
     },
 
+    async enablePlantShare(plantId) {
+      const { data, error } = await sb.rpc('enable_plant_share', { p_plant_id: plantId });
+      if (error) throw error;
+      return data; // share_id (uuid)
+    },
+
+    async getSharedPlant(shareId) {
+      const { data, error } = await sb.rpc('get_shared_plant', { p_share_id: shareId });
+      if (error) { console.error(error); return null; }
+      return data; // { name, owner_name, archived, leaf_count, messages:[...] } or null
+    },
+
     async plantHistory() {
       const session = await this.session();
       if (!session) return [];
