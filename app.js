@@ -474,11 +474,66 @@ function openModal(id, preset) {
     document.getElementById('sendError').textContent = '';
     document.getElementById('sendSuccess').textContent = '';
     document.getElementById('sendMsg').placeholder = randomCuteMsg();
+    document.getElementById('sendToDropdown').hidden = true;
     if (preset && preset.to) {
       document.getElementById('sendTo').value = preset.to;
     }
+    loadSendNeighbors(); // populate the to-field dropdown
   }
 }
+
+// ---------- neighbor picker in the send modal ----------
+let sendNeighbors = [];
+
+async function loadSendNeighbors() {
+  try {
+    sendNeighbors = await db.myFriends();
+  } catch (err) {
+    console.error(err);
+    sendNeighbors = [];
+  }
+}
+
+function renderNeighborDropdown(filter) {
+  const dd = document.getElementById('sendToDropdown');
+  const q = (filter || '').trim().toLowerCase();
+  const matches = sendNeighbors.filter(n => n.name && n.name.toLowerCase().includes(q));
+  if (!matches.length) { dd.hidden = true; dd.innerHTML = ''; return; }
+  dd.innerHTML = '';
+  matches.forEach(n => {
+    const li = document.createElement('li');
+    li.className = 'neighbor-item';
+    li.dataset.name = n.name;
+    const initial = (n.name[0] || '✿').toUpperCase();
+    li.innerHTML = `
+      <span class="ni-avatar">${escapeHtml(initial)}</span>
+      <span class="ni-name">${escapeHtml(n.name)}</span>
+      <span class="ni-leaves">${n.leafCount} 🍃</span>
+    `;
+    dd.appendChild(li);
+  });
+  dd.hidden = false;
+}
+
+(function wireNeighborPicker() {
+  const input = document.getElementById('sendTo');
+  const dd    = document.getElementById('sendToDropdown');
+  if (!input || !dd) return;
+  input.addEventListener('focus', () => renderNeighborDropdown(input.value));
+  input.addEventListener('input', () => renderNeighborDropdown(input.value));
+  input.addEventListener('blur', () => {
+    setTimeout(() => { dd.hidden = true; }, 150); // let item mousedown land first
+  });
+  // mousedown (not click) so it fires before the input's blur hides the list
+  dd.addEventListener('mousedown', e => {
+    const item = e.target.closest('.neighbor-item');
+    if (!item) return;
+    e.preventDefault();
+    input.value = item.dataset.name;
+    dd.hidden = true;
+    document.getElementById('sendMsg').focus();
+  });
+})();
 function closeAllModals() {
   document.querySelectorAll('.modal').forEach(m => m.hidden = true);
 }

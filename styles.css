@@ -201,6 +201,65 @@ h3 {
   text-decoration: none;
 }
 
+/* ---------- neighbor picker (send modal) ---------- */
+.send-to-wrap {
+  position: relative;
+}
+.neighbor-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background: white;
+  border: 2px solid var(--pink-100);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(255, 143, 174, 0.22);
+}
+.neighbor-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.neighbor-item:hover { background: var(--pink-50); }
+.ni-avatar {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-200), var(--pink-200));
+  color: var(--ink);
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+}
+.ni-name {
+  flex: 1 1 auto;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ni-leaves {
+  flex: none;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
 /* ---------- plant action buttons ---------- */
 .plant-actions {
   display: flex;

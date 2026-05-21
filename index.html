@@ -171,7 +171,10 @@
     <form id="sendForm" class="form">
       <label>
         <span data-i18n="send.to">to (email or nickname)</span>
-        <input type="text" id="sendTo" required data-i18n-placeholder="send.to.placeholder" placeholder="friend@sprout.cute or leafyMochi"/>
+        <div class="send-to-wrap">
+          <input type="text" id="sendTo" required autocomplete="off" data-i18n-placeholder="send.to.placeholder" placeholder="friend@sprout.cute or leafyMochi"/>
+          <ul class="neighbor-dropdown" id="sendToDropdown" hidden></ul>
+        </div>
       </label>
       <label>
         <span><span data-i18n="send.msg">your message </span><span class="hint-inline" data-i18n="send.msg.hint">(leave blank to use the suggestion)</span></span>
