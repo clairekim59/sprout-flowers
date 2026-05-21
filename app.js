@@ -522,7 +522,11 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
     await db.sendMessage({ recipientId: recipient.id, body: msg, anon });
 
     okEl.textContent = t('send.success', { name: recipient.display_name });
-    document.getElementById('sendForm').reset();
+    // keep the recipient (and anon choice) so you can send several notes
+    // to the same person; just clear the message and refresh the suggestion
+    msgEl.value = '';
+    msgEl.placeholder = randomCuteMsg();
+    msgEl.focus();
     toast(t('send.toast'));
   } catch (err) {
     console.error(err);
