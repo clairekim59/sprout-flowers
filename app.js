@@ -47,16 +47,20 @@ function go(name) {
   if (name === 'onboarding') renderOnboarding();
 }
 
-// route a logged-in user to onboarding only for a brand-new, empty seed
-// (species not chosen AND no leaves yet). Established plants — even if
-// they predate the species column — just render with the default species.
+// route a logged-in user to onboarding only for a genuinely new account:
+// the active plant has no chosen species, no leaves yet, AND the user has
+// no graduated plants in their history. Anyone who has grown or graduated
+// a plant before just renders with the default species.
 async function routeAfterAuth() {
   try {
     const plant = await db.currentPlant();
     if (plant && plant.species == null) {
       const me = await db.currentProfile();
       const hasLeaves = me && (me.leaf_count || 0) > 0;
-      if (!hasLeaves) { go('onboarding'); return; }
+      if (!hasLeaves) {
+        const history = await db.plantHistory();
+        if (!history.length) { go('onboarding'); return; }
+      }
     }
   } catch (err) { console.error(err); }
   go('main');
@@ -91,7 +95,8 @@ function buildSeedGrid() {
     const j = Math.floor(Math.random() * (i + 1));
     [order[i], order[j]] = [order[j], order[i]];
   }
-  const tints = ['#ffd1dc', '#cdeccd', '#fff0c4', '#e6d6ff', '#cfeee2', '#ffe0ec'];
+  // six clearly distinct pastels, one per seed slot (not tied to species)
+  const tints = ['#ffc9d6', '#ffe0b3', '#fff3a8', '#c8ecc0', '#c5e3f6', '#e2d2f7'];
   order.forEach((speciesIdx, slot) => {
     const btn = document.createElement('button');
     btn.type = 'button';
