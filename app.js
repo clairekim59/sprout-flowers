@@ -47,11 +47,17 @@ function go(name) {
   if (name === 'onboarding') renderOnboarding();
 }
 
-// route a logged-in user to onboarding (if they haven't chosen a seed) or main
+// route a logged-in user to onboarding only for a brand-new, empty seed
+// (species not chosen AND no leaves yet). Established plants — even if
+// they predate the species column — just render with the default species.
 async function routeAfterAuth() {
   try {
     const plant = await db.currentPlant();
-    if (plant && plant.species == null) { go('onboarding'); return; }
+    if (plant && plant.species == null) {
+      const me = await db.currentProfile();
+      const hasLeaves = me && (me.leaf_count || 0) > 0;
+      if (!hasLeaves) { go('onboarding'); return; }
+    }
   } catch (err) { console.error(err); }
   go('main');
 }
