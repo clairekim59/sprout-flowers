@@ -174,6 +174,11 @@
       'shared.meta': '{count} 🍃 of kindness',
       'shared.cta': 'grow your own plant ✿',
       'shared.notfound': 'this plant could not be found — the link may have expired ✿',
+
+      'plant.delete.title': 'remove this plant forever',
+      'plant.delete.confirm': 'permanently remove “{name}” and all its messages? this cannot be undone.',
+      'plant.delete.toast': 'plant removed forever 🥀',
+      'plant.delete.fail': 'could not remove ✿',
     },
 
     ko: {
@@ -343,6 +348,11 @@
       'shared.meta': '다정함 🍃 {count}장',
       'shared.cta': '나도 식물 키우기 ✿',
       'shared.notfound': '식물을 찾을 수 없어요 — 링크가 만료되었을 수 있어요 ✿',
+
+      'plant.delete.title': '이 식물 영구 삭제',
+      'plant.delete.confirm': '“{name}”과(와) 모든 메시지를 영구히 삭제할까요? 되돌릴 수 없어요.',
+      'plant.delete.toast': '식물을 영구히 삭제했어요 🥀',
+      'plant.delete.fail': '삭제할 수 없어요 ✿',
     },
   };
 

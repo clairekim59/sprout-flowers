@@ -91,6 +91,14 @@
       return data; // { name, owner_name, archived, leaf_count, messages:[...] } or null
     },
 
+    async deletePlant(plantId) {
+      const { data, error } = await sb.rpc('delete_plant', { p_plant_id: plantId });
+      if (error) throw error;
+      cachedPlant = null;   // active plant may have been replaced
+      cachedProfile = null; // leaf_count may have been reset
+      return data; // new active plant id if the active plant was deleted, else null
+    },
+
     async plantHistory() {
       const session = await this.session();
       if (!session) return [];

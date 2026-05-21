@@ -556,6 +556,24 @@ h3 {
   opacity: 1;
   box-shadow: 0 6px 18px rgba(143, 211, 160, 0.25);
 }
+.past-delete {
+  position: absolute;
+  top: 6px; right: 6px;
+  z-index: 2;
+  border: none;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink-soft);
+  font-size: 13px;
+  cursor: pointer;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  line-height: 1;
+  transition: background 0.18s, color 0.18s;
+}
+.past-delete:hover {
+  background: var(--pink-200);
+  color: var(--pink-700);
+}
 
 /* past-plant modal: plant name is read-only (no rename) */
 #modal-past-plant .plant-name {
