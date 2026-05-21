@@ -301,23 +301,27 @@ async function renderMain() {
 document.getElementById('pastPlantsGrid').addEventListener('click', async e => {
   const card = e.target.closest('.past-card');
   if (!card || !card.dataset.plantId) return;
-
-  // delete button takes precedence over opening the plant
-  if (e.target.closest('[data-delete]')) {
-    const name = card.dataset.plantName || t('plant.history.unnamed');
-    if (!window.confirm(t('plant.delete.confirm', { name }))) return;
-    try {
-      await db.deletePlant(card.dataset.plantId);
-      toast(t('plant.delete.toast'), 'pink');
-      renderMain();
-    } catch (err) {
-      console.error(err);
-      toast(t('plant.delete.fail'), 'pink');
-    }
-    return;
-  }
-
   await openPastPlant(card.dataset.plantId);
+});
+
+document.getElementById('removePastPlantBtn').addEventListener('click', async () => {
+  if (!currentPastPlant) return;
+  const name = (currentPastPlant.name && currentPastPlant.name.trim()) || t('plant.history.unnamed');
+  if (!window.confirm(t('plant.delete.confirm', { name }))) return;
+  const btn = document.getElementById('removePastPlantBtn');
+  btn.disabled = true;
+  try {
+    await db.deletePlant(currentPastPlant.id);
+    toast(t('plant.delete.toast'), 'pink');
+    document.getElementById('modal-past-plant').hidden = true;
+    currentPastPlant = null;
+    renderMain();
+  } catch (err) {
+    console.error(err);
+    toast(t('plant.delete.fail'), 'pink');
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 let currentPastPlant = null;
@@ -364,11 +368,9 @@ async function renderPastPlants() {
     card.className = 'past-card';
     card.dataset.plantId = p.id;
     const name = (p.name && p.name.trim()) || t('plant.history.unnamed');
-    card.dataset.plantName = name;
     const count = p.final_leaf_count || 0;
     const date = new Date(p.archived_at).toLocaleDateString();
     card.innerHTML = `
-      <button class="past-delete" data-delete title="${escapeHtml(t('plant.delete.title'))}">✕</button>
       <div class="mini-plant">
         <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
         <div class="ground"></div>
