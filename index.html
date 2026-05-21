@@ -22,8 +22,8 @@
   <span class="floaty">❀</span>
 </div>
 
-<!-- language toggle (visible on every view) -->
-<div class="lang-toggle" role="group" aria-label="language">
+<!-- language toggle (fixed, shown on login/signup) -->
+<div class="lang-toggle" id="langToggleFixed" role="group" aria-label="language">
   <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
   <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
 </div>
@@ -87,6 +87,10 @@
       <button class="navbtn" data-open="send" data-i18n="nav.send">send a note ✉</button>
       <button class="navbtn" data-open="sent" data-i18n="nav.sent">my sent ♡</button>
       <button class="navbtn ghost" id="logoutBtn" data-i18n="nav.logout">log out</button>
+      <div class="lang-toggle lang-inline" role="group" aria-label="language">
+        <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
+        <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
+      </div>
     </nav>
   </header>
 

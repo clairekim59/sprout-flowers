@@ -68,6 +68,11 @@
   color: white;
 }
 [lang="ko"] .lang-opt { font-family: 'Quicksand', 'Jua', sans-serif; }
+/* inline variant sits inside the topbar nav, aligned with the tabs */
+.lang-toggle.lang-inline {
+  position: static;
+  align-self: center;
+}
 @media (max-width: 520px) {
   .lang-toggle { top: 10px; right: 10px; font-size: 11px; }
   .lang-opt { padding: 4px 9px; min-width: 26px; }
@@ -280,12 +285,9 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 110px 16px 28px; /* extra right padding leaves room for fixed lang toggle */
+  padding: 16px 28px;
   gap: 16px;
   flex-wrap: wrap;
-}
-@media (max-width: 520px) {
-  .topbar { padding: 16px 88px 16px 16px; }
 }
 .brand { cursor: pointer; }
 .nav { display: flex; gap: 10px; flex-wrap: wrap; }

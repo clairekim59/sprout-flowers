@@ -38,6 +38,9 @@ const views = {
 };
 function go(name) {
   Object.entries(views).forEach(([k, el]) => el.hidden = (k !== name));
+  // on main the toggle lives inline in the topbar; elsewhere use the fixed one
+  const fixedToggle = document.getElementById('langToggleFixed');
+  if (fixedToggle) fixedToggle.hidden = (name === 'main');
   if (name === 'main')   renderMain().catch(err => console.error('renderMain failed:', err));
   if (name === 'signup') refreshSignupPlaceholder();
 }

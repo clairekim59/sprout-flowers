@@ -161,7 +161,7 @@
 
       'db.error.noplant': 'no active plant',
 
-      'plant.history.title': '🌿 your past plants',
+      'plant.history.title': '🌿 garden memories',
       'plant.history.unnamed': 'unnamed plant',
       'plant.history.leaves': '{count} 🍃 · graduated {date}',
     },
@@ -320,7 +320,7 @@
 
       'db.error.noplant': '활성 식물이 없어요',
 
-      'plant.history.title': '🌿 지난 식물들',
+      'plant.history.title': '🌿 정원의 추억',
       'plant.history.unnamed': '이름 없는 식물',
       'plant.history.leaves': '🍃 {count}장 · {date} 졸업',
     },
