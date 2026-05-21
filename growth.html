@@ -28,6 +28,39 @@
   }
   .gallery-back:hover { color: var(--pink-700); }
 
+  /* species picker */
+  .species-picker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 720px;
+    margin: 18px auto 0;
+    padding: 0 16px;
+  }
+  .species-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.7);
+    border: 2px solid white;
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.15s, border-color 0.18s, background 0.18s;
+  }
+  .species-btn:hover { transform: translateY(-1px); }
+  .species-btn.active { border-color: var(--pink-300); background: white; }
+  .species-swatch {
+    width: 16px; height: 16px; border-radius: 50%;
+    box-shadow: inset 0 -2px 3px rgba(0,0,0,0.12);
+  }
+
   .slider-card {
     max-width: 700px;
     margin: 24px auto;
@@ -173,6 +206,12 @@
     color: var(--ink-soft);
     margin-top: 2px;
   }
+  .mini .species-name {
+    font-family: 'Pacifico', cursive;
+    color: var(--pink-700);
+    font-size: 18px;
+    margin-top: 8px;
+  }
 </style>
 </head>
 <body>
@@ -185,8 +224,11 @@
 <div class="gallery-header">
   <h1 class="logo">growth gallery</h1>
   <p class="tagline">drag the slider — every message grows a new leaf ✿</p>
-  <a class="gallery-back" href="index.html">← back to sprout</a>
+  <a class="gallery-back" href="/">← back to sprout</a>
 </div>
+
+<!-- species picker -->
+<div class="species-picker" id="speciesPicker"></div>
 
 <!-- big interactive slider -->
 <div class="card slider-card">
@@ -203,16 +245,48 @@
 </div>
 
 <h2 class="grid-title">— every stage at a glance —</h2>
-
 <div class="grid" id="grid"></div>
+
+<h2 class="grid-title">— meet the six plants —</h2>
+<div class="grid" id="speciesGrid"></div>
 
 <script src="plant.js"></script>
 <script>
-  // fake leaves: drawPlant only reads .length (and per-leaf properties for click handlers,
-  // which we skip here since openLeaf isn't defined on this page)
+  // fake leaves: drawPlant only reads .length (and per-leaf props for click
+  // handlers, which we skip here since openLeaf isn't defined on this page)
   const fakeLeaves = n => Array.from({ length: n }, (_, i) => ({
     msg: '', fromName: 'preview', fromId: 'preview', anon: false, at: Date.now() - i * 1000,
   }));
+
+  // pretty labels + swatch colors for the six species (order matches PLANT_SPECIES)
+  const SPECIES_META = [
+    { name: 'fern',          emoji: '🌿', swatch: '#8fd3a0' },
+    { name: 'rose',          emoji: '🌹', swatch: '#e23e6b' },
+    { name: 'sunflower',     emoji: '🌻', swatch: '#ffc24a' },
+    { name: 'lavender',      emoji: '💜', swatch: '#b388ff' },
+    { name: 'cactus',        emoji: '🌵', swatch: '#6dbf9a' },
+    { name: 'cherry blossom',emoji: '🌸', swatch: '#ff9ec7' },
+  ];
+
+  let currentSpecies = 0;
+
+  // ---------- species picker ----------
+  const picker = document.getElementById('speciesPicker');
+  SPECIES_META.forEach((m, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'species-btn' + (i === 0 ? ' active' : '');
+    btn.dataset.species = i;
+    btn.innerHTML = `<span class="species-swatch" style="background:${m.swatch}"></span>${m.emoji} ${m.name}`;
+    picker.appendChild(btn);
+  });
+  picker.addEventListener('click', e => {
+    const btn = e.target.closest('.species-btn');
+    if (!btn) return;
+    currentSpecies = +btn.dataset.species;
+    document.querySelectorAll('.species-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderBig(+slider.value);
+    renderStageGrid();
+  });
 
   // ---------- interactive slider ----------
   const slider = document.getElementById('bigSlider');
@@ -224,16 +298,38 @@
     countLabel.textContent = n;
     const info = stageInfo(n);
     stageLabel.textContent = `${info.name} — ${info.banner}`;
-    drawPlant(fakeLeaves(n), bigSvg);
+    drawPlant(fakeLeaves(n), bigSvg, { species: currentSpecies });
   }
   slider.addEventListener('input', e => renderBig(+e.target.value));
-  renderBig(0);
 
-  // ---------- mini grid ----------
+  // ---------- "every stage" grid (follows the selected species) ----------
   const stops = [0, 1, 2, 3, 5, 7, 9, 12, 16, 22];
   const grid = document.getElementById('grid');
-  stops.forEach(n => {
-    const info = stageInfo(n);
+  function renderStageGrid() {
+    grid.innerHTML = '';
+    stops.forEach(n => {
+      const info = stageInfo(n);
+      const card = document.createElement('div');
+      card.className = 'mini';
+      card.innerHTML = `
+        <div class="frame">
+          <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
+          <div class="ground"></div>
+          <div class="pot-base"></div>
+        </div>
+        <div class="count">${n} 🍃</div>
+        <div class="stage">${info.name}</div>
+        <div class="small-label">${n === 0 ? 'no messages yet' : `${n} kind message${n > 1 ? 's' : ''} received`}</div>
+      `;
+      grid.appendChild(card);
+      drawPlant(fakeLeaves(n), card.querySelector('svg'), { species: currentSpecies });
+    });
+  }
+
+  // ---------- "meet the six plants" showcase (all species, flourishing) ----------
+  const speciesGrid = document.getElementById('speciesGrid');
+  const SHOWCASE_N = 16;
+  SPECIES_META.forEach((m, i) => {
     const card = document.createElement('div');
     card.className = 'mini';
     card.innerHTML = `
@@ -242,14 +338,16 @@
         <div class="ground"></div>
         <div class="pot-base"></div>
       </div>
-      <div class="count">${n} 🍃</div>
-      <div class="stage">${info.name}</div>
-      <div class="small-label">${n === 0 ? 'no messages yet' : `${n} kind message${n > 1 ? 's' : ''} received`}</div>
+      <div class="species-name">${m.emoji} ${m.name}</div>
+      <div class="small-label">flourishing at ${SHOWCASE_N} 🍃</div>
     `;
-    grid.appendChild(card);
-    const svg = card.querySelector('svg');
-    drawPlant(fakeLeaves(n), svg);
+    speciesGrid.appendChild(card);
+    drawPlant(fakeLeaves(SHOWCASE_N), card.querySelector('svg'), { species: i });
   });
+
+  // initial paint
+  renderBig(0);
+  renderStageGrid();
 </script>
 
 </body>

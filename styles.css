@@ -97,7 +97,7 @@
   background: linear-gradient(135deg, var(--pink-200), var(--green-200));
   color: var(--ink);
   font-family: 'Fredoka', 'Jua', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 18px;
 }
 .profile-dropdown {
@@ -186,7 +186,6 @@ body {
 .view {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
 }
 
 /* ---------- typography ---------- */
@@ -239,7 +238,10 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+  min-height: 100vh;
 }
+/* main view hugs its content so the footer sits right beneath it */
+#view-main { min-height: auto; }
 
 /* ---------- onboarding ---------- */
 .onboard-card {
@@ -393,10 +395,10 @@ h3 {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--green-200), var(--pink-200));
+  background: linear-gradient(135deg, var(--pink-200), var(--green-200));
   color: var(--ink);
   font-family: 'Fredoka', 'Jua', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
 }
 .ni-name {
@@ -630,6 +632,9 @@ h3 {
   background: linear-gradient(135deg, var(--pink-200), var(--green-200));
   display: grid;
   place-items: center;
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-weight: 700;
+  color: var(--ink);
   font-size: 44px;
   box-shadow: var(--shadow-soft);
   border: 4px solid white;
@@ -1258,7 +1263,7 @@ h3 {
   display: grid; place-items: center;
   font-family: 'Fredoka', 'Jua', sans-serif;
   font-weight: 700;
-  color: white;
+  color: var(--ink);
   font-size: 18px;
   flex-shrink: 0;
   border: 2px solid white;
@@ -1341,7 +1346,7 @@ h3 {
   font-family: 'Fredoka', 'Jua', sans-serif;
   font-weight: 700;
   font-size: 24px;
-  color: white;
+  color: var(--ink);
   cursor: pointer;
   box-shadow: var(--shadow-soft);
   padding: 0;
