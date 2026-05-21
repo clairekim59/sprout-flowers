@@ -41,6 +41,7 @@
       'nav.send': 'send a note ✉',
       'nav.sent': 'my sent ♡',
       'nav.logout': 'log out',
+      'nav.menu': 'menu',
       'logout.bye': 'see you soon ♡',
       'main.title': 'my garden 🌷',
 
@@ -216,6 +217,7 @@
       'nav.send': '쪽지 보내기 ✉',
       'nav.sent': '보낸 쪽지 ♡',
       'nav.logout': '로그아웃',
+      'nav.menu': '메뉴',
       'logout.bye': '또 만나요 ♡',
       'main.title': '내 정원 🌷',
 

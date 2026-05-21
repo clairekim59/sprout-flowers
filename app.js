@@ -243,6 +243,26 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   go('login');
 });
 
+// ---------- profile dropdown menu ----------
+(function wireProfileMenu() {
+  const btn = document.getElementById('profileBtn');
+  const dd  = document.getElementById('profileDropdown');
+  if (!btn || !dd) return;
+  const setOpen = (open) => {
+    dd.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+  };
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    setOpen(dd.hidden);
+  });
+  // selecting an item (data-go / data-open / logout) closes the menu
+  dd.addEventListener('click', () => setOpen(false));
+  // click anywhere else closes it
+  document.addEventListener('click', () => setOpen(false));
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+})();
+
 // ---------- main render ----------
 async function renderMain() {
   const me = await db.currentProfile();
@@ -253,7 +273,10 @@ async function renderMain() {
   const profEmailEl = document.getElementById('profEmail');
   profNameEl.textContent  = me.display_name;
   profEmailEl.textContent = me.email;
-  document.getElementById('profAvatar').textContent = (me.display_name[0] || '✿').toUpperCase();
+  const initial = (me.display_name[0] || '✿').toUpperCase();
+  document.getElementById('profAvatar').textContent = initial;
+  const navAvatar = document.getElementById('navAvatar');
+  if (navAvatar) navAvatar.textContent = initial;
   enableCopyOnClick(profNameEl);
   enableCopyOnClick(profEmailEl);
 

@@ -83,10 +83,18 @@
   <header class="topbar">
     <div class="brand" data-go="main"><span class="logo small">Sprout</span></div>
     <nav class="nav">
-      <button class="navbtn" data-open="garden" data-i18n="nav.garden">my garden 🌷</button>
+      <button class="navbtn" data-open="garden" data-i18n="nav.garden">neighbors 🏡</button>
       <button class="navbtn" data-open="send" data-i18n="nav.send">send a note ✉</button>
-      <button class="navbtn" data-open="sent" data-i18n="nav.sent">my sent ♡</button>
-      <button class="navbtn ghost" id="logoutBtn" data-i18n="nav.logout">log out</button>
+      <div class="profile-menu">
+        <button class="profile-btn" id="profileBtn" type="button" aria-haspopup="true" aria-expanded="false" data-i18n-title="nav.menu">
+          <span class="profile-avatar" id="navAvatar">✿</span>
+        </button>
+        <ul class="profile-dropdown" id="profileDropdown" hidden>
+          <li><button class="pd-item" type="button" data-go="main" data-i18n="main.title">my garden 🌷</button></li>
+          <li><button class="pd-item" type="button" data-open="sent" data-i18n="nav.sent">my sent ♡</button></li>
+          <li><button class="pd-item pd-danger" type="button" id="logoutBtn" data-i18n="nav.logout">log out</button></li>
+        </ul>
+      </div>
       <div class="lang-toggle lang-inline" role="group" aria-label="language">
         <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
         <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
