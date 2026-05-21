@@ -234,11 +234,104 @@ h3 {
 }
 
 /* ---------- auth ---------- */
-#view-login, #view-signup, #view-shared {
+#view-login, #view-signup, #view-shared, #view-onboarding {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+}
+
+/* ---------- onboarding ---------- */
+.onboard-card {
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+}
+.onboard-lead {
+  font-size: 16px;
+  color: var(--ink);
+  margin: 8px 0 18px;
+  line-height: 1.5;
+}
+.onboard-points {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.onboard-points li {
+  background: var(--pink-50);
+  border: 1.5px solid var(--pink-100);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.onboard-step h2 { font-size: 22px; margin-bottom: 4px; }
+.onboard-step .muted { margin-bottom: 16px; }
+.onboard-step input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: white;
+  color: var(--ink);
+  outline: none;
+  margin-bottom: 16px;
+}
+.onboard-step input:focus { border-color: var(--pink-300); box-shadow: 0 0 0 4px var(--pink-100); }
+.onboard-step .btn { width: 100%; }
+
+.seed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 6px 0 20px;
+}
+.seed-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.seed-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+.seed-card.selected {
+  border-color: var(--pink-300);
+  box-shadow: 0 0 0 4px var(--pink-100);
+}
+.seed-shape {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,0.06);
+}
+.seed-dot {
+  width: 15px;
+  height: 21px;
+  background: linear-gradient(135deg, #b07a4e 0%, #8a5a34 60%, #6e441f 100%);
+  border-radius: 50% 50% 48% 48% / 64% 64% 36% 36%;
+  transform: rotate(-18deg);
+  box-shadow: inset 1px 2px 2px rgba(255,255,255,0.25), inset -1px -2px 3px rgba(0,0,0,0.2);
+}
+.seed-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-family: 'Fredoka', 'Jua', sans-serif;
 }
 .auth-card {
   width: 100%;

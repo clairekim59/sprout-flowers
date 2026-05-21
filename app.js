@@ -32,17 +32,28 @@ const emailKey = e => e.trim().toLowerCase();
 
 // ---------- view routing ----------
 const views = {
-  login:  document.getElementById('view-login'),
-  signup: document.getElementById('view-signup'),
-  main:   document.getElementById('view-main'),
+  login:      document.getElementById('view-login'),
+  signup:     document.getElementById('view-signup'),
+  onboarding: document.getElementById('view-onboarding'),
+  main:       document.getElementById('view-main'),
 };
 function go(name) {
   Object.entries(views).forEach(([k, el]) => el.hidden = (k !== name));
   // on main the toggle lives inline in the topbar; elsewhere use the fixed one
   const fixedToggle = document.getElementById('langToggleFixed');
   if (fixedToggle) fixedToggle.hidden = (name === 'main');
-  if (name === 'main')   renderMain().catch(err => console.error('renderMain failed:', err));
-  if (name === 'signup') refreshSignupPlaceholder();
+  if (name === 'main')       renderMain().catch(err => console.error('renderMain failed:', err));
+  if (name === 'signup')     refreshSignupPlaceholder();
+  if (name === 'onboarding') renderOnboarding();
+}
+
+// route a logged-in user to onboarding (if they haven't chosen a seed) or main
+async function routeAfterAuth() {
+  try {
+    const plant = await db.currentPlant();
+    if (plant && plant.species == null) { go('onboarding'); return; }
+  } catch (err) { console.error(err); }
+  go('main');
 }
 document.querySelectorAll('[data-go]').forEach(el => {
   el.addEventListener('click', e => { e.preventDefault(); go(el.dataset.go); });
@@ -54,6 +65,88 @@ function refreshSignupPlaceholder() {
   el.placeholder = randomCuteName();
   el.value = '';
 }
+
+// ---------- onboarding (guideline → mystery seed → name) ----------
+let onboardSeedSpecies = null;
+
+function showOnboardStep(step) {
+  document.querySelectorAll('#view-onboarding .onboard-step').forEach(s => {
+    s.hidden = s.dataset.step !== String(step);
+  });
+}
+
+function buildSeedGrid() {
+  const grid = document.getElementById('seedGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  // shuffle so a seed's slot doesn't reveal which plant it becomes
+  const order = PLANT_SPECIES.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  const tints = ['#ffd1dc', '#cdeccd', '#fff0c4', '#e6d6ff', '#cfeee2', '#ffe0ec'];
+  order.forEach((speciesIdx, slot) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'seed-card';
+    btn.dataset.species = speciesIdx;
+    btn.innerHTML = `
+      <span class="seed-shape" style="background:${tints[slot % tints.length]}"><i class="seed-dot"></i></span>
+      <span class="seed-label">${escapeHtml(t('onboard.seed.item'))}</span>
+    `;
+    grid.appendChild(btn);
+  });
+}
+
+function renderOnboarding() {
+  onboardSeedSpecies = null;
+  showOnboardStep(1);
+  document.getElementById('onboardError').textContent = '';
+  const nameInput = document.getElementById('onboardName');
+  nameInput.value = '';
+  nameInput.placeholder = randomCuteName();
+  document.getElementById('seedNextBtn').disabled = true;
+  buildSeedGrid();
+}
+
+document.getElementById('onboardStartBtn').addEventListener('click', () => showOnboardStep(2));
+
+document.getElementById('seedGrid').addEventListener('click', e => {
+  const card = e.target.closest('.seed-card');
+  if (!card) return;
+  document.querySelectorAll('#seedGrid .seed-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  onboardSeedSpecies = Number(card.dataset.species);
+  document.getElementById('seedNextBtn').disabled = false;
+});
+
+document.getElementById('seedNextBtn').addEventListener('click', () => {
+  if (onboardSeedSpecies == null) return;
+  showOnboardStep(3);
+});
+
+document.getElementById('onboardFinishBtn').addEventListener('click', async () => {
+  if (onboardSeedSpecies == null) { showOnboardStep(2); return; }
+  const btn = document.getElementById('onboardFinishBtn');
+  const errEl = document.getElementById('onboardError');
+  errEl.textContent = '';
+  const nameInput = document.getElementById('onboardName');
+  const name = (nameInput.value.trim() || nameInput.placeholder || '').slice(0, 40);
+  btn.disabled = true;
+  try {
+    const plant = await db.currentPlant();
+    if (!plant) throw new Error('no active plant');
+    await db.chooseSeed(plant.id, onboardSeedSpecies, name);
+    toast(t('signup.welcome', { name }));
+    go('main');
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = t('onboard.fail');
+  } finally {
+    btn.disabled = false;
+  }
+});
 
 // ---------- toast ----------
 const toastEl = document.getElementById('toast');
@@ -170,7 +263,7 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
           return;
         }
         toast(t('signup.welcome', { name }));
-        go('main');
+        routeAfterAuth();
         return;
       } catch (err) {
         lastErr = err;
@@ -218,7 +311,7 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
       return;
     }
     toast(t('login.welcome', { name: me.display_name }));
-    go('main');
+    routeAfterAuth();
   } catch (err) {
     console.error(err);
     const msg = (err && err.message) || '';
@@ -296,11 +389,11 @@ async function renderMain() {
     fitText(leafCountEl, 26, 14);
   });
 
-  drawPlant(leaves);
+  const plant = await db.currentPlant();
+  drawPlant(leaves, null, { species: plant ? plant.species : 0 });
   refreshGardenBadge();
 
   // plant name + graduate button
-  const plant = await db.currentPlant();
   const nameEl = document.getElementById('plantName');
   const gradBtn = document.getElementById('graduateBtn');
   if (plant) {
@@ -372,7 +465,7 @@ async function openPastPlant(plantId) {
 
   // fetch the real leaves for this archived plant
   const leaves = await db.plantInbox(plantId);
-  drawPlant(leaves, svg, { interactive: true });
+  drawPlant(leaves, svg, { interactive: true, species: plant.species });
 }
 
 async function renderPastPlants() {
@@ -407,7 +500,7 @@ async function renderPastPlants() {
     const dummyLeaves = Array.from({ length: count }, () => ({
       msg: '', anon: false, fromName: name, fromId: '', at: 0,
     }));
-    drawPlant(dummyLeaves, svg, { interactive: false });
+    drawPlant(dummyLeaves, svg, { interactive: false, species: p.species });
   });
 }
 
@@ -469,6 +562,26 @@ document.getElementById('sharePlantBtn').addEventListener('click', async () => {
 
 document.getElementById('sharePastPlantBtn').addEventListener('click', () => {
   if (currentPastPlant) sharePlant(currentPastPlant.id, currentPastPlant.name);
+});
+
+document.getElementById('deleteCurrentBtn').addEventListener('click', async () => {
+  const plant = await db.currentPlant();
+  if (!plant) return;
+  const name = (plant.name && plant.name.trim()) || t('plant.history.unnamed');
+  if (!window.confirm(t('plant.delete.confirm', { name }))) return;
+  const btn = document.getElementById('deleteCurrentBtn');
+  btn.disabled = true;
+  try {
+    await db.deletePlant(plant.id);
+    toast(t('plant.delete.toast'), 'pink');
+    // a fresh seed was planted (species null) → pick a new one
+    routeAfterAuth();
+  } catch (err) {
+    console.error(err);
+    toast(t('plant.delete.fail'), 'pink');
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 document.getElementById('graduateBtn').addEventListener('click', async () => {
@@ -1021,7 +1134,7 @@ function renderSharedPlant() {
     fromProfileId: null, // no invite affordance in the public view
     at: new Date(m.created_at).getTime(),
   }));
-  drawPlant(leaves, svg, { interactive: true });
+  drawPlant(leaves, svg, { interactive: true, species: data.species });
 }
 
 (async function boot() {
@@ -1032,6 +1145,9 @@ function renderSharedPlant() {
     window.i18n.init();
     window.i18n.on(() => {
       if (!document.getElementById('view-shared').hidden) renderSharedPlant();
+      if (!views.onboarding.hidden) {
+        document.querySelectorAll('#seedGrid .seed-label').forEach(l => { l.textContent = t('onboard.seed.item'); });
+      }
       if (!views.main.hidden) {
         renderMain().catch(err => console.error(err));
       }
@@ -1062,10 +1178,10 @@ function renderSharedPlant() {
   // react to login / logout events from any tab
   db.onAuth((event) => {
     if (event === 'SIGNED_OUT') go('login');
-    if (event === 'SIGNED_IN')  go('main');
+    if (event === 'SIGNED_IN')  routeAfterAuth();
   });
 
   const session = await db.session();
-  if (session) go('main');
+  if (session) routeAfterAuth();
   else         go('login');
 })();

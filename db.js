@@ -49,13 +49,23 @@
       if (!session) return null;
       const { data, error } = await sb
         .from('plants')
-        .select('id, name, created_at')
+        .select('id, name, created_at, species')
         .eq('owner_id', session.user.id)
         .is('archived_at', null)
         .maybeSingle();
       if (error) { console.error(error); return null; }
       cachedPlant = data;
       return data;
+    },
+
+    async chooseSeed(plantId, species, name) {
+      const trimmed = (name || '').trim().slice(0, 40) || null;
+      const { error } = await sb
+        .from('plants')
+        .update({ species, name: trimmed })
+        .eq('id', plantId);
+      if (error) throw error;
+      cachedPlant = null;
     },
 
     async renamePlant(name) {
@@ -104,7 +114,7 @@
       if (!session) return [];
       const { data, error } = await sb
         .from('plants')
-        .select('id, name, created_at, archived_at, final_leaf_count')
+        .select('id, name, created_at, archived_at, final_leaf_count, species')
         .eq('owner_id', session.user.id)
         .not('archived_at', 'is', null)
         .order('archived_at', { ascending: false });

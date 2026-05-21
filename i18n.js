@@ -181,6 +181,21 @@
       'plant.delete.confirm': 'permanently remove “{name}” and all its messages? this cannot be undone.',
       'plant.delete.toast': 'plant removed forever 🥀',
       'plant.delete.fail': 'could not remove ✿',
+
+      'onboard.welcome': 'welcome to Sprout ✿ a little garden that grows on kindness',
+      'onboard.point1': '🌱 friends water your plant with kind words — every note grows a new leaf',
+      'onboard.point2': '✉ send notes back to grow their plants too',
+      'onboard.point3': '🌷 when it flourishes, graduate it and start a fresh seed',
+      'onboard.start': 'plant my seed 🌱',
+      'onboard.seed.title': 'choose a seed ✿',
+      'onboard.seed.sub': 'each seed grows into a different plant — pick one and watch it bloom ♡',
+      'onboard.seed.item': 'mystery seed',
+      'onboard.next': 'next ✿',
+      'onboard.name.title': 'name your seed ♡',
+      'onboard.name.sub': 'you can rename it anytime',
+      'onboard.name.placeholder': 'leave blank for a cute name',
+      'onboard.finish': 'start growing 🌱',
+      'onboard.fail': 'could not plant your seed ✿',
     },
 
     ko: {
@@ -357,6 +372,21 @@
       'plant.delete.confirm': '“{name}”과(와) 모든 메시지를 영구히 삭제할까요? 되돌릴 수 없어요.',
       'plant.delete.toast': '식물을 영구히 삭제했어요 🥀',
       'plant.delete.fail': '삭제할 수 없어요 ✿',
+
+      'onboard.welcome': 'Sprout에 오신 걸 환영해요 ✿ 다정함으로 자라는 작은 정원이에요',
+      'onboard.point1': '🌱 친구들이 다정한 말로 물을 줘요 — 쪽지 하나가 잎 하나가 돼요',
+      'onboard.point2': '✉ 답장을 보내 친구의 식물도 키워줘요',
+      'onboard.point3': '🌷 만개하면 졸업하고 새 씨앗을 받아요',
+      'onboard.start': '씨앗 심으러 가기 🌱',
+      'onboard.seed.title': '씨앗을 골라요 ✿',
+      'onboard.seed.sub': '씨앗마다 다른 식물로 자라요 — 하나 골라 지켜봐요 ♡',
+      'onboard.seed.item': '신비한 씨앗',
+      'onboard.next': '다음 ✿',
+      'onboard.name.title': '씨앗 이름을 지어요 ♡',
+      'onboard.name.sub': '언제든 다시 바꿀 수 있어요',
+      'onboard.name.placeholder': '비워두면 귀여운 이름 추천',
+      'onboard.finish': '키우기 시작 🌱',
+      'onboard.fail': '씨앗을 심을 수 없어요 ✿',
     },
   };
 

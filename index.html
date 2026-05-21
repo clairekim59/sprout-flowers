@@ -78,6 +78,38 @@
   </div>
 </section>
 
+<!-- ========= ONBOARDING ========= -->
+<section class="view" id="view-onboarding" hidden>
+  <div class="card onboard-card">
+    <!-- step 1: guideline -->
+    <div class="onboard-step" data-step="1">
+      <h1 class="logo">Sprout</h1>
+      <p class="onboard-lead" data-i18n="onboard.welcome">welcome ✿</p>
+      <ul class="onboard-points">
+        <li data-i18n="onboard.point1">point 1</li>
+        <li data-i18n="onboard.point2">point 2</li>
+        <li data-i18n="onboard.point3">point 3</li>
+      </ul>
+      <button class="btn btn-green" id="onboardStartBtn" data-i18n="onboard.start">plant my seed 🌱</button>
+    </div>
+    <!-- step 2: choose a seed -->
+    <div class="onboard-step" data-step="2" hidden>
+      <h2 data-i18n="onboard.seed.title">choose a seed ✿</h2>
+      <p class="muted" data-i18n="onboard.seed.sub">each seed grows into a different surprise…</p>
+      <div class="seed-grid" id="seedGrid"></div>
+      <button class="btn btn-green" id="seedNextBtn" disabled data-i18n="onboard.next">next ✿</button>
+    </div>
+    <!-- step 3: name it -->
+    <div class="onboard-step" data-step="3" hidden>
+      <h2 data-i18n="onboard.name.title">name your seed ♡</h2>
+      <p class="muted" data-i18n="onboard.name.sub">you can rename it anytime</p>
+      <input type="text" id="onboardName" maxlength="40" data-i18n-placeholder="onboard.name.placeholder" placeholder="leafy"/>
+      <button class="btn btn-green" id="onboardFinishBtn" data-i18n="onboard.finish">start growing 🌱</button>
+      <p class="error" id="onboardError"></p>
+    </div>
+  </div>
+</section>
+
 <!-- ========= MAIN ========= -->
 <section class="view" id="view-main" hidden>
   <header class="topbar">
@@ -140,6 +172,7 @@
       <div class="plant-actions">
         <button class="btn btn-green share-btn" id="sharePlantBtn" data-i18n="share.btn">share my plant 🔗</button>
         <button class="btn btn-pink graduate-btn" id="graduateBtn" hidden data-i18n="plant.graduate.btn">graduate & plant a new seed 🌱</button>
+        <button class="remove-plant-btn" id="deleteCurrentBtn" data-i18n="plant.delete.btn">remove this plant 🥀</button>
       </div>
     </section>
   </div>
