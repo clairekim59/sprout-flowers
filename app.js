@@ -518,11 +518,15 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
 });
 
 // ---------- logout ----------
-document.getElementById('logoutBtn').addEventListener('click', async () => {
+async function handleLogout() {
   await db.signOut();
+  closeAllModals();
   document.getElementById('loginForm').reset();
   toast(t('logout.bye'), 'pink');
   go('login');
+}
+document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+  btn.addEventListener('click', handleLogout);
 });
 
 // ---------- account deletion ----------
@@ -597,7 +601,7 @@ if (deleteAccountInput && deleteAccountBtn) {
       setOpen(dd.hidden);
     });
   }
-  // selecting a destination closes the menu; preference controls stay visible.
+  // selecting a destination closes the menu.
   dd.addEventListener('click', e => {
     if (e.target.closest('[data-menu-keepopen]')) return;
     setOpen(false);
@@ -650,6 +654,34 @@ async function renderProfileIconChoices() {
   });
 }
 
+async function renderSettings() {
+  const nameEl = document.getElementById('settingsName');
+  const emailEl = document.getElementById('settingsEmail');
+  const avatarEl = document.getElementById('settingsAvatar');
+  if (!nameEl || !emailEl || !avatarEl) return;
+
+  try {
+    const me = await db.currentProfile();
+    if (!me) return;
+    nameEl.textContent = me.display_name || t('profile.fallbackName');
+    emailEl.textContent = me.email || '—';
+    avatarEl.textContent = profileIcon(me);
+    enableCopyOnClick(nameEl);
+    enableCopyOnClick(emailEl);
+  } catch (err) {
+    console.error('renderSettings failed:', err);
+  }
+}
+
+const settingsIconBtn = document.getElementById('settingsIconBtn');
+if (settingsIconBtn) {
+  settingsIconBtn.addEventListener('click', () => {
+    const settingsModal = document.getElementById('modal-settings');
+    if (settingsModal) settingsModal.hidden = true;
+    openModal('profile-icon');
+  });
+}
+
 const profAvatarBtn = document.getElementById('profAvatar');
 if (profAvatarBtn) {
   profAvatarBtn.addEventListener('click', () => openModal('profile-icon'));
@@ -666,6 +698,8 @@ if (profileIconGrid) {
     try {
       const profile = await db.updateProfileIcon(btn.dataset.icon || '');
       applyProfileIcon(profile);
+      const settingsAvatar = document.getElementById('settingsAvatar');
+      if (settingsAvatar) settingsAvatar.textContent = profileIcon(profile);
       document.getElementById('modal-profile-icon').hidden = true;
       toast(t('profile.icon.saved'));
     } catch (err) {
@@ -981,6 +1015,7 @@ function openModal(id, preset) {
   if (id === 'sent')   renderSent();
   if (id === 'garden') renderGarden();
   if (id === 'stage')  renderStageProgress();
+  if (id === 'settings') renderSettings();
   if (id === 'profile-icon') renderProfileIconChoices().catch(err => console.error('renderProfileIconChoices failed:', err));
   if (id === 'delete-account') resetDeleteAccountModal();
   if (id === 'send') {
@@ -1056,7 +1091,11 @@ function closeAllModals() {
   document.querySelectorAll('.modal').forEach(m => m.hidden = true);
 }
 document.querySelectorAll('[data-open]').forEach(b => {
-  b.addEventListener('click', () => openModal(b.dataset.open));
+  b.addEventListener('click', () => {
+    const settingsModal = b.closest('#modal-settings');
+    if (settingsModal) settingsModal.hidden = true;
+    openModal(b.dataset.open);
+  });
 });
 document.querySelectorAll('[data-close]').forEach(b => {
   b.addEventListener('click', () => {
@@ -1726,6 +1765,9 @@ document.addEventListener('visibilitychange', () => {
       if (!document.getElementById('modal-stage').hidden)  renderStageProgress();
       if (!document.getElementById('modal-profile-icon').hidden) {
         renderProfileIconChoices().catch(err => console.error(err));
+      }
+      if (!document.getElementById('modal-settings').hidden) {
+        renderSettings().catch(err => console.error(err));
       }
       // re-pick random cute message placeholder if the send modal is open
       if (!document.getElementById('modal-send').hidden) {

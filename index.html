@@ -45,7 +45,7 @@
   <span class="floaty">❀</span>
 </div>
 
-<!-- fixed controls keep the same order as the main nav: theme, then language -->
+<!-- guest/shared controls; signed-in preferences live in the profile settings popup -->
 <button class="theme-toggle" id="themeToggleFixed" type="button" data-theme-toggle data-i18n-title="theme.toggle" aria-label="toggle dark mode" aria-pressed="false">
   <span class="theme-icon" aria-hidden="true">☾</span>
 </button>
@@ -148,21 +148,10 @@
           <span class="profile-avatar" id="navAvatar">✿</span>
         </button>
         <ul class="profile-dropdown" id="profileDropdown" hidden>
-          <li><button class="pd-item" type="button" data-go="main" data-i18n="main.title">my garden 🌷</button></li>
+          <li><button class="pd-item" type="button" data-go="main" data-i18n="main.title">my garden</button></li>
           <li><button class="pd-item" type="button" data-open="sent" data-i18n="nav.sent">my sent ♡</button></li>
-          <li>
-            <div class="pd-theme" role="group" aria-label="light / dark mode" data-menu-keepopen>
-              <button type="button" class="theme-opt" data-theme-choice="light" data-i18n="theme.light">light</button>
-              <button type="button" class="theme-opt" data-theme-choice="dark" data-i18n="theme.dark">dark</button>
-            </div>
-          </li>
-          <li>
-            <div class="pd-lang" role="group" aria-label="language" data-menu-keepopen>
-              <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
-              <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
-            </div>
-          </li>
-          <li><button class="pd-item pd-danger" type="button" id="logoutBtn" data-i18n="nav.logout">log out</button></li>
+          <li><button class="pd-item" type="button" data-open="settings" data-i18n="settings.menu">settings</button></li>
+          <li><button class="pd-item pd-danger" type="button" data-action="logout" data-i18n="nav.logout">log out</button></li>
         </ul>
       </div>
     </nav>
@@ -190,7 +179,6 @@
       </div>
 
       <p class="hint" data-i18n="profile.hint">share your nickname or email so friends can water your plant with kind words ♡</p>
-      <button class="profile-delete-account" type="button" data-open="delete-account" data-i18n="account.delete.menu">delete account</button>
     </aside>
 
     <!-- plant -->
@@ -376,6 +364,61 @@
       <button class="remove-plant-btn" type="button" data-close data-i18n="account.delete.cancel">keep account</button>
       <button class="btn btn-pink danger-action" id="deleteAccountBtn" type="button" disabled data-i18n="account.delete.submit">delete my account</button>
     </div>
+  </div>
+</div>
+
+<!-- ========= MODAL: settings ========= -->
+<div class="modal" id="modal-settings" hidden>
+  <div class="modal-card settings-card">
+    <button class="x" data-close>✕</button>
+    <h2 data-i18n="settings.title">settings</h2>
+    <p class="muted" data-i18n="settings.subtitle">adjust your app preferences and account tools</p>
+
+    <section class="settings-section">
+      <div class="settings-section-head">
+        <h3 data-i18n="settings.profile.title">profile</h3>
+        <button class="settings-chip-btn" id="settingsIconBtn" type="button" data-i18n="settings.profile.icon">change icon</button>
+      </div>
+      <div class="settings-profile-line">
+        <span class="settings-avatar" id="settingsAvatar">✿</span>
+        <div class="settings-profile-copy">
+          <strong id="settingsName">—</strong>
+          <span id="settingsEmail">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h3 data-i18n="settings.preferences.title">preferences</h3>
+      <div class="settings-row">
+        <div>
+          <span class="settings-label" data-i18n="settings.language">language</span>
+          <span class="settings-note" data-i18n="settings.language.note">choose the display language</span>
+        </div>
+        <div class="settings-segment pd-lang" role="group" aria-label="language">
+          <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
+          <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <span class="settings-label" data-i18n="settings.theme">theme</span>
+          <span class="settings-note" data-i18n="settings.theme.note">switch between light and dark mode</span>
+        </div>
+        <div class="settings-segment pd-theme" role="group" aria-label="light / dark mode">
+          <button type="button" class="theme-opt" data-theme-choice="light" data-i18n="theme.light">light</button>
+          <button type="button" class="theme-opt" data-theme-choice="dark" data-i18n="theme.dark">dark</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h3 data-i18n="settings.account.title">account</h3>
+      <div class="settings-actions">
+        <button class="settings-action" type="button" data-open="sent" data-i18n="settings.sent">open sent notes</button>
+        <button class="settings-action danger" type="button" data-open="delete-account" data-i18n="account.delete.menu">delete account</button>
+      </div>
+    </section>
   </div>
 </div>
 
