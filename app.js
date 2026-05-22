@@ -422,6 +422,9 @@ async function renderMain() {
 
   // past plants (graduated)
   renderPastPlants().catch(err => console.error('renderPastPlants failed:', err));
+
+  // the user is looking at their plant now — notify about / clear any new leaves
+  processLeaves(me, leaves);
 }
 
 // click a past plant card → open modal showing that plant with its real messages
@@ -1148,6 +1151,96 @@ function renderSharedPlant() {
   drawPlant(leaves, svg, { interactive: true, species: data.species });
 }
 
+// ---------- new-leaf notifications ----------
+// A "leaf" is an incoming message on the active plant, so a new message and a
+// new leaf are the same event. While the tab is open we poll the inbox; leaves
+// that arrived since the user last looked at their plant surface as a toast plus
+// an unread badge on the leaf stat. The "last seen" baseline is kept per-account
+// in localStorage so reloads don't re-announce leaves the user already saw.
+const LEAF_POLL_MS = 30000;
+const leafSeenKey = id => `sprout:leafSeen:${id}`;
+let leafPollTimer = null;
+
+function getLeafSeen(meId) {
+  const v = localStorage.getItem(leafSeenKey(meId));
+  return v == null ? null : Number(v);
+}
+function setLeafSeen(meId, ts) {
+  try { localStorage.setItem(leafSeenKey(meId), String(ts)); } catch (_) {}
+}
+
+function updateLeafBadge(count) {
+  const badge = document.getElementById('leafBadge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : `+${count}`;
+    badge.hidden = false;
+  } else {
+    badge.textContent = '';
+    badge.hidden = true;
+  }
+}
+
+// true when the user is actually on the main view with the tab in focus
+function viewingOwnPlant() {
+  return document.visibilityState === 'visible' && !views.main.hidden;
+}
+
+// Reconcile a freshly-fetched inbox against the last-seen baseline.
+// Returns the number of new leaves found. When the user is watching, it toasts
+// and clears the count; otherwise it leaves a running unread badge for later.
+function processLeaves(me, leaves) {
+  if (!me) return 0;
+  const maxAt = (leaves || []).reduce((m, l) => Math.max(m, l.at || 0), 0);
+  const seen = getLeafSeen(me.id);
+
+  // first time we've seen this account: set the baseline, don't notify in arrears
+  if (seen == null) { setLeafSeen(me.id, maxAt); updateLeafBadge(0); return 0; }
+
+  const fresh = (leaves || []).filter(l => (l.at || 0) > seen).length;
+
+  if (viewingOwnPlant()) {
+    if (fresh) {
+      toast(fresh === 1
+        ? t('notify.newLeaf.one')
+        : t('notify.newLeaf.many', { count: fresh }));
+    }
+    setLeafSeen(me.id, maxAt);
+    updateLeafBadge(0);
+  } else if (fresh) {
+    updateLeafBadge(fresh);
+  }
+  return fresh;
+}
+
+async function checkNewLeaves() {
+  let me;
+  try { me = await db.currentProfile(); } catch (_) { return; }
+  if (!me) return;
+  let leaves;
+  try { leaves = await db.inbox(); } catch (_) { return; }
+  const fresh = processLeaves(me, leaves);
+  // if they're watching and a leaf just arrived, redraw so it actually appears
+  if (fresh && viewingOwnPlant()) {
+    renderMain().catch(err => console.error('renderMain failed:', err));
+  }
+}
+
+function startLeafNotifications() {
+  stopLeafNotifications();
+  checkNewLeaves();
+  leafPollTimer = setInterval(checkNewLeaves, LEAF_POLL_MS);
+}
+function stopLeafNotifications() {
+  if (leafPollTimer) { clearInterval(leafPollTimer); leafPollTimer = null; }
+  updateLeafBadge(0);
+}
+
+// regaining focus is a good moment to check immediately rather than wait out the timer
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && leafPollTimer) checkNewLeaves();
+});
+
 (async function boot() {
   if (!ensureConfigured()) return;
 
@@ -1188,11 +1281,11 @@ function renderSharedPlant() {
 
   // react to login / logout events from any tab
   db.onAuth((event) => {
-    if (event === 'SIGNED_OUT') go('login');
-    if (event === 'SIGNED_IN')  routeAfterAuth();
+    if (event === 'SIGNED_OUT') { stopLeafNotifications(); go('login'); }
+    if (event === 'SIGNED_IN')  { routeAfterAuth(); startLeafNotifications(); }
   });
 
   const session = await db.session();
-  if (session) routeAfterAuth();
+  if (session) { routeAfterAuth(); startLeafNotifications(); }
   else         go('login');
 })();

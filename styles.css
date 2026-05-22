@@ -662,6 +662,7 @@ h3 {
   margin: 18px 0 8px;
 }
 .stat {
+  position: relative;
   flex: 1 1 0;
   min-width: 0;
   background: var(--green-50);
@@ -669,6 +670,27 @@ h3 {
   border-radius: 16px;
   border: 2px solid var(--green-100);
   text-align: center;
+}
+.leaf-badge {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  background: var(--pink-500);
+  color: #fff;
+  border-radius: 999px;
+  min-width: 22px;
+  padding: 2px 7px;
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  animation: leaf-badge-pop 0.32s ease;
+}
+@keyframes leaf-badge-pop {
+  0%   { transform: scale(0); }
+  70%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
 }
 .stat-num {
   font-family: 'Fredoka', 'Jua', sans-serif;
