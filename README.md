@@ -74,7 +74,7 @@ sprout-flowers/
 ├── styles.css        # the whole pink→green look & feel
 ├── growth.html       # plant growth gallery
 ├── api/share.js      # Vercel function — per-plant OpenGraph link previews
-└── supabase-*.sql    # schema, RLS policies, triggers, and RPCs
+└── supabase/         # setup.sql + migration-*.sql (schema, RLS, triggers, RPCs)
 ```
 
 ## ✿ Running it locally
@@ -87,7 +87,7 @@ cd sprout-flowers
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-To run against your own backend, create a free [Supabase](https://supabase.com) project, run the `supabase-setup.sql` and `supabase-migration-*.sql` files in the SQL editor (in filename order), and drop your project URL + anon key into `config.js`. The anon key is safe to expose — access is governed entirely by Row-Level Security.
+To run against your own backend, create a free [Supabase](https://supabase.com) project and, in the SQL editor, run `supabase/setup.sql` first, then the `supabase/migration-*.sql` files. Finally drop your project URL + anon key into `config.js`. The anon key is safe to expose — access is governed entirely by Row-Level Security.
 
 ## ✿ About the developer
 
