@@ -866,6 +866,23 @@ h3 {
   border: 2px solid var(--green-100);
   text-align: center;
 }
+.stage-stat {
+  appearance: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.18s ease, background 0.15s ease;
+}
+.stage-stat:hover {
+  transform: translateY(-1px);
+  border-color: var(--green-300);
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-soft);
+}
+.stage-stat:focus-visible {
+  outline: 3px solid var(--green-200);
+  outline-offset: 3px;
+}
 .leaf-badge {
   position: absolute;
   top: -9px;
@@ -901,6 +918,13 @@ h3 {
   margin-top: 2px;
   letter-spacing: 0.4px;
   white-space: nowrap;
+}
+.stage-stat .stat-label::after {
+  content: '›';
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--green-500);
+  font-weight: 700;
 }
 .hint {
   font-size: 13px;
@@ -1333,6 +1357,112 @@ h3 {
 .modal-card.wide       { max-width: 460px; }
 .modal-card.extra-wide { max-width: 600px; }
 .modal-card.small      { max-width: 340px; }
+.stage-card {
+  max-width: 520px;
+}
+.stage-progress-track {
+  width: 100%;
+  height: 10px;
+  margin: 16px 0 14px;
+  border-radius: 999px;
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  overflow: hidden;
+}
+.stage-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green-200), var(--pink-300));
+  transition: width 0.2s ease;
+}
+.stage-progress-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stage-progress-step {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--green-100);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+.stage-progress-step.current {
+  border-color: var(--green-300);
+  background: var(--green-50);
+  box-shadow: inset 0 0 0 1px var(--surface-card);
+}
+.stage-progress-step.done {
+  opacity: 0.8;
+}
+.stage-step-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--surface-control);
+  font-size: 18px;
+}
+.stage-step-main,
+.stage-step-side {
+  display: grid;
+  gap: 2px;
+}
+.stage-step-name {
+  color: var(--ink);
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.stage-step-desc,
+.stage-step-range {
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.25;
+}
+.stage-step-side {
+  justify-items: end;
+  text-align: right;
+}
+.stage-step-status {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--surface-control);
+  color: var(--green-700);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.stage-progress-step.current .stage-step-status {
+  background: var(--green-300);
+  color: white;
+}
+.stage-progress-step.future .stage-step-status {
+  color: var(--ink-soft);
+}
+@media (max-width: 520px) {
+  .stage-progress-step {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+  .stage-step-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .stage-step-side {
+    grid-column: 2;
+    justify-items: start;
+    text-align: left;
+  }
+}
 .danger-modal {
   border-color: var(--pink-200);
 }

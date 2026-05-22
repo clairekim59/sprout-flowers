@@ -183,10 +183,10 @@
           <div class="stat-num" id="leafCount">0</div>
           <div class="stat-label" data-i18n="profile.leaves">leaves 🍃</div>
         </div>
-        <div class="stat">
+        <button class="stat stage-stat" id="stageStat" type="button" data-open="stage" data-i18n-title="stage.progress.title">
           <div class="stat-num" id="stageName" data-i18n="stage.seed">seed</div>
           <div class="stat-label" data-i18n="profile.stage">stage</div>
-        </div>
+        </button>
       </div>
 
       <p class="hint" data-i18n="profile.hint">share your nickname or email so friends can water your plant with kind words ♡</p>
@@ -271,6 +271,19 @@
       <p class="error" id="sendError"></p>
       <p class="success" id="sendSuccess"></p>
     </form>
+  </div>
+</div>
+
+<!-- ========= MODAL: stage progress ========= -->
+<div class="modal" id="modal-stage" hidden>
+  <div class="modal-card wide stage-card">
+    <button class="x" data-close>✕</button>
+    <h2 data-i18n="stage.progress.title">plant growth</h2>
+    <p class="muted" id="stageProgressSummary"></p>
+    <div class="stage-progress-track" aria-hidden="true">
+      <div class="stage-progress-fill" id="stageProgressFill"></div>
+    </div>
+    <ol class="stage-progress-list" id="stageProgressList"></ol>
   </div>
 </div>
 

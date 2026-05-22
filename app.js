@@ -68,6 +68,31 @@ function formatPlantedLabel(value) {
   return t('plant.planted.date', { date: date.toLocaleDateString() });
 }
 
+const STAGE_STEPS = [
+  { key: 'seed', min: 0, max: 0, icon: '🌰' },
+  { key: 'sprout', min: 1, max: 2, icon: '🌱' },
+  { key: 'sapling', min: 3, max: 5, icon: '🍃' },
+  { key: 'bush', min: 6, max: 9, icon: '🌿' },
+  { key: 'blooming', min: 10, max: 14, icon: '✿' },
+  { key: 'flourishing', min: 15, max: null, icon: '❀' },
+];
+
+function stageStepFor(count) {
+  const safeCount = Math.max(0, Number(count) || 0);
+  return STAGE_STEPS.findIndex(step =>
+    safeCount >= step.min && (step.max == null || safeCount <= step.max));
+}
+
+function stageRangeLabel(step) {
+  if (step.min === 0 && step.max === 0) return t('stage.progress.rangeZero');
+  if (step.max == null) return t('stage.progress.rangePlus', { min: step.min });
+  return t('stage.progress.range', { min: step.min, max: step.max });
+}
+
+function stageNameForKey(key) {
+  return t(`stage.${key}`);
+}
+
 function plantHistoryMeta(plant) {
   const count = plant.final_leaf_count || 0;
   const start = formatPlantStart(plant.created_at);
@@ -641,6 +666,55 @@ if (profileIconGrid) {
 }
 
 // ---------- main render ----------
+let currentLeafTotal = 0;
+
+function renderStageProgress() {
+  const list = document.getElementById('stageProgressList');
+  const summary = document.getElementById('stageProgressSummary');
+  const fill = document.getElementById('stageProgressFill');
+  if (!list || !summary || !fill) return;
+
+  const count = Math.max(0, Number(currentLeafTotal) || 0);
+  const currentIndex = Math.max(0, stageStepFor(count));
+  const currentStep = STAGE_STEPS[currentIndex];
+  const currentName = stageNameForKey(currentStep.key);
+  const nextStep = STAGE_STEPS[currentIndex + 1];
+
+  if (nextStep) {
+    const needed = Math.max(nextStep.min - count, 1);
+    summary.textContent = t(needed === 1 ? 'stage.progress.nextOne' : 'stage.progress.nextMany', {
+      count,
+      stage: currentName,
+      needed,
+      next: stageNameForKey(nextStep.key),
+    });
+  } else {
+    summary.textContent = t('stage.progress.done', { count, stage: currentName });
+  }
+
+  fill.style.width = `${Math.min(100, (Math.min(count, 15) / 15) * 100)}%`;
+  list.innerHTML = '';
+  STAGE_STEPS.forEach((step, index) => {
+    const li = document.createElement('li');
+    const isCurrent = index === currentIndex;
+    const isDone = index < currentIndex;
+    li.className = `stage-progress-step ${isCurrent ? 'current' : isDone ? 'done' : 'future'}`;
+    if (isCurrent) li.setAttribute('aria-current', 'step');
+    li.innerHTML = `
+      <span class="stage-step-icon">${escapeHtml(step.icon)}</span>
+      <span class="stage-step-main">
+        <span class="stage-step-name">${escapeHtml(stageNameForKey(step.key))}</span>
+        <span class="stage-step-desc">${escapeHtml(t(`stage.progress.desc.${step.key}`))}</span>
+      </span>
+      <span class="stage-step-side">
+        <span class="stage-step-range">${escapeHtml(stageRangeLabel(step))}</span>
+        <span class="stage-step-status">${escapeHtml(t(isCurrent ? 'stage.progress.current' : isDone ? 'stage.progress.doneStatus' : 'stage.progress.future'))}</span>
+      </span>
+    `;
+    list.appendChild(li);
+  });
+}
+
 async function renderMain() {
   const me = await db.currentProfile();
   if (!me) { go('login'); return; }
@@ -656,6 +730,7 @@ async function renderMain() {
 
   // leaves
   const leaves = await db.inbox();
+  currentLeafTotal = leaves.length;
   document.getElementById('leafCount').textContent = leaves.length;
 
   const stage = stageInfo(leaves.length);
@@ -699,6 +774,7 @@ async function renderMain() {
 
   // reflect how many received leaves are still unread (read state is server-side)
   updateLeafBadge(unreadCount(leaves));
+  if (!document.getElementById('modal-stage').hidden) renderStageProgress();
 }
 
 // click a past plant card → open modal showing that plant with its real messages
@@ -892,6 +968,7 @@ function openModal(id, preset) {
   document.getElementById('modal-' + id).hidden = false;
   if (id === 'sent')   renderSent();
   if (id === 'garden') renderGarden();
+  if (id === 'stage')  renderStageProgress();
   if (id === 'profile-icon') renderProfileIconChoices().catch(err => console.error('renderProfileIconChoices failed:', err));
   if (id === 'delete-account') resetDeleteAccountModal();
   if (id === 'send') {
@@ -1614,6 +1691,7 @@ document.addEventListener('visibilitychange', () => {
       }
       if (!document.getElementById('modal-sent').hidden)   renderSent();
       if (!document.getElementById('modal-garden').hidden) renderGarden();
+      if (!document.getElementById('modal-stage').hidden)  renderStageProgress();
       if (!document.getElementById('modal-profile-icon').hidden) {
         renderProfileIconChoices().catch(err => console.error(err));
       }
