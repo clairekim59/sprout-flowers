@@ -948,6 +948,26 @@ h3 {
   font-style: normal;
   background: transparent;
 }
+.plant-start-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 4px 12px;
+  border: 1px solid var(--green-100);
+  border-radius: 999px;
+  background: var(--surface-control);
+  color: var(--green-700);
+  font-family: 'Fredoka', 'Jua', 'Poor Story', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0;
+  box-shadow: 0 2px 8px rgba(143, 211, 160, 0.16);
+}
+.plant-start-date:empty {
+  display: none;
+}
 
 /* ---------- past plants (graduated) ---------- */
 .past-plants {
@@ -1058,7 +1078,8 @@ h3 {
 .past-meta {
   font-size: 11px;
   color: var(--ink-soft);
-  margin-top: 2px;
+  line-height: 1.35;
+  margin-top: 4px;
 }
 
 .graduate-btn {

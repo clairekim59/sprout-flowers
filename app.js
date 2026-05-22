@@ -27,6 +27,42 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 function randomCuteName() { return `${pick(CUTE_ADJ)}${cap(pick(CUTE_NOUN))}`; }
 function randomCuteMsg()  { return window.i18n ? window.i18n.randomMsg() : pick(['you make the world brighter ✿']); }
 const t  = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function parsePlantDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date;
+}
+
+function formatPlantDate(value) {
+  const date = parsePlantDate(value);
+  if (!date) return '';
+  return date.toLocaleDateString();
+}
+
+function formatPlantStart(value) {
+  const date = parsePlantDate(value);
+  if (!date) return '';
+  const ageMs = Date.now() - date.getTime();
+  if (ageMs >= 0 && ageMs < 7 * DAY_MS) {
+    const days = Math.floor(ageMs / DAY_MS);
+    if (days <= 0) return t('plant.age.today');
+    if (days === 1) return t('plant.age.dayAgo');
+    return t('plant.age.daysAgo', { count: days });
+  }
+  return date.toLocaleDateString();
+}
+
+function plantHistoryMeta(plant) {
+  const count = plant.final_leaf_count || 0;
+  const start = formatPlantStart(plant.created_at);
+  const end = formatPlantDate(plant.archived_at);
+  if (start && end) return t('plant.history.meta', { count, start, end });
+  if (end) return t('plant.history.leaves', { count, date: end });
+  return t('plant.history.count', { count });
+}
 
 // ---------- theme ----------
 const THEME_KEY = 'sprout.theme';
@@ -589,6 +625,7 @@ async function renderMain() {
 
   // plant name + graduate button
   const nameEl = document.getElementById('plantName');
+  const startDateEl = document.getElementById('plantStartDate');
   const gradBtn = document.getElementById('graduateBtn');
   if (plant) {
     if (plant.name && plant.name.trim()) {
@@ -599,6 +636,10 @@ async function renderMain() {
       nameEl.classList.add('unnamed');
     }
     nameEl.title = t('plant.name.title');
+    const plantedDate = formatPlantStart(plant.created_at);
+    startDateEl.textContent = plantedDate ? t('plant.planted', { date: plantedDate }) : '';
+  } else {
+    startDateEl.textContent = '';
   }
   // graduation only available at flourishing (>= 15 leaves)
   gradBtn.hidden = leaves.length < 15;
@@ -652,10 +693,7 @@ async function openPastPlant(plantId) {
 
   nameEl.textContent = named ? plant.name : t('plant.history.unnamed');
   nameEl.classList.toggle('unnamed', !named);
-  metaEl.textContent = t('plant.history.leaves', {
-    count: plant.final_leaf_count || 0,
-    date: new Date(plant.archived_at).toLocaleDateString(),
-  });
+  metaEl.textContent = plantHistoryMeta(plant);
   svg.innerHTML = '';
 
   openModal('past-plant');
@@ -682,7 +720,7 @@ async function renderPastPlants() {
     card.dataset.plantId = p.id;
     const name = (p.name && p.name.trim()) || t('plant.history.unnamed');
     const count = p.final_leaf_count || 0;
-    const date = new Date(p.archived_at).toLocaleDateString();
+    const meta = plantHistoryMeta(p);
     card.innerHTML = `
       <div class="mini-plant">
         <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
@@ -690,7 +728,7 @@ async function renderPastPlants() {
         <div class="pot-base"></div>
       </div>
       <div class="past-name">${escapeHtml(name)}</div>
-      <div class="past-meta">${escapeHtml(t('plant.history.leaves', { count, date }))}</div>
+      <div class="past-meta">${escapeHtml(meta)}</div>
     `;
     grid.appendChild(card);
     const svg = card.querySelector('svg');

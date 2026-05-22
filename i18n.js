@@ -172,12 +172,18 @@
       'plant.graduate.confirm': 'your plant is flourishing! graduate this plant and start a fresh seed?',
       'plant.graduate.toast': 'a new seed is sleeping in the soil 🌱',
       'plant.graduate.fail': 'could not graduate ✿',
+      'plant.planted': 'planted {date}',
+      'plant.age.today': 'today',
+      'plant.age.dayAgo': '1 day ago',
+      'plant.age.daysAgo': '{count} days ago',
 
       'db.error.noplant': 'no active plant',
 
       'plant.history.title': '🌿 garden memories',
       'plant.history.unnamed': 'unnamed plant',
       'plant.history.leaves': '{count} 🍃 · graduated {date}',
+      'plant.history.meta': 'planted {start} · graduated {end} · {count} 🍃',
+      'plant.history.count': '{count} 🍃',
 
       'share.btn': 'share my plant 🔗',
       'share.title': 'Sprout ✿',
@@ -378,12 +384,18 @@
       'plant.graduate.confirm': '식물이 만개했어요! 졸업하고 새 씨앗을 심을까요?',
       'plant.graduate.toast': '새 씨앗이 흙 속에서 잠들어 있어요 🌱',
       'plant.graduate.fail': '졸업할 수 없어요 ✿',
+      'plant.planted': '심은 날 {date}',
+      'plant.age.today': '오늘',
+      'plant.age.dayAgo': '1일 전',
+      'plant.age.daysAgo': '{count}일 전',
 
       'db.error.noplant': '활성 식물이 없어요',
 
       'plant.history.title': '🌿 정원의 추억',
       'plant.history.unnamed': '이름 없는 식물',
       'plant.history.leaves': '🍃 {count}장 · {date} 졸업',
+      'plant.history.meta': '심은 날 {start} · 졸업 {end} · 🍃 {count}장',
+      'plant.history.count': '🍃 {count}장',
 
       'share.btn': '내 식물 공유하기 🔗',
       'share.title': 'Sprout ✿',
