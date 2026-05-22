@@ -190,6 +190,7 @@ function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive, sp, uid) 
   const pos = svgEl('g', { transform: `translate(${x}, ${y}) rotate(${side * 35})` }, parent);
   const g = svgEl('g', {
     class: 'leaf' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+    style: `--growth-drift:${idx % 7}`,
   }, pos);
 
   const accent = idx % 5 === 4; // occasional accent-colored leaf
@@ -236,8 +237,10 @@ function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive, sp, uid) 
 function drawFlower(parent, x, y, side, leaf, animate, interactive, sp, uid) {
   sp = sp || PLANT_SPECIES[0];
   const pos = svgEl('g', { transform: `translate(${x}, ${y})` }, parent);
+  const drift = Math.abs(Math.round(x + y + side * 13)) % 7;
   const g = svgEl('g', {
     class: 'flower' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+    style: `--growth-drift:${drift}`,
   }, pos);
 
   const fl = sp.flower;

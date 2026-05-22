@@ -46,7 +46,7 @@
       'theme.light': 'light',
       'theme.dark': 'dark',
       'logout.bye': 'see you soon ♡',
-      'main.title': 'my garden 🌷',
+      'main.title': 'my garden',
 
       'account.delete.menu': 'delete account',
       'account.delete.title': 'delete account',
@@ -291,7 +291,7 @@
       'theme.light': '라이트',
       'theme.dark': '다크',
       'logout.bye': '또 만나요 ♡',
-      'main.title': '내 정원 🌷',
+      'main.title': '내 정원',
 
       'account.delete.menu': '계정 삭제',
       'account.delete.title': '계정 삭제',

@@ -366,7 +366,7 @@
           .order('created_at', { ascending: false }));
       }
       if (error) { console.error(error); return []; }
-      return (data || []).map(row => ({
+      const friends = (data || []).map(row => ({
         rowId: row.id,
         addedAt: row.created_at,
         id: row.friend ? row.friend.id : null,
@@ -374,7 +374,25 @@
         sproutId: row.friend ? row.friend.sprout_id : '?',
         leafCount: row.friend ? row.friend.leaf_count : 0,
         profileIcon: row.friend ? row.friend.profile_icon : null,
+        species: null,
       }));
+
+      // each friend's mini-plant should match their real species. Active plants
+      // are world-readable (plants_select RLS), so fetch them in one batch.
+      const ids = friends.map(f => f.id).filter(Boolean);
+      if (ids.length) {
+        const { data: plants, error: pErr } = await sb
+          .from('plants')
+          .select('owner_id, species')
+          .in('owner_id', ids)
+          .is('archived_at', null);
+        if (!pErr && plants) {
+          const byOwner = {};
+          plants.forEach(p => { byOwner[p.owner_id] = p.species; });
+          friends.forEach(f => { if (f.id in byOwner) f.species = byOwner[f.id]; });
+        }
+      }
+      return friends;
     },
 
     async sendFriendRequest(identifier, note) {
