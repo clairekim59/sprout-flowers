@@ -4,6 +4,19 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Sprout ✿ grow with kindness</title>
+
+<!-- default link preview (per-plant tags are injected by /api/share for ?share= links) -->
+<meta name="description" content="Send kind words and watch a little plant grow on Sprout ✿"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Sprout ✿"/>
+<meta property="og:title" content="Sprout ✿ — grow a plant with kind words"/>
+<meta property="og:description" content="Send kind words and watch a little plant grow on Sprout ✿"/>
+<meta property="og:image" content="/og-card.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Sprout ✿ — grow a plant with kind words"/>
+<meta name="twitter:description" content="Send kind words and watch a little plant grow on Sprout ✿"/>
+<meta name="twitter:image" content="/og-card.png"/>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&family=Gaegu:wght@300;400;700&family=Jua&family=Nanum+Myeongjo:wght@400;700;800&family=Poor+Story&display=swap" rel="stylesheet">
@@ -200,6 +213,7 @@
       <div class="pot-base"></div>
     </div>
     <p class="hint center" data-i18n="plant.hint">tap a leaf to read the message it grew from ✿</p>
+    <button class="btn btn-pink" id="sharedSendBtn" data-i18n="shared.send">send a kind word ✿</button>
     <a class="btn btn-green" id="sharedCtaBtn" href="./" data-i18n="shared.cta">grow your own plant ✿</a>
   </div>
 </section>

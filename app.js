@@ -64,6 +64,7 @@ async function routeAfterAuth() {
     }
   } catch (err) { console.error(err); }
   go('main');
+  consumePendingSend(); // if the user arrived via "send a kind word", open it prefilled
 }
 document.querySelectorAll('[data-go]').forEach(el => {
   el.addEventListener('click', e => { e.preventDefault(); go(el.dataset.go); });
@@ -1119,11 +1120,12 @@ async function showSharedPlant(shareId) {
 }
 
 function renderSharedPlant() {
-  const data   = sharedData;
-  const nameEl = document.getElementById('sharedPlantName');
-  const subEl  = document.getElementById('sharedSubtitle');
-  const metaEl = document.getElementById('sharedPlantMeta');
-  const svg    = document.getElementById('sharedPlantSvg');
+  const data    = sharedData;
+  const nameEl  = document.getElementById('sharedPlantName');
+  const subEl   = document.getElementById('sharedSubtitle');
+  const metaEl  = document.getElementById('sharedPlantMeta');
+  const svg     = document.getElementById('sharedPlantSvg');
+  const sendBtn = document.getElementById('sharedSendBtn');
   svg.innerHTML = '';
 
   if (!data) {
@@ -1131,6 +1133,7 @@ function renderSharedPlant() {
     nameEl.classList.add('unnamed');
     subEl.textContent = t('shared.notfound');
     metaEl.textContent = '';
+    if (sendBtn) sendBtn.hidden = true;
     return;
   }
 
@@ -1139,6 +1142,16 @@ function renderSharedPlant() {
   nameEl.classList.toggle('unnamed', !named);
   subEl.textContent  = t('shared.subtitle', { name: data.owner_name || '✿' });
   metaEl.textContent = t('shared.meta', { count: data.leaf_count || 0 });
+
+  // "send a kind word to <owner>" — personalize if we know the owner's name
+  if (sendBtn) {
+    if (data.owner_name) {
+      sendBtn.hidden = false;
+      sendBtn.textContent = t('shared.sendNamed', { name: data.owner_name });
+    } else {
+      sendBtn.hidden = true;
+    }
+  }
 
   const leaves = (data.messages || []).map(m => ({
     id: m.id,
@@ -1149,6 +1162,28 @@ function renderSharedPlant() {
     at: new Date(m.created_at).getTime(),
   }));
   drawPlant(leaves, svg, { interactive: true, species: data.species });
+}
+
+// "send a kind word to this user" from a shared plant page.
+// Guests aren't logged in here (and the shared-link boot path never wires the
+// auth router), so we stash the intended recipient and reload to the clean app
+// root: boot() then runs normally, lands on login/signup, and consumePendingSend
+// opens the send modal prefilled once the user reaches their garden.
+const PENDING_SEND_KEY = 'sprout:pendingSendTo';
+
+document.getElementById('sharedSendBtn').addEventListener('click', () => {
+  const to = sharedData && sharedData.owner_name;
+  if (!to) return;
+  try { sessionStorage.setItem(PENDING_SEND_KEY, to); } catch (_) {}
+  location.href = '/'; // leave the ?share URL → fresh boot wires auth + routing
+});
+
+function consumePendingSend() {
+  let to;
+  try { to = sessionStorage.getItem(PENDING_SEND_KEY); } catch (_) { to = null; }
+  if (!to) return;
+  try { sessionStorage.removeItem(PENDING_SEND_KEY); } catch (_) {}
+  openModal('send', { to });
 }
 
 // ---------- new-leaf notifications ----------

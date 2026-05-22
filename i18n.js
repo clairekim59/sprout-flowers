@@ -176,6 +176,8 @@
       'shared.subtitle': '{name}’s plant, grown with kind words ✿',
       'shared.meta': '{count} 🍃 of kindness',
       'shared.cta': 'grow your own plant ✿',
+      'shared.send': 'send a kind word ✿',
+      'shared.sendNamed': 'send {name} a kind word ✿',
       'shared.notfound': 'this plant could not be found — the link may have expired ✿',
 
       'plant.delete.title': 'remove this plant forever',
@@ -369,6 +371,8 @@
       'shared.subtitle': '{name}님의 식물, 다정한 말로 자랐어요 ✿',
       'shared.meta': '다정함 🍃 {count}장',
       'shared.cta': '나도 식물 키우기 ✿',
+      'shared.send': '다정한 한마디 보내기 ✿',
+      'shared.sendNamed': '{name}님에게 다정한 한마디 보내기 ✿',
       'shared.notfound': '식물을 찾을 수 없어요 — 링크가 만료되었을 수 있어요 ✿',
 
       'plant.delete.title': '이 식물 영구 삭제',
