@@ -318,22 +318,30 @@ body {
 /* ---------- typography ---------- */
 .logo {
   font-family: 'Pacifico', 'Gaegu', cursive;
-  font-size: 64px;
+  /* shrink on narrow screens so the wordmark never overflows / clips its card */
+  font-size: clamp(42px, 11vw, 64px);
+  /* Pacifico is a connected brush script — a little tracking stops the capital
+     S's swash from overlapping the following letters */
+  letter-spacing: 0.06em;
   margin: 0;
   background: linear-gradient(135deg, var(--pink-500), var(--green-500));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   text-align: center;
-  line-height: 1.18;
-  padding-bottom: 2px;
+  line-height: 1.4;
+  padding-bottom: 8px;
 }
-.logo.small { font-size: 32px; line-height: 1; padding-bottom: 0; }
+.logo.small { font-size: 32px; line-height: 1; padding-bottom: 0; letter-spacing: 0.05em; }
 .tagline {
   text-align: center;
-  margin: 6px 0 28px;
+  margin: 16px 0 28px;
   color: var(--ink-soft);
   font-size: 15px;
+}
+.logo + .tagline,
+.logo + .onboard-lead {
+  margin-top: 16px;
 }
 h2 {
   font-family: 'Fredoka', 'Jua', sans-serif;
