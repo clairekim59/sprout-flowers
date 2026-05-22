@@ -114,6 +114,8 @@
       'garden.cancelFail': 'could not cancel',
       'notify.newLeaf.one': 'a new leaf just sprouted on your plant 🍃',
       'notify.newLeaf.many': '{count} new leaves just sprouted on your plant 🍃',
+      'notify.unread.one': 'you have 1 unread leaf — tap it to read ✿',
+      'notify.unread.many': 'you have {count} unread leaves — tap them to read ✿',
       'garden.inviteSent': 'invitation sent to {name} 💌',
       'garden.inviteAuto': '{name} moved in next door 🌱 (they had already invited you!)',
 
@@ -309,6 +311,8 @@
       'garden.cancelFail': '취소할 수 없어요',
       'notify.newLeaf.one': '새 잎이 화분에 돋아났어요 🍃',
       'notify.newLeaf.many': '새 잎 {count}장이 화분에 돋아났어요 🍃',
+      'notify.unread.one': '읽지 않은 잎이 1장 있어요 — 잎을 눌러 읽어보세요 ✿',
+      'notify.unread.many': '읽지 않은 잎이 {count}장 있어요 — 잎을 눌러 읽어보세요 ✿',
       'garden.inviteSent': '{name}님에게 초대를 보냈어요 💌',
       'garden.inviteAuto': '{name}님이 옆집으로 이사 왔어요 🌱 (이미 당신을 초대해 두었어요!)',
 

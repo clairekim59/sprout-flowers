@@ -424,8 +424,8 @@ async function renderMain() {
   // past plants (graduated)
   renderPastPlants().catch(err => console.error('renderPastPlants failed:', err));
 
-  // the user is looking at their plant now — notify about / clear any new leaves
-  processLeaves(me, leaves);
+  // reflect how many received leaves are still unread (read state is server-side)
+  updateLeafBadge(unreadCount(leaves));
 }
 
 // click a past plant card → open modal showing that plant with its real messages
@@ -979,6 +979,17 @@ let currentLeaf = null;
 
 async function openLeaf(leaf) {
   currentLeaf = leaf;
+
+  // reading a leaf marks the message read server-side (only matters for the
+  // logged-in app, not the public shared view). The RPC is a no-op unless the
+  // current user is that message's recipient, so it's safe to call eagerly.
+  if (leaf && leaf.id && !leaf.read && document.getElementById('view-shared').hidden) {
+    leaf.read = true; // optimistic: stop counting it as unread right away
+    db.markMessageRead(leaf.id)
+      .then(() => { if (leafPollTimer) refreshUnread(); })
+      .catch(() => {});
+  }
+
   document.getElementById('leafFrom').textContent = leaf.anon
     ? t('leaf.from.anon')
     : t('leaf.from.named', { name: leaf.fromName || t('leaf.from.friend') });
@@ -1186,29 +1197,27 @@ function consumePendingSend() {
   openModal('send', { to });
 }
 
-// ---------- new-leaf notifications ----------
-// A "leaf" is an incoming message on the active plant, so a new message and a
-// new leaf are the same event. While the tab is open we poll the inbox; leaves
-// that arrived since the user last looked at their plant surface as a toast plus
-// an unread badge on the leaf stat. The "last seen" baseline is kept per-account
-// in localStorage so reloads don't re-announce leaves the user already saw.
+// ---------- unread-leaf notifications ----------
+// A "leaf" is an incoming message on the active plant. "Unread" = a received
+// message whose read_at is still null in the database; it's only cleared when
+// the user actually opens that leaf to read it (see openLeaf -> markMessageRead).
+// Because read state lives server-side, every message you haven't checked stays
+// unread across reloads, devices, and offline periods. The leaf-stat badge shows
+// the running unread count; a toast announces unread on (re)connect and new
+// arrivals while the tab is open.
 const LEAF_POLL_MS = 30000;
-const leafSeenKey = id => `sprout:leafSeen:${id}`;
 let leafPollTimer = null;
+let lastUnread = -1; // -1 = haven't checked yet this session
 
-function getLeafSeen(meId) {
-  const v = localStorage.getItem(leafSeenKey(meId));
-  return v == null ? null : Number(v);
-}
-function setLeafSeen(meId, ts) {
-  try { localStorage.setItem(leafSeenKey(meId), String(ts)); } catch (_) {}
+function unreadCount(leaves) {
+  return (leaves || []).filter(l => !l.read).length;
 }
 
 function updateLeafBadge(count) {
   const badge = document.getElementById('leafBadge');
   if (!badge) return;
   if (count > 0) {
-    badge.textContent = count > 99 ? '99+' : `+${count}`;
+    badge.textContent = count > 99 ? '99+' : String(count);
     badge.hidden = false;
   } else {
     badge.textContent = '';
@@ -1216,64 +1225,57 @@ function updateLeafBadge(count) {
   }
 }
 
-// true when the user is actually on the main view with the tab in focus
-function viewingOwnPlant() {
-  return document.visibilityState === 'visible' && !views.main.hidden;
-}
-
-// Reconcile a freshly-fetched inbox against the last-seen baseline.
-// Returns the number of new leaves found. When the user is watching, it toasts
-// and clears the count; otherwise it leaves a running unread badge for later.
-function processLeaves(me, leaves) {
-  if (!me) return 0;
-  const maxAt = (leaves || []).reduce((m, l) => Math.max(m, l.at || 0), 0);
-  const seen = getLeafSeen(me.id);
-
-  // first time we've seen this account: set the baseline, don't notify in arrears
-  if (seen == null) { setLeafSeen(me.id, maxAt); updateLeafBadge(0); return 0; }
-
-  const fresh = (leaves || []).filter(l => (l.at || 0) > seen).length;
-
-  if (viewingOwnPlant()) {
-    if (fresh) {
-      toast(fresh === 1
-        ? t('notify.newLeaf.one')
-        : t('notify.newLeaf.many', { count: fresh }));
+// Reflect the unread count on the badge and toast when there's something new to
+// flag: on the first check of a session (offline catch-up) or when the count
+// grows (a message just arrived).
+function applyUnread(leaves) {
+  const unread = unreadCount(leaves);
+  if (lastUnread === -1) {
+    if (unread > 0) {
+      toast(unread === 1
+        ? t('notify.unread.one')
+        : t('notify.unread.many', { count: unread }));
     }
-    setLeafSeen(me.id, maxAt);
-    updateLeafBadge(0);
-  } else if (fresh) {
-    updateLeafBadge(fresh);
+  } else if (unread > lastUnread) {
+    const delta = unread - lastUnread;
+    toast(delta === 1
+      ? t('notify.newLeaf.one')
+      : t('notify.newLeaf.many', { count: delta }));
   }
-  return fresh;
+  lastUnread = unread;
+  updateLeafBadge(unread);
 }
 
-async function checkNewLeaves() {
+async function refreshUnread() {
   let me;
   try { me = await db.currentProfile(); } catch (_) { return; }
   if (!me) return;
   let leaves;
   try { leaves = await db.inbox(); } catch (_) { return; }
-  const fresh = processLeaves(me, leaves);
-  // if they're watching and a leaf just arrived, redraw so it actually appears
-  if (fresh && viewingOwnPlant()) {
+  const before = lastUnread;
+  applyUnread(leaves);
+  // a new leaf arrived while the user is watching → redraw so it actually shows
+  if (before !== -1 && lastUnread > before &&
+      !views.main.hidden && document.visibilityState === 'visible') {
     renderMain().catch(err => console.error('renderMain failed:', err));
   }
 }
 
 function startLeafNotifications() {
   stopLeafNotifications();
-  checkNewLeaves();
-  leafPollTimer = setInterval(checkNewLeaves, LEAF_POLL_MS);
+  lastUnread = -1;       // next refresh treats existing unread as a catch-up toast
+  refreshUnread();
+  leafPollTimer = setInterval(refreshUnread, LEAF_POLL_MS);
 }
 function stopLeafNotifications() {
   if (leafPollTimer) { clearInterval(leafPollTimer); leafPollTimer = null; }
+  lastUnread = -1;
   updateLeafBadge(0);
 }
 
 // regaining focus is a good moment to check immediately rather than wait out the timer
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && leafPollTimer) checkNewLeaves();
+  if (document.visibilityState === 'visible' && leafPollTimer) refreshUnread();
 });
 
 (async function boot() {

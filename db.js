@@ -209,16 +209,26 @@
 
     async plantInbox(plantId) {
       if (!plantId) return [];
-      const { data, error } = await sb
+      const cols = 'id, body, anon, created_at, read_at, sender:profiles!sender_id(id, display_name, sprout_id)';
+      let { data, error } = await sb
         .from('messages')
-        .select('id, body, anon, created_at, sender:profiles!sender_id(id, display_name, sprout_id)')
+        .select(cols)
         .eq('plant_id', plantId)
         .order('created_at', { ascending: true });
+      // graceful fallback if the read_at migration hasn't been run yet
+      if (error && /read_at/.test(error.message || '')) {
+        ({ data, error } = await sb
+          .from('messages')
+          .select(cols.replace(', read_at', ''))
+          .eq('plant_id', plantId)
+          .order('created_at', { ascending: true }));
+      }
       if (error) { console.error(error); return []; }
       return (data || []).map(m => ({
         id: m.id,
         msg: m.body,
         anon: m.anon,
+        read: !!m.read_at,
         fromName:      m.anon ? null : (m.sender ? m.sender.display_name : null),
         fromSproutId:  m.anon ? null : (m.sender ? m.sender.sprout_id   : null),
         fromProfileId: m.anon ? null : (m.sender ? m.sender.id          : null),
@@ -226,6 +236,12 @@
         fromId:        m.anon ? null : (m.sender ? m.sender.sprout_id   : null),
         at: new Date(m.created_at).getTime(),
       }));
+    },
+
+    async markMessageRead(messageId) {
+      if (!messageId) return;
+      const { error } = await sb.rpc('mark_message_read', { p_message_id: messageId });
+      if (error) console.error(error);
     },
 
     async sentBox() {
