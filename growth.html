@@ -16,7 +16,7 @@
     padding: 40px 20px 10px;
   }
   .gallery-header h1 { margin: 0; }
-  .gallery-header .tagline { margin-top: 8px; }
+  .gallery-header .tagline { margin-top: 16px; }
   .gallery-back {
     display: inline-block;
     margin-top: 12px;
@@ -239,7 +239,7 @@
   </div>
   <div class="slider-row">
     <span class="slider-readout"><span id="bigCount">0</span> 🍃</span>
-    <input id="bigSlider" type="range" min="0" max="25" step="1" value="0"/>
+    <input id="bigSlider" type="range" min="0" max="12" step="1" value="0"/>
   </div>
   <p class="slider-stage" id="bigStage">a tiny seed sleeps 💤</p>
 </div>
@@ -303,7 +303,7 @@
   slider.addEventListener('input', e => renderBig(+e.target.value));
 
   // ---------- "every stage" grid (follows the selected species) ----------
-  const stops = [0, 1, 2, 3, 5, 7, 9, 12, 16, 22];
+  const stops = [0, 1, 2, 4, 6, 8, 10, 12];
   const grid = document.getElementById('grid');
   function renderStageGrid() {
     grid.innerHTML = '';
@@ -328,7 +328,7 @@
 
   // ---------- "meet the six plants" showcase (all species, flourishing) ----------
   const speciesGrid = document.getElementById('speciesGrid');
-  const SHOWCASE_N = 16;
+  const SHOWCASE_N = 12;
   SPECIES_META.forEach((m, i) => {
     const card = document.createElement('div');
     card.className = 'mini';

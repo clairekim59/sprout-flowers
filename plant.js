@@ -59,13 +59,14 @@ function speciesAt(i) {
   return PLANT_SPECIES[(i != null && i >= 0 && i < PLANT_SPECIES.length) ? i : 0];
 }
 
+// a plant holds at most MAX_LEAVES (12) leaves; the six stages span 0..12
 function stageInfo(n) {
   const t = (k) => (window.i18n ? window.i18n.t(k) : k);
   if (n === 0)  return { name: t('stage.seed'),       banner: t('stage.banner.seed') };
   if (n <= 2)   return { name: t('stage.sprout'),     banner: t('stage.banner.sprout') };
-  if (n <= 5)   return { name: t('stage.sapling'),    banner: t('stage.banner.sapling') };
-  if (n <= 9)   return { name: t('stage.bush'),       banner: t('stage.banner.bush') };
-  if (n <= 14)  return { name: t('stage.blooming'),   banner: t('stage.banner.blooming') };
+  if (n <= 4)   return { name: t('stage.sapling'),    banner: t('stage.banner.sapling') };
+  if (n <= 7)   return { name: t('stage.bush'),       banner: t('stage.banner.bush') };
+  if (n <= 10)  return { name: t('stage.blooming'),   banner: t('stage.banner.blooming') };
   return        { name: t('stage.flourishing'), banner: t('stage.banner.flourishing') };
 }
 

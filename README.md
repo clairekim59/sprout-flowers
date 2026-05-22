@@ -23,7 +23,7 @@ Every message someone leaves becomes a new leaf — watch a seed bloom into a fl
 
 ## ✿ What it is
 
-Sprout turns encouragement into something you can *grow*. You plant a seed, share your nickname, and as friends (or kind strangers) send you little notes, each one sprouts as a leaf on your plant. Pass through six growth stages — seed → sprout → sapling → bush → blooming → flourishing — then **graduate** your plant into your garden of memories and start a fresh seed.
+Sprout turns encouragement into something you can *grow*. You plant a seed, share your nickname, and as friends (or kind strangers) send you little notes, each one sprouts as a leaf on your plant — up to **12 leaves** in all. Pass through six growth stages — seed → sprout → sapling → bush → blooming → flourishing — then, once it's full, **graduate** your plant into your garden of memories and start a fresh seed.
 
 > Built end-to-end as a solo project: product design, UI, database schema, security policies, and deployment.
 
@@ -33,7 +33,7 @@ Sprout turns encouragement into something you can *grow*. You plant a seed, shar
 
 ## ✿ Features
 
-- 🌱 **Living plant** — a procedurally drawn SVG plant that visibly grows with every kind message and changes its silhouette across six growth stages.
+- 🌱 **Living plant** — a procedurally drawn SVG plant that visibly grows with every kind message and changes its silhouette across six growth stages, up to a full 12 leaves.
 - 🎁 **Mystery seed → 6 species** — each new seed grows into one of six distinct plants (fern, rose, sunflower, lavender, cactus, cherry blossom), each with its own leaves, blooms, and palette.
 - 💌 **Send kind words** — leave notes for neighbors by nickname or email, optionally anonymously, with a type-ahead neighbor picker.
 - 🔔 **Unread notifications** — a message you haven't opened stays unread until you actually read it, tracked server-side so it survives reloads, devices, and offline gaps.
@@ -52,7 +52,7 @@ This is a deliberately **dependency-free, build-free** app — every piece is ha
 | **Plant rendering** | Procedural **SVG** generation: stems, species-aware leaf/flower shapes, growth stages, and gradients computed from the leaf count at render time. |
 | **Database** | **Supabase Postgres** with **Row-Level Security** on every table. Sensitive operations run through `SECURITY DEFINER` RPCs (`graduate_plant`, `enable_plant_share`, `get_shared_plant`, `mark_message_read`, `accept_friend_request`) so clients can only ever touch their own data. |
 | **Auth** | Supabase email/password with a profile + active-plant bootstrapped by Postgres triggers on sign-up. |
-| **Data integrity** | Triggers keep `leaf_count` in sync, auto-attach incoming messages to the recipient's active plant, and enforce one active plant per user + unique nicknames. |
+| **Data integrity** | Triggers keep `leaf_count` in sync, auto-attach incoming messages to the recipient's active plant, cap each plant at 12 leaves, and enforce one active plant per user + unique nicknames. |
 | **Link previews** | A **Vercel serverless function** server-renders per-plant OpenGraph/Twitter tags for `/p/<id>` (crawlers don't run JS), then serves the same SPA to humans via an injected `<base>` tag. |
 | **Public sharing** | The read-only shared view calls the API as the **anonymous role** by design, so a viewer's login state can never break someone else's public plant. |
 

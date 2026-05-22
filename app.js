@@ -78,13 +78,15 @@ function formatPlantedLabel(value) {
   return t('plant.planted.date', { date: date.toLocaleDateString() });
 }
 
+// a plant holds at most MAX_LEAVES leaves; the six stages span 0..MAX_LEAVES
+const MAX_LEAVES = 12;
 const STAGE_STEPS = [
   { key: 'seed', min: 0, max: 0, icon: '🌰' },
   { key: 'sprout', min: 1, max: 2, icon: '🌱' },
-  { key: 'sapling', min: 3, max: 5, icon: '🍃' },
-  { key: 'bush', min: 6, max: 9, icon: '🌿' },
-  { key: 'blooming', min: 10, max: 14, icon: '✿' },
-  { key: 'flourishing', min: 15, max: null, icon: '❀' },
+  { key: 'sapling', min: 3, max: 4, icon: '🍃' },
+  { key: 'bush', min: 5, max: 7, icon: '🌿' },
+  { key: 'blooming', min: 8, max: 10, icon: '✿' },
+  { key: 'flourishing', min: 11, max: MAX_LEAVES, icon: '❀' },
 ];
 
 function stageStepFor(count) {
@@ -776,8 +778,8 @@ async function renderMain() {
   } else {
     startDateEl.textContent = '';
   }
-  // graduation only available at flourishing (>= 15 leaves)
-  gradBtn.hidden = leaves.length < 15;
+  // graduation unlocks once the plant is full (MAX_LEAVES)
+  gradBtn.hidden = leaves.length < MAX_LEAVES;
 
   // past plants (graduated)
   renderPastPlants().catch(err => console.error('renderPastPlants failed:', err));
@@ -1112,7 +1114,12 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
     toast(t('send.toast'));
   } catch (err) {
     console.error(err);
-    errEl.textContent = (err && err.message) || t('common.error.generic');
+    // the DB caps each plant at MAX_LEAVES and raises PLANT_FULL past it
+    if (err && /PLANT_FULL/.test(err.message || '')) {
+      errEl.textContent = t('send.error.full', { limit: MAX_LEAVES });
+    } else {
+      errEl.textContent = (err && err.message) || t('common.error.generic');
+    }
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = t('send.submit');
