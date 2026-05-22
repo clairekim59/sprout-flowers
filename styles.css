@@ -143,11 +143,13 @@ body {
   margin: 0;
   font-family: 'Quicksand', 'Fredoka', 'Poor Story', system-ui, sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(1000px 480px at 5% -20%, var(--pink-100), transparent 55%),
-    radial-gradient(820px  440px at 112% -8%, var(--green-100), transparent 50%),
-    var(--cream);
-  background-attachment: fixed; /* anchor to viewport so color hugs the top, never pools at the footer */
+  background: linear-gradient(150deg,
+    var(--pink-100) 0%,
+    var(--pink-50) 28%,
+    var(--cream) 50%,
+    var(--green-50) 72%,
+    var(--green-100) 100%);
+  background-attachment: fixed; /* seamless pink→green across the whole viewport */
   min-height: 100%;
   overflow-x: hidden;
 }
