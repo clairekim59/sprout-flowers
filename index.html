@@ -20,6 +20,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&family=Gaegu:wght@300;400;700&family=Jua&family=Nanum+Myeongjo:wght@400;700;800&family=Poor+Story&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('sprout.theme');
+      var theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    } catch (_) {}
+  })();
+</script>
 <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
@@ -35,7 +45,10 @@
   <span class="floaty">❀</span>
 </div>
 
-<!-- language toggle (fixed, shown on login/signup) -->
+<!-- fixed controls keep the same order as the main nav: theme, then language -->
+<button class="theme-toggle" id="themeToggleFixed" type="button" data-theme-toggle data-i18n-title="theme.toggle" aria-label="toggle dark mode" aria-pressed="false">
+  <span class="theme-icon" aria-hidden="true">☾</span>
+</button>
 <div class="lang-toggle" id="langToggleFixed" role="group" aria-label="language">
   <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
   <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
@@ -140,6 +153,9 @@
           <li><button class="pd-item pd-danger" type="button" id="logoutBtn" data-i18n="nav.logout">log out</button></li>
         </ul>
       </div>
+      <button class="theme-toggle theme-inline" type="button" data-theme-toggle data-i18n-title="theme.toggle" aria-label="toggle dark mode" aria-pressed="false">
+        <span class="theme-icon" aria-hidden="true">☾</span>
+      </button>
       <div class="lang-toggle lang-inline" role="group" aria-label="language">
         <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
         <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>

@@ -42,6 +42,7 @@
       'nav.sent': 'my sent ♡',
       'nav.logout': 'log out',
       'nav.menu': 'menu',
+      'theme.toggle': 'toggle color mode',
       'logout.bye': 'see you soon ♡',
       'main.title': 'my garden 🌷',
 
@@ -239,6 +240,7 @@
       'nav.sent': '보낸 쪽지 ♡',
       'nav.logout': '로그아웃',
       'nav.menu': '메뉴',
+      'theme.toggle': '색상 모드 전환',
       'logout.bye': '또 만나요 ♡',
       'main.title': '내 정원 🌷',
 

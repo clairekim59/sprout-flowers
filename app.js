@@ -28,6 +28,58 @@ function randomCuteName() { return `${pick(CUTE_ADJ)}${cap(pick(CUTE_NOUN))}`; }
 function randomCuteMsg()  { return window.i18n ? window.i18n.randomMsg() : pick(['you make the world brighter ✿']); }
 const t  = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
 
+// ---------- theme ----------
+const THEME_KEY = 'sprout.theme';
+function storedTheme() {
+  try {
+    const value = localStorage.getItem(THEME_KEY);
+    return value === 'dark' || value === 'light' ? value : null;
+  } catch (_) {
+    return null;
+  }
+}
+function systemTheme() {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function currentTheme() {
+  return storedTheme() || document.documentElement.dataset.theme || systemTheme();
+}
+function updateThemeControls(theme) {
+  const isDark = theme === 'dark';
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(isDark));
+    btn.setAttribute('aria-label', t('theme.toggle'));
+    btn.title = t('theme.toggle');
+    const icon = btn.querySelector('.theme-icon');
+    if (icon) icon.textContent = isDark ? '☀' : '☾';
+  });
+}
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+  updateThemeControls(theme);
+}
+function setTheme(theme) {
+  try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+  applyTheme(theme);
+}
+function initTheme() {
+  applyTheme(currentTheme());
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+    if (btn.dataset.themeWired) return;
+    btn.dataset.themeWired = '1';
+    btn.addEventListener('click', () => setTheme(currentTheme() === 'dark' ? 'light' : 'dark'));
+  });
+  if (window.matchMedia) {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSystemTheme = e => {
+      if (!storedTheme()) applyTheme(e.matches ? 'dark' : 'light');
+    };
+    if (media.addEventListener) media.addEventListener('change', onSystemTheme);
+    else if (media.addListener) media.addListener(onSystemTheme);
+  }
+}
+
 const emailKey = e => e.trim().toLowerCase();
 
 // ---------- view routing ----------
@@ -42,6 +94,8 @@ function go(name) {
   // on main the toggle lives inline in the topbar; elsewhere use the fixed one
   const fixedToggle = document.getElementById('langToggleFixed');
   if (fixedToggle) fixedToggle.hidden = (name === 'main');
+  const fixedTheme = document.getElementById('themeToggleFixed');
+  if (fixedTheme) fixedTheme.hidden = (name === 'main');
   if (name === 'main')       renderMain().catch(err => console.error('renderMain failed:', err));
   if (name === 'signup')     refreshSignupPlaceholder();
   if (name === 'onboarding') renderOnboarding();
@@ -1129,6 +1183,8 @@ async function showSharedPlant(shareId) {
   document.getElementById('view-shared').hidden = false;
   const fixedToggle = document.getElementById('langToggleFixed');
   if (fixedToggle) fixedToggle.hidden = false; // let guests switch language
+  const fixedTheme = document.getElementById('themeToggleFixed');
+  if (fixedTheme) fixedTheme.hidden = false;
   sharedData = await db.getSharedPlant(shareId);
   renderSharedPlant();
 }
@@ -1320,11 +1376,14 @@ document.addEventListener('visibilitychange', () => {
 
 (async function boot() {
   if (!ensureConfigured()) return;
+  initTheme();
 
   // i18n: apply persisted language, then re-render dynamic content on change
   if (window.i18n) {
     window.i18n.init();
+    updateThemeControls(currentTheme());
     window.i18n.on(() => {
+      updateThemeControls(currentTheme());
       if (!document.getElementById('view-shared').hidden) renderSharedPlant();
       if (!views.onboarding.hidden) {
         document.querySelectorAll('#seedGrid .seed-label').forEach(l => { l.textContent = t('onboard.seed.item'); });
