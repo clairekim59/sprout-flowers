@@ -67,7 +67,6 @@
   background: var(--pink-300);
   color: white;
 }
-[lang="ko"] .lang-opt { font-family: 'Quicksand', 'Jua', sans-serif; }
 /* inline variant sits inside the topbar nav, aligned with the tabs */
 .lang-toggle.lang-inline {
   position: static;
@@ -727,19 +726,6 @@ h3 {
   border-style: dotted;
   background: rgba(255, 255, 255, 0.5);
 }
-[lang="ko"] .plant-name {
-  font-family: 'Nanum Myeongjo', serif;
-  font-weight: 800;
-  font-size: 24px;
-  letter-spacing: 1.5px;
-}
-[lang="ko"] .plant-name.unnamed {
-  font-family: 'Quicksand', 'Poor Story', sans-serif;
-  font-weight: 400;
-  font-size: 13px;
-  font-style: normal;
-  letter-spacing: 0.3px;
-}
 
 /* ---------- past plants (graduated) ---------- */
 .past-plants {
@@ -840,11 +826,6 @@ h3 {
   font-size: 11px;
   color: var(--ink-soft);
   margin-top: 2px;
-}
-[lang="ko"] .past-name {
-  font-family: 'Nanum Myeongjo', serif;
-  font-weight: 700;
-  font-size: 15px;
 }
 
 .graduate-btn {
