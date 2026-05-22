@@ -176,7 +176,7 @@ function drawPlant(leaves, svg, opts) {
     }
   });
 
-  if (n >= 6) drawTopBud(swayGroup, 200, stemTopY, n >= sp.bloomFrom, sp, uid);
+  if (n >= 6) drawTopBud(swayGroup, 200, stemTopY, n >= sp.bloomFrom, sp, uid, ordered[0], interactive);
 }
 
 // ---------- leaves (species-aware shapes) ----------
@@ -304,14 +304,18 @@ function drawFlower(parent, x, y, side, leaf, animate, interactive, sp, uid) {
   if (interactive !== false && typeof openLeaf === 'function') {
     g.addEventListener('click', () => openLeaf(leaf));
   }
+  if (leaf) {
+    const t = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
+    g.setAttribute('aria-label', leaf.anon ? t('leaf.from.anon') : t('leaf.from.named', { name: leaf.fromName }));
+  }
 }
 
-function drawTopBud(parent, x, y, fullFlower, sp, uid) {
+function drawTopBud(parent, x, y, fullFlower, sp, uid, leaf, interactive) {
   sp = sp || PLANT_SPECIES[0];
   const fl = sp.flower;
   if (fullFlower) {
-    // crown the plant with one of its blooms
-    drawFlower(parent, x, y - 6, -1, { anon: true, msg: '' }, false, false, sp, uid);
+    // Crown bloom represents the newest message in interactive full-plant views.
+    drawFlower(parent, x, y - 6, -1, leaf || { anon: true, msg: '' }, false, leaf ? interactive : false, sp, uid);
   } else {
     const g = svgEl('g', { transform: `translate(${x}, ${y})` }, parent);
     svgEl('ellipse', { cx: 0, cy: -8, rx: 7, ry: 12, fill: fl.petal[1], stroke: fl.stroke, 'stroke-width': 1 }, g);
