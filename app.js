@@ -1130,6 +1130,38 @@ async function showSharedPlant(shareId) {
   renderSharedPlant();
 }
 
+function sharedMessages(data) {
+  const value = data && data.messages;
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      return [];
+    }
+  }
+  return [];
+}
+
+function sharedLeafCount(data, messages) {
+  const count = Number(data && data.leaf_count);
+  if (Number.isFinite(count) && count > 0) return Math.floor(count);
+  return messages.length;
+}
+
+function placeholderLeaves(count) {
+  const now = Date.now();
+  return Array.from({ length: count }, (_, i) => ({
+    id: null,
+    msg: '',
+    anon: true,
+    fromName: null,
+    fromProfileId: null,
+    at: now - (count - i) * 1000,
+  }));
+}
+
 function renderSharedPlant() {
   const data    = sharedData;
   const nameEl  = document.getElementById('sharedPlantName');
@@ -1164,7 +1196,8 @@ function renderSharedPlant() {
     }
   }
 
-  const leaves = (data.messages || []).map(m => ({
+  const messages = sharedMessages(data);
+  const leaves = messages.map(m => ({
     id: m.id,
     msg: m.body,
     anon: m.anon,
@@ -1172,7 +1205,11 @@ function renderSharedPlant() {
     fromProfileId: null, // no invite affordance in the public view
     at: new Date(m.created_at).getTime(),
   }));
-  drawPlant(leaves, svg, { interactive: true, species: data.species });
+  const leafCount = sharedLeafCount(data, messages);
+  // Some deployed RPC versions expose only leaf_count. Still draw the grown
+  // plant so shared links do not collapse to the seed/empty-pot state.
+  const visibleLeaves = leaves.length ? leaves : placeholderLeaves(leafCount);
+  drawPlant(visibleLeaves, svg, { interactive: leaves.length > 0, species: data.species });
 }
 
 // "send a kind word to this user" from a shared plant page.

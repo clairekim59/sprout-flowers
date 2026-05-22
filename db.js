@@ -20,6 +20,12 @@
   let cachedProfile = null;
   let cachedPlant = null;
 
+  function normalizeSharedPlantPayload(data) {
+    if (Array.isArray(data)) data = data[0] || null;
+    if (data && data.get_shared_plant) data = data.get_shared_plant;
+    return data || null;
+  }
+
   const db = {
     client: sb,
     needsSetup: placeholder,
@@ -112,7 +118,7 @@
           body: JSON.stringify({ p_share_id: shareId }),
         });
         if (!resp.ok) { console.error('getSharedPlant', resp.status); return null; }
-        return await resp.json(); // { name, owner_name, archived, leaf_count, messages } or null
+        return normalizeSharedPlantPayload(await resp.json()); // { name, owner_name, archived, species, leaf_count, messages } or null
       } catch (err) { console.error(err); return null; }
     },
 

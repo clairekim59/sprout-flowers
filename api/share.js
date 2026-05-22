@@ -26,6 +26,12 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+function normalizePlantPayload(data) {
+  if (Array.isArray(data)) data = data[0] || null;
+  if (data && data.get_shared_plant) data = data.get_shared_plant;
+  return data || null;
+}
+
 async function fetchPlant(shareId) {
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_shared_plant`, {
@@ -38,7 +44,7 @@ async function fetchPlant(shareId) {
       body: JSON.stringify({ p_share_id: shareId }),
     });
     if (!resp.ok) return null;
-    return await resp.json();
+    return normalizePlantPayload(await resp.json());
   } catch (_) {
     return null;
   }
