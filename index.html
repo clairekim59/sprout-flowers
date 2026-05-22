@@ -19,7 +19,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&family=Gaegu:wght@300;400;700&family=Jua&family=Nanum+Myeongjo:wght@400;700;800&family=Poor+Story&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&family=Gaegu:wght@300;400;700&family=Jua&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Pen+Script&family=Poor+Story&display=swap" rel="stylesheet">
 <script>
   (function () {
     try {
@@ -150,15 +150,20 @@
         <ul class="profile-dropdown" id="profileDropdown" hidden>
           <li><button class="pd-item" type="button" data-go="main" data-i18n="main.title">my garden 🌷</button></li>
           <li><button class="pd-item" type="button" data-open="sent" data-i18n="nav.sent">my sent ♡</button></li>
+          <li>
+            <div class="pd-theme" role="group" aria-label="light / dark mode" data-menu-keepopen>
+              <button type="button" class="theme-opt" data-theme-choice="light" data-i18n="theme.light">light</button>
+              <button type="button" class="theme-opt" data-theme-choice="dark" data-i18n="theme.dark">dark</button>
+            </div>
+          </li>
+          <li>
+            <div class="pd-lang" role="group" aria-label="language" data-menu-keepopen>
+              <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
+              <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
+            </div>
+          </li>
           <li><button class="pd-item pd-danger" type="button" id="logoutBtn" data-i18n="nav.logout">log out</button></li>
         </ul>
-      </div>
-      <button class="theme-toggle theme-inline" type="button" data-theme-toggle data-i18n-title="theme.toggle" aria-label="toggle dark mode" aria-pressed="false">
-        <span class="theme-icon" aria-hidden="true">☾</span>
-      </button>
-      <div class="lang-toggle lang-inline" role="group" aria-label="language">
-        <button type="button" class="lang-opt" data-lang="en" data-i18n="lang.en">EN</button>
-        <button type="button" class="lang-opt" data-lang="ko" data-i18n="lang.ko">한</button>
       </div>
     </nav>
   </header>
@@ -168,7 +173,7 @@
   <div class="main-wrap">
     <!-- profile -->
     <aside class="card profile-card">
-      <div class="avatar" id="profAvatar">✿</div>
+      <button class="avatar" id="profAvatar" type="button" data-i18n-title="profile.icon.menu" title="change icon">✿</button>
       <h2 id="profName" data-i18n="profile.fallbackName">your name</h2>
       <p class="muted small" id="profEmail">—</p>
 
@@ -189,8 +194,10 @@
 
     <!-- plant -->
     <section class="card plant-card">
-      <h3 class="plant-name" id="plantName" data-i18n-title="plant.name.title" data-i18n="plant.name.fallback">name your plant ✿</h3>
-      <div class="plant-stage-banner" id="plantStageBanner" data-i18n="stage.banner.seed">a tiny seed sleeps 💤</div>
+      <div class="plant-card-header">
+        <h3 class="plant-name" id="plantName" data-i18n-title="plant.name.title" data-i18n="plant.name.fallback">name your plant ✿</h3>
+        <div class="plant-stage-banner" id="plantStageBanner" data-i18n="stage.banner.seed">a tiny seed sleeps 💤</div>
+      </div>
       <div class="plant-area">
         <div class="pot">
           <svg id="plantSvg" viewBox="0 0 400 520" preserveAspectRatio="xMidYMax meet"></svg>
@@ -325,6 +332,16 @@
       <button class="btn btn-green share-btn" id="sharePastPlantBtn" data-i18n="share.btn">share my plant 🔗</button>
       <button class="remove-plant-btn" id="removePastPlantBtn" data-i18n="plant.delete.btn">remove this plant 🥀</button>
     </div>
+  </div>
+</div>
+
+<!-- ========= MODAL: profile icon ========= -->
+<div class="modal" id="modal-profile-icon" hidden>
+  <div class="modal-card small">
+    <button class="x" data-close>✕</button>
+    <h2 data-i18n="profile.icon.title">choose your icon</h2>
+    <div class="profile-icon-grid" id="profileIconGrid"></div>
+    <p class="error" id="profileIconError"></p>
   </div>
 </div>
 

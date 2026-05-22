@@ -53,6 +53,11 @@ function updateThemeControls(theme) {
     const icon = btn.querySelector('.theme-icon');
     if (icon) icon.textContent = isDark ? '☀' : '☾';
   });
+  document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+    const active = btn.dataset.themeChoice === theme;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
 }
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
@@ -70,6 +75,11 @@ function initTheme() {
     btn.dataset.themeWired = '1';
     btn.addEventListener('click', () => setTheme(currentTheme() === 'dark' ? 'light' : 'dark'));
   });
+  document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+    if (btn.dataset.themeWired) return;
+    btn.dataset.themeWired = '1';
+    btn.addEventListener('click', () => setTheme(btn.dataset.themeChoice === 'dark' ? 'dark' : 'light'));
+  });
   if (window.matchMedia) {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const onSystemTheme = e => {
@@ -81,6 +91,32 @@ function initTheme() {
 }
 
 const emailKey = e => e.trim().toLowerCase();
+const PROFILE_ICON_CHOICES = [
+  '🌸', '🌼', '🌻', '🌷',
+  '🌹', '🌺', '🌿', '🌱',
+  '🌳', '🌲', '🍀', '✿',
+];
+
+function profileInitial(profile) {
+  const name = profile && profile.display_name ? profile.display_name.trim() : '';
+  return (name[0] || '✿').toUpperCase();
+}
+
+function profileIcon(profile) {
+  const saved = profile && profile.profile_icon ? profile.profile_icon.trim() : '';
+  return saved || profileInitial(profile);
+}
+
+function applyProfileIcon(profile) {
+  const icon = profileIcon(profile);
+  const profAvatar = document.getElementById('profAvatar');
+  if (profAvatar) {
+    profAvatar.textContent = icon;
+    profAvatar.setAttribute('aria-label', t('profile.icon.menu'));
+  }
+  const navAvatar = document.getElementById('navAvatar');
+  if (navAvatar) navAvatar.textContent = icon;
+}
 
 // ---------- view routing ----------
 const views = {
@@ -408,20 +444,114 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   const btn = document.getElementById('profileBtn');
   const dd  = document.getElementById('profileDropdown');
   if (!btn || !dd) return;
+  const menu = btn.closest('.profile-menu');
+  let closeTimer = null;
+  const cancelClose = () => {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+  };
   const setOpen = (open) => {
+    if (open) cancelClose();
     dd.hidden = !open;
     btn.setAttribute('aria-expanded', String(open));
   };
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    setOpen(dd.hidden);
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer = setTimeout(() => setOpen(false), 260);
+  };
+  const supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+  if (supportsHover && menu) {
+    menu.addEventListener('mouseenter', () => setOpen(true));
+    menu.addEventListener('mouseleave', scheduleClose);
+    dd.addEventListener('mouseenter', cancelClose);
+    btn.addEventListener('click', e => e.stopPropagation());
+  } else {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      setOpen(dd.hidden);
+    });
+  }
+  // selecting a destination closes the menu; preference controls stay visible.
+  dd.addEventListener('click', e => {
+    if (e.target.closest('[data-menu-keepopen]')) return;
+    setOpen(false);
   });
-  // selecting an item (data-go / data-open / logout) closes the menu
-  dd.addEventListener('click', () => setOpen(false));
   // click anywhere else closes it
-  document.addEventListener('click', () => setOpen(false));
-  window.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+  document.addEventListener('click', e => {
+    if (menu && menu.contains(e.target)) return;
+    cancelClose();
+    setOpen(false);
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      cancelClose();
+      setOpen(false);
+    }
+  });
 })();
+
+async function renderProfileIconChoices() {
+  const grid = document.getElementById('profileIconGrid');
+  const errEl = document.getElementById('profileIconError');
+  if (!grid) return;
+  if (errEl) errEl.textContent = '';
+  grid.innerHTML = '';
+
+  const me = await db.currentProfile();
+  if (!me) return;
+
+  const active = (me.profile_icon || '').trim();
+  const choices = [
+    { icon: profileInitial(me), value: '', label: t('profile.icon.initial') },
+    ...PROFILE_ICON_CHOICES.map(icon => ({ icon, value: icon, label: t('profile.icon.choice', { icon }) })),
+  ];
+
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'profile-icon-choice';
+    btn.dataset.icon = choice.value;
+    btn.textContent = choice.icon;
+    btn.title = choice.label;
+    btn.setAttribute('aria-label', choice.label);
+    if (choice.value === active) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      btn.setAttribute('aria-pressed', 'false');
+    }
+    grid.appendChild(btn);
+  });
+}
+
+const profAvatarBtn = document.getElementById('profAvatar');
+if (profAvatarBtn) {
+  profAvatarBtn.addEventListener('click', () => openModal('profile-icon'));
+}
+
+const profileIconGrid = document.getElementById('profileIconGrid');
+if (profileIconGrid) {
+  profileIconGrid.addEventListener('click', async e => {
+    const btn = e.target.closest('.profile-icon-choice');
+    if (!btn) return;
+    const errEl = document.getElementById('profileIconError');
+    if (errEl) errEl.textContent = '';
+    profileIconGrid.querySelectorAll('button').forEach(choice => { choice.disabled = true; });
+    try {
+      const profile = await db.updateProfileIcon(btn.dataset.icon || '');
+      applyProfileIcon(profile);
+      document.getElementById('modal-profile-icon').hidden = true;
+      toast(t('profile.icon.saved'));
+    } catch (err) {
+      console.error(err);
+      if (errEl) errEl.textContent = t('profile.icon.fail');
+    } finally {
+      profileIconGrid.querySelectorAll('button').forEach(choice => { choice.disabled = false; });
+    }
+  });
+}
 
 // ---------- main render ----------
 async function renderMain() {
@@ -433,10 +563,7 @@ async function renderMain() {
   const profEmailEl = document.getElementById('profEmail');
   profNameEl.textContent  = me.display_name;
   profEmailEl.textContent = me.email;
-  const initial = (me.display_name[0] || '✿').toUpperCase();
-  document.getElementById('profAvatar').textContent = initial;
-  const navAvatar = document.getElementById('navAvatar');
-  if (navAvatar) navAvatar.textContent = initial;
+  applyProfileIcon(me);
   enableCopyOnClick(profNameEl);
   enableCopyOnClick(profEmailEl);
 
@@ -677,6 +804,7 @@ function openModal(id, preset) {
   document.getElementById('modal-' + id).hidden = false;
   if (id === 'sent')   renderSent();
   if (id === 'garden') renderGarden();
+  if (id === 'profile-icon') renderProfileIconChoices().catch(err => console.error('renderProfileIconChoices failed:', err));
   if (id === 'send') {
     document.getElementById('sendForm').reset();
     document.getElementById('sendError').textContent = '';
@@ -712,9 +840,9 @@ function renderNeighborDropdown(filter) {
     const li = document.createElement('li');
     li.className = 'neighbor-item';
     li.dataset.name = n.name;
-    const initial = (n.name[0] || '✿').toUpperCase();
+    const icon = profileIcon({ display_name: n.name, profile_icon: n.profileIcon });
     li.innerHTML = `
-      <span class="ni-avatar">${escapeHtml(initial)}</span>
+      <span class="ni-avatar">${escapeHtml(icon)}</span>
       <span class="ni-name">${escapeHtml(n.name)}</span>
       <span class="ni-leaves">${n.leafCount} 🍃</span>
     `;
@@ -858,9 +986,9 @@ async function renderGarden() {
     incoming.forEach(r => {
       const li = document.createElement('li');
       li.className = 'request-item';
-      const initial = (r.fromName[0] || '✿').toUpperCase();
+      const icon = profileIcon({ display_name: r.fromName, profile_icon: r.fromProfileIcon });
       li.innerHTML = `
-        <div class="ri-avatar">${escapeHtml(initial)}</div>
+        <div class="ri-avatar">${escapeHtml(icon)}</div>
         <div class="ri-info">
           <div class="ri-name">${escapeHtml(r.fromName)}</div>
           <div class="ri-id">${r.fromLeafCount} 🍃</div>
@@ -900,6 +1028,7 @@ async function renderGarden() {
   } else {
     friends.forEach(f => {
       const stage = stageInfo(f.leafCount);
+      const icon = profileIcon({ display_name: f.name, profile_icon: f.profileIcon });
       const card = document.createElement('div');
       card.className = 'friend-card';
       card.innerHTML = `
@@ -909,7 +1038,10 @@ async function renderGarden() {
           <div class="ground"></div>
           <div class="pot-base"></div>
         </div>
-        <div class="f-name">${escapeHtml(f.name)}</div>
+        <div class="friend-person">
+          <span class="f-avatar">${escapeHtml(icon)}</span>
+          <span class="f-name">${escapeHtml(f.name)}</span>
+        </div>
         <div class="f-stat">${f.leafCount} 🍃 · ${escapeHtml(stage.name)}</div>
         <div>
           <button class="f-send" data-name="${escapeHtml(f.name)}">${escapeHtml(t('garden.send'))}</button>
@@ -1393,6 +1525,9 @@ document.addEventListener('visibilitychange', () => {
       }
       if (!document.getElementById('modal-sent').hidden)   renderSent();
       if (!document.getElementById('modal-garden').hidden) renderGarden();
+      if (!document.getElementById('modal-profile-icon').hidden) {
+        renderProfileIconChoices().catch(err => console.error(err));
+      }
       // re-pick random cute message placeholder if the send modal is open
       if (!document.getElementById('modal-send').hidden) {
         document.getElementById('sendMsg').placeholder = randomCuteMsg();

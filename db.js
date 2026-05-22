@@ -19,6 +19,32 @@
 
   let cachedProfile = null;
   let cachedPlant = null;
+  const PROFILE_SELECT = 'id, email, display_name, sprout_id, leaf_count, profile_icon, created_at';
+  const PROFILE_SELECT_FALLBACK = 'id, email, display_name, sprout_id, leaf_count, created_at';
+
+  function profileIconColumnMissing(error) {
+    const text = `${error && error.message || ''} ${error && error.details || ''}`;
+    return !!error && (error.code === '42703' || error.code === 'PGRST204' || text.includes('profile_icon'));
+  }
+
+  function profileIconKey(id) {
+    return `sprout.profileIcon.${id}`;
+  }
+
+  function localProfileIcon(id) {
+    try {
+      return localStorage.getItem(profileIconKey(id)) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function setLocalProfileIcon(id, icon) {
+    try {
+      if (icon) localStorage.setItem(profileIconKey(id), icon);
+      else localStorage.removeItem(profileIconKey(id));
+    } catch (_) {}
+  }
 
   function normalizeSharedPlantPayload(data) {
     if (Array.isArray(data)) data = data[0] || null;
@@ -39,14 +65,43 @@
       if (cachedProfile) return cachedProfile;
       const session = await this.session();
       if (!session) return null;
-      const { data, error } = await sb
+      let { data, error } = await sb
         .from('profiles')
-        .select('id, email, display_name, sprout_id, leaf_count, created_at')
+        .select(PROFILE_SELECT)
         .eq('id', session.user.id)
         .maybeSingle();
+      if (profileIconColumnMissing(error)) {
+        const fallback = await sb
+          .from('profiles')
+          .select(PROFILE_SELECT_FALLBACK)
+          .eq('id', session.user.id)
+          .maybeSingle();
+        data = fallback.data;
+        error = fallback.error;
+        if (data) data.profile_icon = localProfileIcon(data.id);
+      }
       if (error) { console.error(error); return null; }
       cachedProfile = data;
       return data;
+    },
+
+    async updateProfileIcon(icon) {
+      const me = await this.currentProfile();
+      if (!me) throw new Error(window.i18n ? window.i18n.t('db.error.notlogged') : 'not logged in');
+      const normalized = (icon || '').trim().slice(0, 8) || null;
+      const { error } = await sb
+        .from('profiles')
+        .update({ profile_icon: normalized })
+        .eq('id', me.id);
+      if (profileIconColumnMissing(error)) {
+        setLocalProfileIcon(me.id, normalized);
+      } else if (error) {
+        throw error;
+      } else {
+        setLocalProfileIcon(me.id, normalized);
+      }
+      cachedProfile = { ...me, profile_icon: normalized };
+      return cachedProfile;
     },
 
     async currentPlant() {
@@ -287,11 +342,18 @@
     async myFriends() {
       const me = await this.currentProfile();
       if (!me) return [];
-      const { data, error } = await sb
+      let { data, error } = await sb
         .from('friends')
-        .select('id, created_at, friend:profiles!friend_id(id, display_name, sprout_id, leaf_count)')
+        .select('id, created_at, friend:profiles!friend_id(id, display_name, sprout_id, leaf_count, profile_icon)')
         .eq('owner_id', me.id)
         .order('created_at', { ascending: false });
+      if (profileIconColumnMissing(error)) {
+        ({ data, error } = await sb
+          .from('friends')
+          .select('id, created_at, friend:profiles!friend_id(id, display_name, sprout_id, leaf_count)')
+          .eq('owner_id', me.id)
+          .order('created_at', { ascending: false }));
+      }
       if (error) { console.error(error); return []; }
       return (data || []).map(row => ({
         rowId: row.id,
@@ -300,6 +362,7 @@
         name: row.friend ? row.friend.display_name : '(deleted)',
         sproutId: row.friend ? row.friend.sprout_id : '?',
         leafCount: row.friend ? row.friend.leaf_count : 0,
+        profileIcon: row.friend ? row.friend.profile_icon : null,
       }));
     },
 
@@ -350,11 +413,18 @@
     async incomingRequests() {
       const me = await this.currentProfile();
       if (!me) return [];
-      const { data, error } = await sb
+      let { data, error } = await sb
         .from('friend_requests')
-        .select('id, message, created_at, from:profiles!from_id(id, display_name, sprout_id, leaf_count)')
+        .select('id, message, created_at, from:profiles!from_id(id, display_name, sprout_id, leaf_count, profile_icon)')
         .eq('to_id', me.id)
         .order('created_at', { ascending: false });
+      if (profileIconColumnMissing(error)) {
+        ({ data, error } = await sb
+          .from('friend_requests')
+          .select('id, message, created_at, from:profiles!from_id(id, display_name, sprout_id, leaf_count)')
+          .eq('to_id', me.id)
+          .order('created_at', { ascending: false }));
+      }
       if (error) { console.error(error); return []; }
       return (data || []).map(r => ({
         id: r.id,
@@ -364,6 +434,7 @@
         fromName:      r.from ? r.from.display_name : '(deleted)',
         fromSproutId:  r.from ? r.from.sprout_id    : '?',
         fromLeafCount: r.from ? r.from.leaf_count   : 0,
+        fromProfileIcon: r.from ? r.from.profile_icon : null,
       }));
     },
 

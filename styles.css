@@ -156,16 +156,6 @@
 }
 .theme-toggle:hover { transform: translateY(-1px); color: var(--pink-500); }
 .theme-toggle[aria-pressed="true"] { color: var(--green-700); }
-.theme-toggle.theme-inline {
-  position: static;
-  align-self: center;
-  flex: none;
-}
-/* inline variant sits inside the topbar nav, aligned with the tabs */
-.lang-toggle.lang-inline {
-  position: static;
-  align-self: center;
-}
 
 /* ---------- profile menu (topbar) ---------- */
 .profile-menu { position: relative; align-self: center; }
@@ -201,7 +191,7 @@
   margin: 0;
   padding: 6px;
   list-style: none;
-  min-width: 168px;
+  min-width: 196px;
   background: var(--surface-popover);
   border: 2px solid var(--pink-100);
   border-radius: 16px;
@@ -223,6 +213,42 @@
   transition: background 0.12s ease, color 0.12s ease;
 }
 .pd-item:hover { background: var(--pink-50); }
+.pd-theme,
+.pd-lang {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 6px;
+  padding: 3px;
+  background: var(--surface-control);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-size: 12px;
+}
+.theme-opt {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  padding: 5px 11px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.theme-opt:hover:not(.active) { color: var(--pink-500); }
+.theme-opt.active {
+  background: var(--green-300);
+  color: white;
+}
+.pd-lang .lang-opt {
+  flex: 1;
+  min-width: 0;
+}
 .pd-danger { color: var(--ink-soft); }
 .pd-danger:hover { background: var(--pink-50); color: var(--pink-700); }
 @media (max-width: 520px) {
@@ -628,8 +654,6 @@ h3 {
 .nav { display: flex; gap: 10px; flex-wrap: wrap; }
 .nav > .navbtn { order: 10; }
 .nav > .profile-menu { order: 20; }
-.nav > .theme-inline { order: 30; }
-.nav > .lang-inline { order: 40; }
 .navbtn {
   font-family: 'Fredoka', 'Jua', sans-serif;
   font-weight: 500;
@@ -694,16 +718,16 @@ h3 {
   letter-spacing: 0.4px;
   line-height: 1.12;
 }
-/* Korean variant only — bold Nanum Myeongjo, English keeps Pacifico */
+/* Korean title uses Nanum Pen Script; English keeps Pacifico. */
 [lang="ko"] .page-title {
-  font-family: 'Nanum Myeongjo', serif;
-  font-weight: 800;
-  font-size: 36px;
-  letter-spacing: 1px;
+  font-family: 'Nanum Pen Script', 'Gaegu', cursive;
+  font-weight: 400;
+  font-size: 46px;
+  letter-spacing: 0;
 }
 @media (max-width: 520px) {
   .page-title { font-size: 34px; }
-  [lang="ko"] .page-title { font-size: 30px; }
+  [lang="ko"] .page-title { font-size: 38px; }
 }
 
 /* ---------- main layout ---------- */
@@ -722,6 +746,7 @@ h3 {
 /* ---------- profile ---------- */
 .profile-card { text-align: center; }
 .avatar {
+  border: 4px solid var(--border-strong);
   width: 96px;
   height: 96px;
   border-radius: 50%;
@@ -734,7 +759,35 @@ h3 {
   color: var(--ink);
   font-size: 44px;
   box-shadow: var(--shadow-soft);
-  border: 4px solid var(--border-strong);
+  padding: 0;
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+  transition: transform 0.16s ease, box-shadow 0.18s ease;
+}
+.avatar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 143, 174, 0.22);
+}
+.avatar:focus-visible {
+  outline: 3px solid var(--pink-300);
+  outline-offset: 4px;
+}
+.profile-card #profName.copyable,
+.profile-card #profEmail.copyable {
+  display: inline-block;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.profile-card #profName.copyable:hover {
+  background: var(--pink-100);
+  color: var(--pink-700);
+  box-shadow: 0 0 0 3px var(--surface-soft);
+}
+.profile-card #profEmail.copyable:hover {
+  background: var(--green-50);
+  color: var(--green-700);
+  box-shadow: 0 0 0 3px var(--surface-soft);
 }
 .id-chip {
   display: inline-block;
@@ -811,38 +864,89 @@ h3 {
 }
 
 /* ---------- plant ---------- */
-.plant-card { display: flex; flex-direction: column; }
+.plant-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  text-align: center;
+  border-color: var(--green-100);
+  background: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-soft) 100%);
+}
+.plant-card-header {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 24px 28px 16px;
+  background: linear-gradient(135deg, var(--green-50) 0%, var(--surface-card) 54%, var(--pink-50) 100%);
+  border-bottom: 1px solid var(--green-100);
+}
 .plant-name {
-  font-family: 'Pacifico', 'Nanum Myeongjo', cursive;
+  font-family: 'Jua', 'Fredoka', sans-serif;
   font-weight: 400;
-  font-size: 24px;
-  color: var(--pink-700);
+  font-size: 28px;
+  line-height: 1.12;
+  color: var(--green-700);
   text-align: center;
   margin: 0 auto 12px;
-  padding: 6px 18px;
-  border-radius: 14px;
+  padding: 8px 20px;
+  border-radius: 999px;
   cursor: pointer;
   display: inline-block;
-  background: linear-gradient(135deg, var(--pink-50) 0%, var(--surface-input) 100%);
-  border: 2px dashed var(--pink-200);
+  background: linear-gradient(135deg, var(--green-50) 0%, var(--surface-input) 100%);
+  border: 2px solid var(--green-200);
   box-shadow: var(--shadow-soft);
   transition: transform 0.15s ease, box-shadow 0.18s ease, background 0.15s ease;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 .plant-name:hover {
   transform: translateY(-2px) rotate(-1deg);
-  box-shadow: 0 6px 20px rgba(255, 143, 174, 0.25);
-  background: var(--pink-50);
+  box-shadow: 0 6px 20px rgba(143, 211, 160, 0.28);
+  background: var(--green-50);
 }
-.plant-card { text-align: center; }
+.plant-card .plant-name {
+  max-width: 100%;
+  margin: 0;
+  padding: 0 8px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 34px;
+  line-height: 1.05;
+  color: var(--green-700);
+  text-shadow: 0 1px 0 var(--border-strong);
+  overflow-wrap: anywhere;
+}
+.plant-card .plant-name::after {
+  content: '';
+  display: block;
+  width: min(120px, 70%);
+  height: 4px;
+  margin: 7px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--green-200), var(--pink-200), var(--green-200));
+}
+.plant-card .plant-name:hover {
+  transform: translateY(-1px);
+  box-shadow: none;
+  background: transparent;
+  color: var(--green-500);
+}
 .plant-name.unnamed {
-  font-family: 'Quicksand', 'Poor Story', sans-serif;
-  font-size: 14px;
+  font-family: 'Jua', 'Fredoka', sans-serif;
+  font-size: 20px;
   color: var(--ink-soft);
   font-style: italic;
-  font-weight: 500;
+  font-weight: 400;
   border-style: dotted;
   background: var(--surface-muted);
+}
+.plant-card .plant-name.unnamed {
+  color: var(--ink-soft);
+  font-size: 28px;
+  font-style: normal;
+  background: transparent;
 }
 
 /* ---------- past plants (graduated) ---------- */
@@ -905,7 +1009,7 @@ h3 {
   margin-right: auto;
   text-align: center;
   overflow-wrap: anywhere;
-  background: linear-gradient(135deg, var(--pink-50) 0%, var(--surface-input) 100%);
+  background: linear-gradient(135deg, var(--green-50) 0%, var(--surface-input) 100%);
 }
 #modal-past-plant .plant-name:hover {
   transform: none;
@@ -942,9 +1046,11 @@ h3 {
   border-radius: 4px;
 }
 .past-name {
-  font-family: 'Pacifico', 'Nanum Myeongjo', cursive;
-  font-size: 17px;
-  color: var(--pink-700);
+  font-family: 'Jua', 'Fredoka', sans-serif;
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.12;
+  color: var(--green-700);
   margin-top: 6px;
   text-align: center;
   overflow-wrap: anywhere;
@@ -963,13 +1069,15 @@ h3 {
 .plant-stage-banner {
   text-align: center;
   font-family: 'Fredoka', 'Poor Story', sans-serif;
-  font-size: 15px;
-  color: var(--green-700);
-  background: var(--green-50);
-  border: 2px dashed var(--green-200);
-  border-radius: 14px;
-  padding: 8px 12px;
-  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: var(--surface-control);
+  border: 1px solid var(--green-100);
+  border-radius: 999px;
+  padding: 7px 14px;
+  margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .plant-area {
   position: relative;
@@ -980,6 +1088,38 @@ h3 {
   overflow: hidden;
   border-radius: 18px;
   background: var(--plant-bg);
+}
+.plant-card .plant-area {
+  margin: 18px 22px 0;
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 0 0 1px var(--surface-soft), var(--shadow-soft);
+}
+.plant-card > .hint.center {
+  margin: 12px 24px 0;
+}
+.plant-card .plant-actions {
+  margin: 14px 24px 24px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--green-100);
+}
+@media (max-width: 520px) {
+  .plant-card-header {
+    padding: 20px 18px 14px;
+  }
+  .plant-card .plant-name {
+    font-size: 30px;
+  }
+  .plant-stage-banner {
+    border-radius: 16px;
+    line-height: 1.35;
+  }
+  .plant-card .plant-area {
+    margin: 14px 14px 0;
+    border-radius: 16px;
+  }
+  .plant-card .plant-actions {
+    margin: 14px 18px 22px;
+  }
 }
 .pot {
   position: relative;
@@ -1077,6 +1217,49 @@ h3 {
 @keyframes pop {
   from { transform: scale(0.94); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
+}
+
+.profile-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 8px;
+}
+.profile-icon-choice {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 2px solid var(--pink-100);
+  border-radius: 16px;
+  background: var(--surface-control);
+  color: var(--ink);
+  font-family: 'Fredoka', 'Jua', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+.profile-icon-choice:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink-300);
+  background: var(--surface-hover);
+}
+.profile-icon-choice.active {
+  border-color: var(--pink-300);
+  background: linear-gradient(135deg, var(--pink-100), var(--green-100));
+  box-shadow: 0 0 0 4px var(--pink-100);
+}
+.profile-icon-choice:focus-visible {
+  outline: 3px solid var(--pink-300);
+  outline-offset: 3px;
+}
+.profile-icon-choice:disabled {
+  cursor: default;
+  opacity: 0.65;
+  transform: none;
 }
 .x {
   position: absolute;
@@ -1279,12 +1462,37 @@ h3 {
   content: ''; position: absolute; top: -4px; left: -3px; right: -3px; height: 7px;
   background: var(--pot-rim-bg); border-radius: 4px;
 }
+.friend-person {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: calc(100% - 18px);
+  margin: 10px auto 0;
+}
+.friend-card .f-avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-200), var(--green-200));
+  color: var(--ink);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-soft);
+  font-family: 'Fredoka', 'Jua', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1;
+}
 .friend-card .f-name {
   font-family: 'Fredoka', 'Jua', sans-serif;
   font-weight: 600;
   color: var(--pink-700);
-  margin: 10px 0 0;
   font-size: 16px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .friend-card .f-id {
   font-size: 12px;

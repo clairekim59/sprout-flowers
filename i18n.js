@@ -42,7 +42,9 @@
       'nav.sent': 'my sent ♡',
       'nav.logout': 'log out',
       'nav.menu': 'menu',
-      'theme.toggle': 'toggle color mode',
+      'theme.toggle': 'light / dark mode',
+      'theme.light': 'light',
+      'theme.dark': 'dark',
       'logout.bye': 'see you soon ♡',
       'main.title': 'my garden 🌷',
 
@@ -50,6 +52,12 @@
       'profile.stage': 'stage',
       'profile.hint': 'share your nickname or email so friends can water your plant with kind words ♡',
       'profile.fallbackName': 'your name',
+      'profile.icon.menu': 'change icon',
+      'profile.icon.title': 'choose your icon',
+      'profile.icon.initial': 'use my initial',
+      'profile.icon.choice': 'choose {icon}',
+      'profile.icon.saved': 'profile icon updated ✿',
+      'profile.icon.fail': 'could not update icon — try again ✿',
 
       'plant.hint': 'tap a leaf to read the message it grew from ✿',
 
@@ -240,7 +248,9 @@
       'nav.sent': '보낸 쪽지 ♡',
       'nav.logout': '로그아웃',
       'nav.menu': '메뉴',
-      'theme.toggle': '색상 모드 전환',
+      'theme.toggle': '라이트 / 다크 모드',
+      'theme.light': '라이트',
+      'theme.dark': '다크',
       'logout.bye': '또 만나요 ♡',
       'main.title': '내 정원 🌷',
 
@@ -248,6 +258,12 @@
       'profile.stage': '단계',
       'profile.hint': '닉네임이나 이메일을 공유하면 친구들이 다정한 말로 식물에 물을 줄 수 있어요 ♡',
       'profile.fallbackName': '이름',
+      'profile.icon.menu': '아이콘 바꾸기',
+      'profile.icon.title': '아이콘 선택',
+      'profile.icon.initial': '이니셜 사용',
+      'profile.icon.choice': '{icon} 선택',
+      'profile.icon.saved': '프로필 아이콘을 바꿨어요 ✿',
+      'profile.icon.fail': '아이콘을 바꾸지 못했어요 — 다시 시도해 주세요 ✿',
 
       'plant.hint': '잎사귀를 눌러 그 안의 메시지를 읽어보세요 ✿',
 

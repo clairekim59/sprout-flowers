@@ -10,6 +10,7 @@ create table if not exists public.profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   email         text not null unique,
   display_name  text not null,
+  profile_icon  text,
   sprout_id     text not null unique,
   leaf_count    integer not null default 0,
   created_at    timestamptz not null default now()
