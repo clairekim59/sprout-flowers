@@ -802,6 +802,13 @@ h3 {
 /* past-plant modal: plant name is read-only (no rename) */
 #modal-past-plant .plant-name {
   cursor: default;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  overflow-wrap: anywhere;
   background: linear-gradient(135deg, var(--pink-50) 0%, #fff5f8 100%);
 }
 #modal-past-plant .plant-name:hover {
@@ -843,6 +850,8 @@ h3 {
   font-size: 17px;
   color: var(--pink-700);
   margin-top: 6px;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 .past-meta {
   font-size: 11px;
@@ -915,15 +924,15 @@ h3 {
   border-radius: 8px;
 }
 
-/* leaves are svg <g> elements, click target */
-#plantSvg g.leaf { cursor: pointer; transition: transform 0.18s ease-out; transform-box: fill-box; transform-origin: center; }
-#plantSvg g.leaf:hover { transform: scale(1.1); }
-#plantSvg g.leaf.static { cursor: default; }
-#plantSvg g.leaf.static:hover { transform: none; }
-#plantSvg g.flower { cursor: pointer; transition: transform 0.18s ease-out; transform-box: fill-box; transform-origin: center; }
-#plantSvg g.flower:hover { transform: scale(1.1); }
-#plantSvg g.flower.static { cursor: default; }
-#plantSvg g.flower.static:hover { transform: none; }
+/* leaves/flowers are svg <g> elements, click targets in full plant views */
+.plant-area svg g.leaf,
+.plant-area svg g.flower { cursor: pointer; transition: transform 0.18s ease-out; transform-box: fill-box; transform-origin: center; }
+.plant-area svg g.leaf:hover,
+.plant-area svg g.flower:hover { transform: scale(1.1); }
+.plant-area svg g.leaf.static,
+.plant-area svg g.flower.static { cursor: default; }
+.plant-area svg g.leaf.static:hover,
+.plant-area svg g.flower.static:hover { transform: none; }
 #plantSvg .grow-in { animation: growIn 0.6s ease-out both; transform-box: fill-box; transform-origin: center; }
 @keyframes growIn {
   0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
