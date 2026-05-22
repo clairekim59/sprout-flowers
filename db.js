@@ -96,9 +96,24 @@
     },
 
     async getSharedPlant(shareId) {
-      const { data, error } = await sb.rpc('get_shared_plant', { p_share_id: shareId });
-      if (error) { console.error(error); return null; }
-      return data; // { name, owner_name, archived, leaf_count, messages:[...] } or null
+      // Public, read-only view: always call as the anonymous role. Going
+      // through sb.rpc() would attach the viewer's session JWT, and a logged-in
+      // owner with a stale/expired token gets a 401 ("could not decode the
+      // JWT") that hides the plant. A direct anon fetch behaves identically for
+      // everyone, signed in or not.
+      try {
+        const resp = await fetch(`${cfg.SUPABASE_URL}/rest/v1/rpc/get_shared_plant`, {
+          method: 'POST',
+          headers: {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${cfg.SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ p_share_id: shareId }),
+        });
+        if (!resp.ok) { console.error('getSharedPlant', resp.status); return null; }
+        return await resp.json(); // { name, owner_name, archived, leaf_count, messages } or null
+      } catch (err) { console.error(err); return null; }
     },
 
     async deletePlant(plantId) {

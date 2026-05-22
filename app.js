@@ -543,7 +543,7 @@ async function sharePlant(plantId, plantName) {
   if (!plantId) return;
   try {
     const shareId = await db.enablePlantShare(plantId);
-    const url = `${location.origin}${location.pathname}?share=${shareId}`;
+    const url = `${location.origin}/p/${shareId}`;
     const shareData = {
       title: t('share.title'),
       text: plantName ? `${plantName} ✿ — ${t('share.text')}` : t('share.text'),
@@ -561,7 +561,7 @@ async function sharePlant(plantId, plantName) {
     // last-ditch: try clipboard then report
     try {
       const shareId = await db.enablePlantShare(plantId);
-      await navigator.clipboard.writeText(`${location.origin}${location.pathname}?share=${shareId}`);
+      await navigator.clipboard.writeText(`${location.origin}/p/${shareId}`);
       toast(t('share.copied'));
     } catch (e) {
       toast(t('share.fail'), 'pink');
@@ -1310,7 +1310,10 @@ document.addEventListener('visibilitychange', () => {
   }
 
   // shared plant link? show the public read-only view and stop here.
-  const shareId = new URLSearchParams(location.search).get('share');
+  // canonical form is /p/<id>; ?share=<id> is still honored for older links.
+  const pathMatch = location.pathname.match(/^\/p\/([^/?#]+)/);
+  const shareId = (pathMatch && pathMatch[1]) ||
+    new URLSearchParams(location.search).get('share');
   if (shareId) {
     await showSharedPlant(shareId);
     return;

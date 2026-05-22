@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
   }
 
   const image = `${origin}/og-card.png`;
-  const url = `${origin}/?share=${encodeURIComponent(share)}`;
+  const url = `${origin}/p/${encodeURIComponent(share)}`;
   const tags = [
     `<meta name="description" content="${escapeHtml(desc)}"/>`,
     `<meta property="og:type" content="website"/>`,
@@ -107,6 +107,8 @@ module.exports = async (req, res) => {
     ''
   );
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`);
+  // served from /p/<id>: anchor relative asset URLs (styles.css, app.js…) to root
+  if (!/<base /i.test(html)) html = html.replace('<head>', '<head>\n<base href="/"/>');
   html = html.replace('</head>', `${tags}\n</head>`);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');

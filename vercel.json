@@ -5,10 +5,6 @@
     "api/share.js": { "includeFiles": "index.html" }
   },
   "rewrites": [
-    {
-      "source": "/",
-      "has": [{ "type": "query", "key": "share" }],
-      "destination": "/api/share"
-    }
+    { "source": "/p/:id", "destination": "/api/share?share=:id" }
   ]
 }
