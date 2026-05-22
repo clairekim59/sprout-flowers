@@ -34,7 +34,7 @@ insert into public.plants (owner_id, created_at)
 -- 3. Add plant_id to messages so leaves stay attached to the plant
 --    they grew on, even after the user graduates to a new seed.
 alter table public.messages
-  add column if not exists plant_id uuid references public.plants(id) on delete cascade;
+  add column if not exists plant_id uuid references public.plants(id) on delete set null;
 
 -- Backfill existing messages to the current active plant of the recipient.
 update public.messages m
@@ -45,7 +45,7 @@ update public.messages m
   )
   where m.plant_id is null;
 
-alter table public.messages alter column plant_id set not null;
+alter table public.messages alter column plant_id drop not null;
 
 create index if not exists messages_plant_id_idx on public.messages(plant_id, created_at);
 
@@ -95,6 +95,14 @@ security definer
 set search_path = public
 as $$
 begin
+  if NEW.sender_id is null then
+    raise exception 'sender is required';
+  end if;
+
+  if NEW.recipient_id is null then
+    raise exception 'recipient is required';
+  end if;
+
   if NEW.plant_id is null then
     select id into NEW.plant_id
       from public.plants

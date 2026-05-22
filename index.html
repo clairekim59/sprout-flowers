@@ -190,13 +190,16 @@
       </div>
 
       <p class="hint" data-i18n="profile.hint">share your nickname or email so friends can water your plant with kind words ♡</p>
+      <button class="profile-delete-account" type="button" data-open="delete-account" data-i18n="account.delete.menu">delete account</button>
     </aside>
 
     <!-- plant -->
     <section class="card plant-card">
       <div class="plant-card-header">
-        <h3 class="plant-name" id="plantName" data-i18n-title="plant.name.title" data-i18n="plant.name.fallback">name your plant ✿</h3>
-        <div class="plant-start-date" id="plantStartDate"></div>
+        <div class="plant-title-sign">
+          <h3 class="plant-name" id="plantName" data-i18n-title="plant.name.title" data-i18n="plant.name.fallback">name your plant ✿</h3>
+          <div class="plant-start-date" id="plantStartDate"></div>
+        </div>
         <div class="plant-stage-banner" id="plantStageBanner" data-i18n="stage.banner.seed">a tiny seed sleeps 💤</div>
       </div>
       <div class="plant-area">
@@ -343,6 +346,22 @@
     <h2 data-i18n="profile.icon.title">choose your icon</h2>
     <div class="profile-icon-grid" id="profileIconGrid"></div>
     <p class="error" id="profileIconError"></p>
+  </div>
+</div>
+
+<!-- ========= MODAL: delete account ========= -->
+<div class="modal" id="modal-delete-account" hidden>
+  <div class="modal-card small danger-modal">
+    <button class="x" data-close>✕</button>
+    <h2 data-i18n="account.delete.title">delete account</h2>
+    <p class="muted" data-i18n="account.delete.body">This removes your profile, plants, neighbors, and login. Notes you sent stay on recipients' plants without your profile info. Notes sent to you stay only in each sender's sent box.</p>
+    <label class="delete-confirm-label" for="deleteAccountConfirm" data-i18n="account.delete.confirmLabel">Type DELETE to confirm</label>
+    <input id="deleteAccountConfirm" class="delete-confirm-input" type="text" autocomplete="off" spellcheck="false"/>
+    <p class="error" id="deleteAccountError"></p>
+    <div class="modal-actions">
+      <button class="remove-plant-btn" type="button" data-close data-i18n="account.delete.cancel">keep account</button>
+      <button class="btn btn-pink danger-action" id="deleteAccountBtn" type="button" disabled data-i18n="account.delete.submit">delete my account</button>
+    </div>
   </div>
 </div>
 

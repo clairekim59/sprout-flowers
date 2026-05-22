@@ -226,6 +226,17 @@
       await sb.auth.signOut();
     },
 
+    async deleteAccount() {
+      const me = await this.currentProfile();
+      if (!me) throw new Error(window.i18n ? window.i18n.t('db.error.notlogged') : 'not logged in');
+      const { error } = await sb.rpc('delete_account');
+      if (error) throw error;
+      setLocalProfileIcon(me.id, '');
+      cachedProfile = null;
+      cachedPlant = null;
+      try { await sb.auth.signOut(); } catch (_) {}
+    },
+
     async nicknameTaken(name) {
       const trimmed = (name || '').trim();
       if (!trimmed) return false;

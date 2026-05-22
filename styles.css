@@ -17,6 +17,11 @@
   --green-300: #8fd3a0;
   --green-500: #5ab97a;
   --green-700: #3b8c58;
+  --wood-100:  #f1dec1;
+  --wood-200:  #e2c79f;
+  --wood-300:  #d0ac82;
+  --wood-700:  #b28c68;
+  --wood-ink:  #6b503a;
 
   --cream:    #fffaf2;
   --ink:      #5a4a5a;
@@ -64,6 +69,11 @@
   --green-300: #74b993;
   --green-500: #8fd3a0;
   --green-700: #bce7c8;
+  --wood-100:  #a98a6e;
+  --wood-200:  #8f715b;
+  --wood-300:  #765f50;
+  --wood-700:  #ead2b4;
+  --wood-ink:  #fff4e6;
 
   --cream:    #211b21;
   --ink:      #f4e8ef;
@@ -744,7 +754,12 @@ h3 {
 }
 
 /* ---------- profile ---------- */
-.profile-card { text-align: center; }
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 .avatar {
   border: 4px solid var(--border-strong);
   width: 96px;
@@ -775,8 +790,13 @@ h3 {
 }
 .profile-card #profName.copyable,
 .profile-card #profEmail.copyable {
-  display: inline-block;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 999px;
+  overflow-wrap: anywhere;
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .profile-card #profName.copyable:hover {
@@ -788,6 +808,31 @@ h3 {
   background: var(--green-50);
   color: var(--green-700);
   box-shadow: 0 0 0 3px var(--surface-soft);
+}
+.profile-delete-account {
+  align-self: flex-start;
+  margin: auto 0 0;
+  padding: 18px 0 0;
+  border: none;
+  background: transparent;
+  color: var(--pink-700);
+  cursor: pointer;
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-align: left;
+}
+.profile-delete-account:hover {
+  color: #c84d68;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profile-delete-account:focus-visible {
+  outline: 2px solid var(--pink-300);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 .id-chip {
   display: inline-block;
@@ -805,6 +850,7 @@ h3 {
 }
 .id-chip:hover { background: var(--pink-200); }
 .stats {
+  width: 100%;
   display: flex;
   justify-content: center;
   gap: 16px;
@@ -881,6 +927,42 @@ h3 {
   background: linear-gradient(135deg, var(--green-50) 0%, var(--surface-card) 54%, var(--pink-50) 100%);
   border-bottom: 1px solid var(--green-100);
 }
+.plant-title-sign {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  width: min(100%, 430px);
+  padding: 15px 28px 13px;
+  border: 2px solid var(--wood-700);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(107, 80, 58, 0.05)),
+    repeating-linear-gradient(0deg, transparent 0 13px, rgba(107, 80, 58, 0.055) 13px 15px),
+    repeating-linear-gradient(90deg, rgba(107, 80, 58, 0.045) 0 1px, transparent 1px 54px),
+    linear-gradient(180deg, var(--wood-100) 0%, var(--wood-200) 54%, var(--wood-300) 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -3px 0 rgba(107, 80, 58, 0.09),
+    0 8px 18px rgba(178, 140, 104, 0.12);
+}
+.plant-title-sign::before,
+.plant-title-sign::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--wood-700);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.32);
+}
+.plant-title-sign::before {
+  left: 12px;
+}
+.plant-title-sign::after {
+  right: 12px;
+}
 .plant-name {
   font-family: 'Jua', 'Fredoka', sans-serif;
   font-weight: 400;
@@ -918,6 +1000,10 @@ h3 {
   text-shadow: 0 1px 0 var(--border-strong);
   overflow-wrap: anywhere;
 }
+.plant-title-sign .plant-name {
+  color: var(--wood-ink);
+  text-shadow: 0 1px 0 rgba(255, 246, 226, 0.42);
+}
 .plant-card .plant-name::after {
   content: '';
   display: block;
@@ -927,11 +1013,17 @@ h3 {
   border-radius: 999px;
   background: linear-gradient(90deg, var(--green-200), var(--pink-200), var(--green-200));
 }
+.plant-title-sign .plant-name::after {
+  background: linear-gradient(90deg, transparent, rgba(107, 80, 58, 0.22), transparent);
+}
 .plant-card .plant-name:hover {
   transform: translateY(-1px);
   box-shadow: none;
   background: transparent;
   color: var(--green-500);
+}
+.plant-title-sign .plant-name:hover {
+  color: var(--wood-ink);
 }
 .plant-name.unnamed {
   font-family: 'Jua', 'Fredoka', sans-serif;
@@ -943,10 +1035,11 @@ h3 {
   background: var(--surface-muted);
 }
 .plant-card .plant-name.unnamed {
-  color: var(--ink-soft);
+  color: var(--wood-ink);
   font-size: 28px;
   font-style: normal;
   background: transparent;
+  opacity: 0.78;
 }
 .plant-start-date {
   display: inline-flex;
@@ -964,6 +1057,12 @@ h3 {
   line-height: 1.2;
   letter-spacing: 0;
   box-shadow: 0 2px 8px rgba(143, 211, 160, 0.16);
+}
+.plant-title-sign .plant-start-date {
+  border-color: rgba(107, 80, 58, 0.16);
+  background: rgba(255, 250, 242, 0.58);
+  color: var(--wood-ink);
+  box-shadow: none;
 }
 .plant-start-date:empty {
   display: none;
@@ -1127,6 +1226,9 @@ h3 {
   .plant-card-header {
     padding: 20px 18px 14px;
   }
+  .plant-title-sign {
+    padding: 14px 20px 12px;
+  }
   .plant-card .plant-name {
     font-size: 30px;
   }
@@ -1231,6 +1333,48 @@ h3 {
 .modal-card.wide       { max-width: 460px; }
 .modal-card.extra-wide { max-width: 600px; }
 .modal-card.small      { max-width: 340px; }
+.danger-modal {
+  border-color: var(--pink-200);
+}
+.danger-modal .muted {
+  line-height: 1.5;
+}
+.delete-confirm-label {
+  display: block;
+  margin: 16px 0 6px;
+  color: var(--ink);
+  font-family: 'Fredoka', 'Jua', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+.delete-confirm-input {
+  width: 100%;
+  border: 2px solid var(--pink-100);
+  border-radius: 14px;
+  background: var(--surface-input);
+  color: var(--ink);
+  font: inherit;
+  padding: 10px 12px;
+  outline: none;
+}
+.delete-confirm-input:focus {
+  border-color: var(--pink-300);
+  box-shadow: 0 0 0 3px var(--pink-50);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.danger-action:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  filter: none;
+}
 /* send modal must not clip the neighbor dropdown */
 #modal-send .modal-card { overflow: visible; max-height: none; }
 /* shrink the tall plant area when shown inside a modal */

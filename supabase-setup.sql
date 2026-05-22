@@ -19,8 +19,8 @@ create table if not exists public.profiles (
 -- ---------- messages ----------
 create table if not exists public.messages (
   id            uuid primary key default gen_random_uuid(),
-  recipient_id  uuid not null references public.profiles(id) on delete cascade,
-  sender_id     uuid not null references public.profiles(id) on delete cascade,
+  recipient_id  uuid references public.profiles(id) on delete set null,
+  sender_id     uuid references public.profiles(id) on delete set null,
   body          text not null check (length(body) > 0 and length(body) <= 500),
   anon          boolean not null default false,
   created_at    timestamptz not null default now()

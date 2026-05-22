@@ -55,6 +55,19 @@ function formatPlantStart(value) {
   return date.toLocaleDateString();
 }
 
+function formatPlantedLabel(value) {
+  const date = parsePlantDate(value);
+  if (!date) return '';
+  const ageMs = Date.now() - date.getTime();
+  if (ageMs >= 0 && ageMs < 7 * DAY_MS) {
+    const days = Math.floor(ageMs / DAY_MS);
+    if (days <= 0) return t('plant.planted.today');
+    if (days === 1) return t('plant.planted.dayAgo');
+    return t('plant.planted.daysAgo', { count: days });
+  }
+  return t('plant.planted.date', { date: date.toLocaleDateString() });
+}
+
 function plantHistoryMeta(plant) {
   const count = plant.final_leaf_count || 0;
   const start = formatPlantStart(plant.created_at);
@@ -475,6 +488,44 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   go('login');
 });
 
+// ---------- account deletion ----------
+function resetDeleteAccountModal() {
+  const input = document.getElementById('deleteAccountConfirm');
+  const btn = document.getElementById('deleteAccountBtn');
+  const err = document.getElementById('deleteAccountError');
+  if (input) input.value = '';
+  if (btn) btn.disabled = true;
+  if (err) err.textContent = '';
+}
+
+const deleteAccountInput = document.getElementById('deleteAccountConfirm');
+const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+if (deleteAccountInput && deleteAccountBtn) {
+  deleteAccountInput.addEventListener('input', () => {
+    deleteAccountBtn.disabled = deleteAccountInput.value.trim() !== 'DELETE';
+  });
+  deleteAccountBtn.addEventListener('click', async () => {
+    const err = document.getElementById('deleteAccountError');
+    if (deleteAccountInput.value.trim() !== 'DELETE') {
+      if (err) err.textContent = t('account.delete.confirmError');
+      return;
+    }
+    deleteAccountBtn.disabled = true;
+    if (err) err.textContent = '';
+    try {
+      await db.deleteAccount();
+      closeAllModals();
+      document.getElementById('loginForm').reset();
+      toast(t('account.delete.success'), 'pink');
+      go('login');
+    } catch (e) {
+      console.error(e);
+      if (err) err.textContent = t('account.delete.fail');
+      deleteAccountBtn.disabled = false;
+    }
+  });
+}
+
 // ---------- profile dropdown menu ----------
 (function wireProfileMenu() {
   const btn = document.getElementById('profileBtn');
@@ -636,8 +687,7 @@ async function renderMain() {
       nameEl.classList.add('unnamed');
     }
     nameEl.title = t('plant.name.title');
-    const plantedDate = formatPlantStart(plant.created_at);
-    startDateEl.textContent = plantedDate ? t('plant.planted', { date: plantedDate }) : '';
+    startDateEl.textContent = formatPlantedLabel(plant.created_at);
   } else {
     startDateEl.textContent = '';
   }
@@ -843,6 +893,7 @@ function openModal(id, preset) {
   if (id === 'sent')   renderSent();
   if (id === 'garden') renderGarden();
   if (id === 'profile-icon') renderProfileIconChoices().catch(err => console.error('renderProfileIconChoices failed:', err));
+  if (id === 'delete-account') resetDeleteAccountModal();
   if (id === 'send') {
     document.getElementById('sendForm').reset();
     document.getElementById('sendError').textContent = '';
