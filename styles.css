@@ -1131,7 +1131,7 @@ h3 {
   justify-items: center;
   gap: 7px;
   width: min(100%, 390px);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   padding: 19px 30px 16px;
   border: 2px solid rgba(143, 211, 160, 0.42);
   border-radius: 16px 16px 22px 16px;
@@ -1150,23 +1150,10 @@ h3 {
   0%, 100% { transform: translateY(0) rotate(-0.5deg); }
   50%      { transform: translateY(-2px) rotate(0.45deg); }
 }
-.plant-title-sign::before,
 .plant-title-sign::after {
   content: '';
   position: absolute;
   display: block;
-}
-.plant-title-sign::before {
-  z-index: -1;
-  left: 50%;
-  bottom: -30px;
-  width: 18px;
-  height: 38px;
-  border: 1px solid rgba(107, 80, 58, 0.16);
-  border-radius: 0 0 999px 999px;
-  background: linear-gradient(180deg, var(--wood-200) 0%, var(--wood-300) 100%);
-  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.16);
-  transform: translateX(-50%);
 }
 .plant-title-sign::after {
   z-index: 2;
@@ -1518,13 +1505,9 @@ h3 {
     padding: 20px 18px 14px;
   }
   .plant-title-sign {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     padding: 17px 18px 14px;
     border-radius: 14px 14px 20px 14px;
-  }
-  .plant-title-sign::before {
-    bottom: -26px;
-    height: 32px;
   }
   .plant-title-sign::after {
     top: -10px;
@@ -2229,7 +2212,33 @@ h3 {
   justify-content: center;
   gap: 8px;
   max-width: calc(100% - 18px);
+  margin: 8px auto 0;
+}
+.friend-card .f-plant-name {
+  position: relative;
+  width: fit-content;
+  max-width: calc(100% - 18px);
   margin: 10px auto 0;
+  padding: 0 12px;
+  color: var(--garden-title-text);
+  font-family: 'Jua', 'Fredoka', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.05;
+  text-align: center;
+  overflow-wrap: anywhere;
+  text-shadow:
+    0 1px 0 var(--border-strong),
+    0 5px 14px rgba(83, 123, 96, 0.12);
+}
+.friend-card .f-plant-name::after {
+  content: '';
+  display: block;
+  width: min(96px, 68%);
+  height: 3px;
+  margin: 6px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--green-300), transparent);
 }
 .friend-card .f-avatar {
   flex: 0 0 auto;

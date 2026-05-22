@@ -375,21 +375,26 @@
         leafCount: row.friend ? row.friend.leaf_count : 0,
         profileIcon: row.friend ? row.friend.profile_icon : null,
         species: null,
+        plantName: '',
       }));
 
-      // each friend's mini-plant should match their real species. Active plants
-      // are world-readable (plants_select RLS), so fetch them in one batch.
+      // Each friend's mini-plant should match their real active plant, including
+      // the species and plant name shown on the neighbor card.
       const ids = friends.map(f => f.id).filter(Boolean);
       if (ids.length) {
         const { data: plants, error: pErr } = await sb
           .from('plants')
-          .select('owner_id, species')
+          .select('owner_id, species, name')
           .in('owner_id', ids)
           .is('archived_at', null);
         if (!pErr && plants) {
           const byOwner = {};
-          plants.forEach(p => { byOwner[p.owner_id] = p.species; });
-          friends.forEach(f => { if (f.id in byOwner) f.species = byOwner[f.id]; });
+          plants.forEach(p => { byOwner[p.owner_id] = p; });
+          friends.forEach(f => {
+            if (!(f.id in byOwner)) return;
+            f.species = byOwner[f.id].species;
+            f.plantName = byOwner[f.id].name || '';
+          });
         }
       }
       return friends;

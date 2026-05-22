@@ -1266,6 +1266,7 @@ async function renderGarden() {
     friends.forEach(f => {
       const stage = stageInfo(f.leafCount);
       const icon = profileIcon({ display_name: f.name, profile_icon: f.profileIcon });
+      const plantName = (f.plantName && f.plantName.trim()) || t('plant.history.unnamed');
       const card = document.createElement('div');
       card.className = 'friend-card';
       card.innerHTML = `
@@ -1275,6 +1276,7 @@ async function renderGarden() {
           <div class="ground"></div>
           <div class="pot-base"></div>
         </div>
+        <div class="f-plant-name">${escapeHtml(plantName)}</div>
         <div class="friend-person">
           <span class="f-avatar">${escapeHtml(icon)}</span>
           <span class="f-name">${escapeHtml(f.name)}</span>
