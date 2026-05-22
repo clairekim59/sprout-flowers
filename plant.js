@@ -188,8 +188,12 @@ function drawPlant(leaves, svg, opts) {
 function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive, sp, uid) {
   sp = sp || PLANT_SPECIES[0];
   const pos = svgEl('g', { transform: `translate(${x}, ${y}) rotate(${side * 35})` }, parent);
+  const unread = leaf && leaf.read === false; // a message the owner hasn't opened
   const g = svgEl('g', {
-    class: 'leaf' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+    class: 'leaf'
+      + (animate && !unread ? ' grow-in' : '')
+      + (unread ? ' unread' : '')
+      + (interactive === false ? ' static' : ''),
     style: `--growth-drift:${idx % 7}`,
   }, pos);
 
@@ -227,7 +231,7 @@ function drawLeaf(parent, x, y, side, leaf, animate, idx, interactive, sp, uid) 
   }
 
   if (interactive !== false && typeof openLeaf === 'function') {
-    g.addEventListener('click', () => openLeaf(leaf));
+    g.addEventListener('click', () => { g.classList.remove('unread'); openLeaf(leaf); });
   }
   const t = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
   g.setAttribute('aria-label', leaf.anon ? t('leaf.from.anon') : t('leaf.from.named', { name: leaf.fromName }));
@@ -238,8 +242,12 @@ function drawFlower(parent, x, y, side, leaf, animate, interactive, sp, uid) {
   sp = sp || PLANT_SPECIES[0];
   const pos = svgEl('g', { transform: `translate(${x}, ${y})` }, parent);
   const drift = Math.abs(Math.round(x + y + side * 13)) % 7;
+  const unread = leaf && leaf.read === false; // a message the owner hasn't opened
   const g = svgEl('g', {
-    class: 'flower' + (animate ? ' grow-in' : '') + (interactive === false ? ' static' : ''),
+    class: 'flower'
+      + (animate && !unread ? ' grow-in' : '')
+      + (unread ? ' unread' : '')
+      + (interactive === false ? ' static' : ''),
     style: `--growth-drift:${drift}`,
   }, pos);
 
@@ -310,7 +318,7 @@ function drawFlower(parent, x, y, side, leaf, animate, interactive, sp, uid) {
   }
 
   if (interactive !== false && typeof openLeaf === 'function') {
-    g.addEventListener('click', () => openLeaf(leaf));
+    g.addEventListener('click', () => { g.classList.remove('unread'); openLeaf(leaf); });
   }
   if (leaf) {
     const t = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
