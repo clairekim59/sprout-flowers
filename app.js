@@ -230,13 +230,12 @@ function go(name) {
 async function routeAfterAuth() {
   try {
     const plant = await db.currentPlant();
+    // an unseeded, empty active plant always needs a seed chosen — whether it's
+    // a brand-new account or the fresh plant left behind after graduating
     if (plant && plant.species == null) {
       const me = await db.currentProfile();
       const hasLeaves = me && (me.leaf_count || 0) > 0;
-      if (!hasLeaves) {
-        const history = await db.plantHistory();
-        if (!history.length) { go('onboarding'); return; }
-      }
+      if (!hasLeaves) { go('onboarding'); return; }
     }
   } catch (err) { console.error(err); }
   go('main');
@@ -285,6 +284,13 @@ function buildSeedGrid() {
     `;
     grid.appendChild(btn);
   });
+}
+
+// open the seed picker straight away (used after graduating: returning growers
+// skip the welcome guideline and go right to choosing their next mystery seed)
+function goSeedSelection() {
+  go('onboarding');     // shows the view + builds a fresh shuffled seed grid
+  showOnboardStep(2);   // jump past the welcome step to the picker
 }
 
 function renderOnboarding() {
@@ -1000,7 +1006,7 @@ document.getElementById('graduateBtn').addEventListener('click', async () => {
   try {
     await db.graduatePlant();
     toast(t('plant.graduate.toast'));
-    renderMain();
+    goSeedSelection(); // the fresh plant is unseeded — let them pick its species
   } catch (err) {
     console.error(err);
     toast(t('plant.graduate.fail'), 'pink');
