@@ -156,10 +156,13 @@ function drawPlant(leaves, svg, opts) {
 
   // newest first: index 0 sits at the top of the stem, last at the base.
   const ordered = leaves.slice().reverse();
+  const crownLeaf = (n >= 6 && n >= sp.bloomFrom) ? ordered[0] : null;
+  const stemLeaves = crownLeaf ? ordered.slice(1) : ordered;
+  const stemFlowerCount = Math.max(0, Math.floor(n / 4) + 1 - (crownLeaf ? 1 : 0));
   const stemLen = stemEl.getTotalLength();
 
-  ordered.forEach((leaf, i) => {
-    const tParam = (i + 1) / (n + 1);
+  stemLeaves.forEach((leaf, i) => {
+    const tParam = (i + 1) / (stemLeaves.length + 1);
     const dist = stemLen * (1 - tParam);
     const pt = stemEl.getPointAtLength(dist);
     const side = i % 2 === 0 ? -1 : 1;
@@ -167,16 +170,17 @@ function drawPlant(leaves, svg, opts) {
     const y = pt.y;
 
     // newest growth at the top blooms into this species' flower
-    const isFlower = (n >= sp.bloomFrom) && (i < Math.floor(n / 4) + 1);
+    const isFlower = (n >= sp.bloomFrom) && (i < stemFlowerCount);
+    const animate = !crownLeaf && i === 0;
 
     if (isFlower) {
-      drawFlower(swayGroup, x, y, side, leaf, i === 0, interactive, sp, uid);
+      drawFlower(swayGroup, x, y, side, leaf, animate, interactive, sp, uid);
     } else {
-      drawLeaf(swayGroup, x, y, side, leaf, i === 0, i, interactive, sp, uid);
+      drawLeaf(swayGroup, x, y, side, leaf, animate, i, interactive, sp, uid);
     }
   });
 
-  if (n >= 6) drawTopBud(swayGroup, 200, stemTopY, n >= sp.bloomFrom, sp, uid, ordered[0], interactive);
+  if (n >= 6) drawTopBud(swayGroup, 200, stemTopY, n >= sp.bloomFrom, sp, uid, crownLeaf, interactive);
 }
 
 // ---------- leaves (species-aware shapes) ----------
