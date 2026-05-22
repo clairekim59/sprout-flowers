@@ -599,6 +599,20 @@ h3 {
   box-shadow: 0 0 0 4px var(--pink-100);
 }
 .form textarea { resize: vertical; min-height: 90px; }
+.form textarea.over-limit {
+  border-color: var(--pink-500);
+  box-shadow: 0 0 0 4px rgba(225, 90, 115, 0.12);
+}
+.char-counter {
+  align-self: flex-end;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+.char-counter.over {
+  color: #e15a73;
+}
 
 .form .check {
   flex-direction: row;
@@ -1245,6 +1259,16 @@ h3 {
   margin: 14px 24px 24px;
   padding-top: 14px;
   border-top: 1px dashed var(--green-100);
+}
+#view-main .card {
+  border-radius: 14px;
+}
+#view-main .stat,
+#view-main .plant-title-sign,
+#view-main .plant-stage-banner,
+#view-main .plant-area,
+#view-main .past-card {
+  border-radius: 10px;
 }
 @media (max-width: 520px) {
   .plant-card-header {

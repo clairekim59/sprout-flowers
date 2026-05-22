@@ -28,6 +28,22 @@ function randomCuteName() { return `${pick(CUTE_ADJ)}${cap(pick(CUTE_NOUN))}`; }
 function randomCuteMsg()  { return window.i18n ? window.i18n.randomMsg() : pick(['you make the world brighter ✿']); }
 const t  = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MESSAGE_CHAR_LIMIT = 240;
+
+function messageCharCount(value) {
+  return (value || '').length;
+}
+
+function updateSendCharCount() {
+  const msgEl = document.getElementById('sendMsg');
+  const countEl = document.getElementById('sendCharCount');
+  if (!msgEl || !countEl) return;
+  const count = messageCharCount(msgEl.value);
+  const over = count > MESSAGE_CHAR_LIMIT;
+  countEl.textContent = t('send.characters', { count, limit: MESSAGE_CHAR_LIMIT });
+  countEl.classList.toggle('over', over);
+  msgEl.classList.toggle('over-limit', over);
+}
 
 function parsePlantDate(value) {
   if (!value) return '';
@@ -36,13 +52,7 @@ function parsePlantDate(value) {
   return date;
 }
 
-function formatPlantDate(value) {
-  const date = parsePlantDate(value);
-  if (!date) return '';
-  return date.toLocaleDateString();
-}
-
-function formatPlantStart(value) {
+function formatPlantAge(value) {
   const date = parsePlantDate(value);
   if (!date) return '';
   const ageMs = Date.now() - date.getTime();
@@ -95,8 +105,8 @@ function stageNameForKey(key) {
 
 function plantHistoryMeta(plant) {
   const count = plant.final_leaf_count || 0;
-  const start = formatPlantStart(plant.created_at);
-  const end = formatPlantDate(plant.archived_at);
+  const start = formatPlantAge(plant.created_at);
+  const end = formatPlantAge(plant.archived_at);
   if (start && end) return t('plant.history.meta', { count, start, end });
   if (end) return t('plant.history.leaves', { count, date: end });
   return t('plant.history.count', { count });
@@ -976,6 +986,7 @@ function openModal(id, preset) {
     document.getElementById('sendError').textContent = '';
     document.getElementById('sendSuccess').textContent = '';
     document.getElementById('sendMsg').placeholder = randomCuteMsg();
+    updateSendCharCount();
     document.getElementById('sendToDropdown').hidden = true;
     if (preset && preset.to) {
       document.getElementById('sendTo').value = preset.to;
@@ -1036,6 +1047,9 @@ function renderNeighborDropdown(filter) {
     document.getElementById('sendMsg').focus();
   });
 })();
+
+document.getElementById('sendMsg').addEventListener('input', updateSendCharCount);
+
 function closeAllModals() {
   document.querySelectorAll('.modal').forEach(m => m.hidden = true);
 }
@@ -1056,16 +1070,26 @@ document.querySelectorAll('.modal').forEach(m => {
 // ---------- send ----------
 document.getElementById('sendForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const me = await db.currentProfile();
-  if (!me) return;
-
   const to     = document.getElementById('sendTo').value.trim();
   const msgEl  = document.getElementById('sendMsg');
-  const msg    = (msgEl.value.trim() || msgEl.placeholder || t('send.fallback')).slice(0, 240);
+  const msg    = msgEl.value.trim() || msgEl.placeholder || t('send.fallback');
   const anon   = document.getElementById('sendAnon').checked;
   const errEl  = document.getElementById('sendError');
   const okEl   = document.getElementById('sendSuccess');
   errEl.textContent = ''; okEl.textContent = '';
+  updateSendCharCount();
+  const charCount = messageCharCount(msgEl.value);
+  if (charCount > MESSAGE_CHAR_LIMIT) {
+    errEl.textContent = t('send.error.charLimit', {
+      count: charCount,
+      limit: MESSAGE_CHAR_LIMIT,
+    });
+    msgEl.focus();
+    return;
+  }
+
+  const me = await db.currentProfile();
+  if (!me) return;
 
   const submitBtn = e.target.querySelector('button[type=submit]');
   submitBtn.disabled = true;
@@ -1083,6 +1107,7 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
     // to the same person; just clear the message and refresh the suggestion
     msgEl.value = '';
     msgEl.placeholder = randomCuteMsg();
+    updateSendCharCount();
     msgEl.focus();
     toast(t('send.toast'));
   } catch (err) {
@@ -1698,6 +1723,7 @@ document.addEventListener('visibilitychange', () => {
       // re-pick random cute message placeholder if the send modal is open
       if (!document.getElementById('modal-send').hidden) {
         document.getElementById('sendMsg').placeholder = randomCuteMsg();
+        updateSendCharCount();
       }
       // refresh leaf modal button state if open
       if (!document.getElementById('modal-leaf').hidden && currentLeaf) {
