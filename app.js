@@ -152,6 +152,7 @@ document.getElementById('onboardFinishBtn').addEventListener('click', async () =
     await db.chooseSeed(plant.id, onboardSeedSpecies, name);
     toast(t('signup.welcome', { name }));
     go('main');
+    consumePendingSend();
   } catch (err) {
     console.error(err);
     errEl.textContent = t('onboard.fail');
@@ -544,9 +545,11 @@ async function sharePlant(plantId, plantName) {
   try {
     const shareId = await db.enablePlantShare(plantId);
     const url = `${location.origin}/p/${shareId}`;
+    // Keep the share body URL-only. Some share targets concatenate `url` and
+    // `text` without whitespace, which can turn /<uuid> + a plant name into
+    // a broken link like /<uuid>Second.
     const shareData = {
       title: t('share.title'),
-      text: plantName ? `${plantName} ✿ — ${t('share.text')}` : t('share.text'),
       url,
     };
     if (navigator.share) {
