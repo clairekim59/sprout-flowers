@@ -1290,7 +1290,7 @@ async function renderGarden() {
       const dummyLeaves = Array.from({ length: f.leafCount }, () => ({
         msg: '', anon: false, fromName: f.name, fromId: f.sproutId, at: 0,
       }));
-      drawPlant(dummyLeaves, svg, { interactive: false });
+      drawPlant(dummyLeaves, svg, { interactive: false, species: f.species });
     });
   }
 
