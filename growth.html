@@ -7,6 +7,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // match the saved light/dark theme (same bootstrap as index.html)
+  (function () {
+    try {
+      var saved = localStorage.getItem('sprout.theme');
+      var theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    } catch (_) {}
+  })();
+</script>
 <link rel="stylesheet" href="styles.css"/>
 <style>
   body { padding-bottom: 60px; }
@@ -250,6 +261,7 @@
 <h2 class="grid-title">— meet the six plants —</h2>
 <div class="grid" id="speciesGrid"></div>
 
+<script src="i18n.js"></script>
 <script src="plant.js"></script>
 <script>
   // fake leaves: drawPlant only reads .length (and per-leaf props for click
