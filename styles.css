@@ -351,24 +351,6 @@ body.breezy { --breeze: 1; }
   initial-value: 0;
 }
 
-/* petals the breeze carries across the garden (spawned by app.js on a gust) */
-.petal {
-  position: fixed;
-  top: -30px;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
-  will-change: transform, opacity;
-  filter: drop-shadow(0 2px 4px rgba(255, 143, 174, 0.2));
-  animation: petal-drift var(--petal-dur, 9s) linear forwards;
-}
-@keyframes petal-drift {
-  0%   { opacity: 0;   transform: translate(0, -10px) rotate(0deg); }
-  12%  { opacity: 0.6; }
-  88%  { opacity: 0.5; }
-  100% { opacity: 0;   transform: translate(var(--petal-dx, 80px), 112vh) rotate(var(--petal-rot, 400deg)); }
-}
-
 /* ---------- views ---------- */
 .view {
   position: relative;
@@ -1736,7 +1718,6 @@ h3 {
 
 @media (prefers-reduced-motion: reduce) {
   .floaty,
-  .petal,
   .page-title::before,
   .page-title::after,
   .plant-title-sign,

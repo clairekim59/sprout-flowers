@@ -1817,62 +1817,40 @@ document.addEventListener('visibilitychange', () => {
 // ---------- garden breeze ----------
 // Makes the page feel like a living garden: a gentle wind that gusts on its own
 // and in response to the visitor (scrolling, moving the cursor, tapping). Each
-// gust ramps the --breeze custom property so the plant + floaties sway harder,
-// and now and then carries a petal across the screen. Honors reduced-motion and
-// pauses while the tab is hidden.
+// gust ramps the --breeze custom property so the plant + floaties sway harder.
+// Honors reduced-motion and pauses while the tab is hidden.
 (function gardenBreeze() {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (reduceMotion.matches) return;
 
   const body = document.body;
-  const PETALS = ['✿', '❀', '✾', '🌸', '🌷'];
   let gustOffTimer = null;
   let ambientTimer = null;
   let lastGust = 0;
-  let livePetals = 0;
 
-  function spawnPetal() {
-    if (livePetals >= 6 || document.hidden) return;
-    livePetals++;
-    const el = document.createElement('span');
-    el.className = 'petal';
-    el.textContent = PETALS[Math.floor(Math.random() * PETALS.length)];
-    el.style.left = (2 + Math.random() * 90) + 'vw';
-    el.style.fontSize = (13 + Math.random() * 10) + 'px';
-    el.style.setProperty('--petal-dx', (50 + Math.random() * 130) + 'px');
-    el.style.setProperty('--petal-rot', (180 + Math.random() * 360) + 'deg');
-    el.style.setProperty('--petal-dur', (8 + Math.random() * 5) + 's');
-    el.addEventListener('animationend', () => { el.remove(); livePetals--; });
-    body.appendChild(el);
-  }
-
-  function gust(withPetals) {
+  function gust() {
     body.classList.add('breezy');
     clearTimeout(gustOffTimer);
     gustOffTimer = setTimeout(() => body.classList.remove('breezy'),
       1700 + Math.random() * 1800);
     lastGust = Date.now();
-    if (withPetals) {
-      const n = 1 + Math.floor(Math.random() * 2);
-      for (let i = 0; i < n; i++) setTimeout(spawnPetal, i * 650);
-    }
   }
 
   function scheduleAmbient() {
     clearTimeout(ambientTimer);
     ambientTimer = setTimeout(() => {
-      if (!document.hidden) gust(Math.random() < 0.6);
+      if (!document.hidden) gust();
       scheduleAmbient();
     }, 7000 + Math.random() * 9000);
   }
 
   // a gust in response to the visitor, but not more than ~once every 5s
   function onActivity() {
-    if (Date.now() - lastGust > 5200) gust(Math.random() < 0.4);
+    if (Date.now() - lastGust > 5200) gust();
   }
 
   scheduleAmbient();
-  setTimeout(() => gust(false), 1200); // a first soft breath shortly after load
+  setTimeout(gust, 1200); // a first soft breath shortly after load
 
   window.addEventListener('scroll', onActivity, { passive: true });
   document.addEventListener('click', onActivity);
