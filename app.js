@@ -29,9 +29,43 @@ function randomCuteMsg()  { return window.i18n ? window.i18n.randomMsg() : pick(
 const t  = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MESSAGE_CHAR_LIMIT = 240;
+const DAILY_NOTE_LIMIT = 3; // notes a user may send per (UTC) day; enforced in the DB too
+let notesLeftToday = null;  // null until first fetched this session
 
 function messageCharCount(value) {
   return (value || '').length;
+}
+
+// reflect the remaining daily-note allowance in the send modal and gate the
+// submit button. The DB trigger is the real cap; this just keeps the UI honest.
+function applyDailyLimitState() {
+  const submitBtn = document.querySelector('#sendForm button[type=submit]');
+  if (submitBtn) submitBtn.disabled = (notesLeftToday === 0);
+}
+
+async function refreshDailyNoteCount() {
+  const el = document.getElementById('sendDailyCount');
+  let sent = 0;
+  try { sent = await db.notesSentToday(); } catch (_) { sent = 0; }
+  notesLeftToday = Math.max(0, DAILY_NOTE_LIMIT - sent);
+  if (el) {
+    el.textContent = notesLeftToday > 0
+      ? t('send.daily.left', { count: notesLeftToday, limit: DAILY_NOTE_LIMIT })
+      : t('send.daily.none');
+    el.classList.toggle('none', notesLeftToday === 0);
+  }
+  applyDailyLimitState();
+}
+
+function updateSendCharCount() {
+  const msgEl = document.getElementById('sendMsg');
+  const countEl = document.getElementById('sendCharCount');
+  if (!msgEl || !countEl) return;
+  const count = messageCharCount(msgEl.value);
+  const over = count > MESSAGE_CHAR_LIMIT;
+  countEl.textContent = t('send.characters', { count, limit: MESSAGE_CHAR_LIMIT });
+  countEl.classList.toggle('over', over);
+  msgEl.classList.toggle('over-limit', over);
 }
 
 function updateSendCharCount() {
@@ -1034,7 +1068,8 @@ function openModal(id, preset) {
     if (preset && preset.to) {
       document.getElementById('sendTo').value = preset.to;
     }
-    loadSendNeighbors(); // populate the to-field dropdown
+    loadSendNeighbors();      // populate the to-field dropdown
+    refreshDailyNoteCount();  // show how many notes are left today
   }
 }
 
@@ -1134,6 +1169,10 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
     msgEl.focus();
     return;
   }
+  if (notesLeftToday === 0) {
+    errEl.textContent = t('send.daily.none');
+    return;
+  }
 
   const me = await db.currentProfile();
   if (!me) return;
@@ -1157,17 +1196,21 @@ document.getElementById('sendForm').addEventListener('submit', async e => {
     updateSendCharCount();
     msgEl.focus();
     toast(t('send.toast'));
+    await refreshDailyNoteCount(); // one fewer note left today
   } catch (err) {
     console.error(err);
-    // the DB caps each plant at MAX_LEAVES and raises PLANT_FULL past it
+    // the DB enforces both caps and raises a sentinel for each
     if (err && /PLANT_FULL/.test(err.message || '')) {
       errEl.textContent = t('send.error.full', { limit: MAX_LEAVES });
+    } else if (err && /DAILY_LIMIT/.test(err.message || '')) {
+      errEl.textContent = t('send.daily.none');
+      await refreshDailyNoteCount();
     } else {
       errEl.textContent = (err && err.message) || t('common.error.generic');
     }
   } finally {
-    submitBtn.disabled = false;
     submitBtn.textContent = t('send.submit');
+    submitBtn.disabled = (notesLeftToday === 0); // stay disabled once out of notes
   }
 });
 

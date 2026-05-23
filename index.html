@@ -142,7 +142,7 @@
     <div class="brand" data-go="main"><span class="logo small">Sprout</span></div>
     <nav class="nav">
       <button class="navbtn" data-open="garden" data-i18n="nav.garden">neighbors 🏡</button>
-      <button class="navbtn" data-open="send" data-i18n="nav.send">send a note ✉</button>
+      <button class="navbtn" data-open="send" data-i18n="nav.send">send a note 📝</button>
       <div class="profile-menu">
         <button class="profile-btn" id="profileBtn" type="button" aria-haspopup="true" aria-expanded="false" data-i18n-title="nav.menu">
           <span class="profile-avatar" id="navAvatar">✿</span>
@@ -150,7 +150,7 @@
         <ul class="profile-dropdown" id="profileDropdown" hidden>
           <li><button class="pd-item" type="button" data-go="main" data-i18n="main.title">my garden</button></li>
           <li><button class="pd-item" type="button" data-open="sent" data-i18n="nav.sent">my sent ♡</button></li>
-          <li><button class="pd-item" type="button" data-open="settings" data-i18n="settings.menu">settings</button></li>
+          <li><button class="pd-item" type="button" data-open="settings" data-i18n="settings.menu">settings ⚙️</button></li>
           <li><button class="pd-item pd-danger" type="button" data-action="logout" data-i18n="nav.logout">log out</button></li>
         </ul>
       </div>
@@ -237,7 +237,7 @@
 <div class="modal" id="modal-send" hidden>
   <div class="modal-card">
     <button class="x" data-close>✕</button>
-    <h2 data-i18n="send.title">send a kind note ✉</h2>
+    <h2 data-i18n="send.title">send a kind note 📝</h2>
     <p class="muted" data-i18n="send.subtitle">your words will grow a new leaf on their plant ♡</p>
     <form id="sendForm" class="form">
       <label>
@@ -256,6 +256,7 @@
         <input type="checkbox" id="sendAnon"/>
         <span data-i18n="send.anon">send anonymously (they won't see who, but your sent box will remember)</span>
       </label>
+      <p class="send-daily" id="sendDailyCount" aria-live="polite"></p>
       <button class="btn btn-green" type="submit" data-i18n="send.submit">send & sprout 🌱</button>
       <p class="error" id="sendError"></p>
       <p class="success" id="sendSuccess"></p>

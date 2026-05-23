@@ -688,6 +688,15 @@ h3 {
 .char-counter.over {
   color: #e15a73;
 }
+.send-daily {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.send-daily:empty { display: none; }
+.send-daily.none { color: #e15a73; }
 
 .form .check {
   flex-direction: row;

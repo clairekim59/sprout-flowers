@@ -286,6 +286,22 @@
       if (error) throw error;
     },
 
+    // how many notes the current user has sent since UTC midnight today.
+    // Mirrors the daily cap enforced in the message-insert trigger.
+    async notesSentToday() {
+      const me = await this.currentProfile();
+      if (!me) return 0;
+      const since = new Date();
+      since.setUTCHours(0, 0, 0, 0);
+      const { count, error } = await sb
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('sender_id', me.id)
+        .gte('created_at', since.toISOString());
+      if (error) { console.error(error); return 0; }
+      return count || 0;
+    },
+
     async inbox() {
       const me = await this.currentProfile();
       if (!me) return [];
