@@ -29,7 +29,7 @@ function randomCuteMsg()  { return window.i18n ? window.i18n.randomMsg() : pick(
 const t  = (k, vars) => (window.i18n ? window.i18n.t(k, vars) : k);
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MESSAGE_CHAR_LIMIT = 240;
-const DAILY_NOTE_LIMIT = 3; // notes a user may send per (UTC) day; enforced in the DB too
+const DAILY_NOTE_LIMIT = 3; // notes a user may send per day (resets midnight MST); enforced in the DB too
 let notesLeftToday = null;  // null until first fetched this session
 
 function messageCharCount(value) {

@@ -3,10 +3,10 @@
 -- Run once in Supabase Dashboard → SQL Editor (after migration-leaf-cap.sql).
 --
 -- Redefines the message-insert trigger to also cap how many notes a single
--- sender can send per UTC day. Past the cap, inserts raise DAILY_LIMIT, which
--- the app shows as "you've sent all of today's notes — come back tomorrow".
--- The window resets at UTC midnight. Keeps the existing recipient checks,
--- active-plant resolution, and 12-leaf cap from earlier migrations.
+-- sender can send per day. Past the cap, inserts raise DAILY_LIMIT, which the
+-- app shows as "you've sent all of today's notes — come back tomorrow".
+-- The window resets at midnight MST (America/Phoenix, fixed UTC-7, no DST).
+-- Keeps the existing recipient checks, active-plant resolution, and 12-leaf cap.
 -- ============================================================
 
 create or replace function public.set_plant_id_on_message_insert()
@@ -27,11 +27,11 @@ begin
     raise exception 'recipient is required';
   end if;
 
-  -- daily send cap: at most 3 notes per sender since UTC midnight
+  -- daily send cap: at most 3 notes per sender since midnight MST (America/Phoenix)
   select count(*) into sent_today
     from public.messages
     where sender_id = NEW.sender_id
-      and created_at >= date_trunc('day', now());
+      and created_at >= (date_trunc('day', now() at time zone 'America/Phoenix') at time zone 'America/Phoenix');
   if sent_today >= 3 then
     raise exception 'DAILY_LIMIT' using errcode = 'check_violation';
   end if;

@@ -286,13 +286,15 @@
       if (error) throw error;
     },
 
-    // how many notes the current user has sent since UTC midnight today.
-    // Mirrors the daily cap enforced in the message-insert trigger.
+    // how many notes the current user has sent since midnight MST today.
+    // Mirrors the daily cap enforced in the message-insert trigger. MST is
+    // America/Phoenix — fixed UTC-7, no DST — so MST midnight is 07:00 UTC.
     async notesSentToday() {
       const me = await this.currentProfile();
       if (!me) return 0;
-      const since = new Date();
-      since.setUTCHours(0, 0, 0, 0);
+      const mst = new Date(Date.now() - 7 * 60 * 60 * 1000); // shift to MST wall clock
+      const since = new Date(Date.UTC(
+        mst.getUTCFullYear(), mst.getUTCMonth(), mst.getUTCDate(), 7, 0, 0, 0));
       const { count, error } = await sb
         .from('messages')
         .select('id', { count: 'exact', head: true })
