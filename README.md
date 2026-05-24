@@ -74,7 +74,8 @@ sprout-flowers/
 ├── styles.css        # the whole pink→green look & feel
 ├── growth.html       # plant growth gallery
 ├── api/share.js      # Vercel function — per-plant OpenGraph link previews
-└── supabase/         # setup.sql + migration-*.sql (schema, RLS, triggers, RPCs)
+├── supabase/         # setup.sql + migration-*.sql (schema, RLS, triggers, RPCs)
+└── CLAUDE.md         # architecture + conventions brief for AI coding agents
 ```
 
 ## ✿ Running it locally
@@ -88,6 +89,10 @@ python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
 To run against your own backend, create a free [Supabase](https://supabase.com) project and, in the SQL editor, run `supabase/setup.sql` first, then the `supabase/migration-*.sql` files. Finally drop your project URL + anon key into `config.js`. The anon key is safe to expose — access is governed entirely by Row-Level Security.
+
+## ✿ Built to be AI-agent friendly
+
+The repo ships a [`CLAUDE.md`](./CLAUDE.md) — an architecture-and-conventions brief that [Claude Code](https://claude.com/claude-code) and other AI coding agents read on entry. It captures the things that take a human a while to piece together: the fixed script load order, `db.js` as the single Supabase layer, the manual-migration workflow (so client code keeps graceful fallbacks), the `/p/<id>` → serverless OpenGraph rewrite, and invariants like "the leaf cap lives in three places — keep them in sync." Much of this app — the link-preview function, server-side read state, the breeze, the daily limits — was built in tight human-in-the-loop sessions with an agent, then verified with headless-browser screenshots. The brief is what keeps those sessions productive instead of re-deriving the architecture each time.
 
 ## ✿ About the developer
 
